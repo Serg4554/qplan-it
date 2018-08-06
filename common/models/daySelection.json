@@ -1,0 +1,27 @@
+{
+  "name": "DaySelection",
+  "base": "Model",
+  "strict": true,
+  "idInjection": false,
+  "properties": {
+    "id": false,
+    "date": {
+      "type": "Date",
+      "required": true
+    }
+  },
+  "relations": {
+    "_period": {
+      "type": "embedsOne",
+      "model": "Period",
+      "property": "period"
+    },
+    "_blockedPeriods": {
+      "type": "embedsMany",
+      "model": "Period",
+      "property": "blockedPeriods"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

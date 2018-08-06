@@ -1,0 +1,28 @@
+{
+  "name": "Period",
+  "base": "Model",
+  "strict": true,
+  "idInjection": false,
+  "properties": {
+    "id": false,
+    "startHour": {
+      "type": "Number",
+      "required": false
+    },
+    "startMinute": {
+      "type": "Number",
+      "required": true
+    },
+    "endHour": {
+      "type": "Number",
+      "required": true
+    },
+    "endMinute": {
+      "type": "Number",
+      "required": true
+    }
+  },
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

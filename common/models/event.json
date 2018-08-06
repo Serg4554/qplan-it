@@ -1,0 +1,109 @@
+{
+  "name": "event",
+  "plural": "events",
+  "base": "PersistedModel",
+  "strict": true,
+  "idInjection": false,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "id": {
+      "type": "String",
+      "id": true
+    },
+    "title": {
+      "type": "String",
+      "required": true
+    },
+    "password": {
+      "type": "String",
+      "required": false
+    },
+    "creationDate": {
+      "type": "Date",
+      "required": true,
+      "default": "$now"
+    },
+    "expirationDate": {
+      "type": "Date",
+      "required": false
+    },
+    "timezone": {
+      "type": "Number",
+      "required": true
+    },
+    "claimToken": {
+      "type": "String",
+      "required": false
+    }
+  },
+  "relations": {
+    "_days": {
+      "property": "days",
+      "type": "embedsMany",
+      "model": "DaySelection"
+    },
+    "_definitive": {
+      "property": "definitive",
+      "type": "embedsOne",
+      "model": "DaySelection"
+    },
+    "owner": {
+      "foreignKey": "ownerId",
+      "type": "belongsTo",
+      "model": "user"
+    }
+  },
+  "hidden": ["password", "claimToken"],
+  "acls": [
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "DENY"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "create"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "exists"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "findById"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "deleteById"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "replaceById"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$owner",
+      "permission": "ALLOW",
+      "property": "patchAttributes"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "claim"
+    }
+  ],
+  "methods": {}
+}

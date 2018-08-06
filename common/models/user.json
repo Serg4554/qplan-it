@@ -1,0 +1,27 @@
+{
+  "name": "user",
+  "plural": "users",
+  "base": "User",
+  "strict": true,
+  "excludeBaseProperties": ["username", "realm"],
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "String",
+      "required": true
+    },
+    "surname": {
+      "type": "String",
+      "required": false
+    },
+    "timezone": {
+      "type": "Number",
+      "required": true
+    }
+  },
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

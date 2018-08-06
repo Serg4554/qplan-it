@@ -1,0 +1,33 @@
+.backgroundHeader {
+  position: absolute;
+  background: linear-gradient(45deg, #eb3349, #f45c43);
+  width: 100%;
+  z-index: -1;
+}
+
+.contentHeader {
+  color: white;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.createEventLayout {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 600px;
+  text-align: center;
+}
+
+.buttonLoading {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -12px;
+  margin-left: -12px;
+}
