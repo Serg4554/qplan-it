@@ -16,6 +16,10 @@
       "type": "String",
       "required": false
     },
+    "language": {
+      "type": "String",
+      "required": true
+    },
     "timezone": {
       "type": "Number",
       "required": true
