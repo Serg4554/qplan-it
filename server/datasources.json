@@ -8,5 +8,21 @@
     "name": "db",
     "user": "",
     "connector": "mongodb"
+  },
+  "email": {
+    "connector": "mail",
+    "transports": [{
+      "type": "smtp",
+      "host": "cpanel.nodenet.net",
+      "secure": true,
+      "port": 465,
+      "tls": {
+        "rejectUnauthorized": false
+      },
+      "auth": {
+        "user": "no-reply@qplan.it",
+        "pass": "t.CoJH7Oy}7y..@J(Z"
+      }
+    }]
   }
 }

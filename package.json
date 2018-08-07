@@ -23,7 +23,8 @@
     "rand-token": "^0.4.0",
     "serve-favicon": "^2.0.1",
     "shortid": "^2.2.12",
-    "strong-error-handler": "^2.0.0"
+    "strong-error-handler": "^2.0.0",
+    "validator": "^10.5.0"
   },
   "devDependencies": {
     "eslint": "^3.17.1",
