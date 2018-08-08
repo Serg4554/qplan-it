@@ -5,7 +5,8 @@
   "strict": true,
   "excludeBaseProperties": ["username", "realm"],
   "options": {
-    "validateUpsert": true
+    "validateUpsert": true,
+    "caseSensitiveEmail": false
   },
   "properties": {
     "name": {
