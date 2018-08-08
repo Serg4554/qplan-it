@@ -18,6 +18,7 @@ import DialogContentText from '@material-ui/core/DialogContentText';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Chip from '@material-ui/core/Chip';
 import TextField from "@material-ui/core/TextField";
+import withMobileDialog from '@material-ui/core/withMobileDialog';
 
 const mapStateToProps = state => {
   return {
@@ -26,7 +27,6 @@ const mapStateToProps = state => {
     loading: state.auth.loading || false,
     fail: state.auth.fail || false,
     recoveryPasswordSent: state.auth.recoveryPasswordSent || false,
-
     user: state.session.user,
     router: state.router
   }
@@ -47,11 +47,20 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 class Auth extends React.Component {
   componentWillReceiveProps(nextProps, nextContext) {
+    const location = this.props.router.location.pathname;
+    const nextLocation = nextProps.router.location.pathname;
+
     if(this.props.opened !== nextProps.opened) {
       this.setState({ email: "", password: "" });
-      if(this.props.router.location.pathname === "/login") {
+      if(!nextProps.opened && location === "/login" && nextLocation === "/login") {
         this.props.goToUrl("/")
       }
+    }
+
+    if(this.props.router.location.pathname === "/login" && nextLocation === "/") {
+      this.props.close();
+    } else if(!nextProps.opened && location === "/" && nextLocation === "/login") {
+      this.props.open();
     }
   }
 
@@ -116,7 +125,7 @@ class Auth extends React.Component {
   renderLogin() {
     return (
       <form id={1} onSubmit={e => { e.preventDefault(); this.handleLogin(); }} noValidate>
-        <DialogContent style={{padding: "0 24px", textAlign: "center", maxWidth: "400px"}}>
+        <DialogContent style={{padding: "0 24px", textAlign: "center"}}>
           <TextField
             autoFocus
             key="login"
@@ -172,8 +181,8 @@ class Auth extends React.Component {
   renderPasswordRecovery() {
     return (
       <form onSubmit={e => { e.preventDefault(); this.handlePasswordRecovery(); }} noValidate>
-        <DialogContent style={{padding: "0 24px", textAlign: "center", maxWidth: "400px"}}>
-          <DialogContentText style={{textAlign: "left"}}>
+        <DialogContent style={{padding: "0 24px", textAlign: "center"}}>
+          <DialogContentText style={{textAlign: "left", maxWidth: this.props.fullScreen ? "initial" : "400px"}}>
             <Translate value="passwordRecoveryMessage" />
           </DialogContentText>
 
@@ -230,6 +239,7 @@ class Auth extends React.Component {
         <Dialog
           open={!this.props.user && this.props.opened}
           onClose={() => this.props.close()}
+          fullScreen={this.props.fullScreen}
           aria-labelledby="login-title">
           <DialogTitle id="login-title">
             <Translate
@@ -251,4 +261,4 @@ Auth.propTypes = {
   style: PropTypes.object
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Auth);
+export default connect(mapStateToProps, mapDispatchToProps)(withMobileDialog()(Auth));

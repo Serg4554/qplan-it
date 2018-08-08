@@ -20,7 +20,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   }
 }, dispatch);
 
-const Welcome = (props) => {
+const Home = (props) => {
   return(
     <div>
       <div className="createEventLayout">
@@ -39,7 +39,7 @@ const Welcome = (props) => {
         </Button>
         <img
           src={"/mars.png"}
-          style={{marginTop: "50px"}}
+          style={{width: "100%", height: "auto", marginTop: "50px"}}
           alt="Mars"
         />
       </div>
@@ -47,4 +47,4 @@ const Welcome = (props) => {
   );
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Welcome);
+export default connect(mapStateToProps, mapDispatchToProps)(Home);

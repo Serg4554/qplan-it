@@ -6,6 +6,7 @@
 }
 
 .contentHeader {
+  padding: 0 20px;
   color: white;
   max-width: 1400px;
   margin: 0 auto;
@@ -13,6 +14,7 @@
 }
 
 .content {
+  padding: 20px;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -30,4 +32,47 @@
   left: 50%;
   margin-top: -12px;
   margin-left: -12px;
+}
+
+
+@media screen and (min-width: 501px) {
+  .title {
+    font-size: 110px;
+  }
+
+  .motto {
+    font-size: 30px;
+  }
+
+  .login {
+    float: right;
+    margin-top: -250px;
+  }
+}
+
+@media screen and (max-width: 900px) {
+  .login {
+    float: none;
+    margin: -30px 0 20px 0;
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .title {
+    font-size: 90px;
+  }
+
+  .motto {
+    font-size: 25px;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .title {
+    font-size: 60px;
+  }
+
+  .motto {
+    font-size: 17px;
+  }
 }
