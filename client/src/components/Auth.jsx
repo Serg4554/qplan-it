@@ -110,13 +110,13 @@ class Auth extends React.Component {
     if(this.props.fail) {
       return (
         <div style={{textAlign: "center"}}>
-          <Chip style={{marginTop: "24px", background: "#D50000", color: "#fff"}} label={<Translate value="invalidEmail" />} />
+          <Chip style={{margin: "10px", background: "#D50000", color: "#fff"}} label={<Translate value="invalidEmail" />} />
         </div>
       );
     } else if(this.props.recoveryPasswordSent) {
       return (
         <div style={{textAlign: "center"}}>
-          <Chip style={{marginTop: "24px", background: "#43A047", color: "#fff"}} label={<Translate value="recoveryPasswordEmailSent" />} />
+          <Chip style={{marginTop: "10px", background: "#43A047", color: "#fff"}} label={<Translate value="recoveryPasswordEmailSent" />} />
         </div>
       );
     }
