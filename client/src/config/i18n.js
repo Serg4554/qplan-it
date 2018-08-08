@@ -1,0 +1,45 @@
+export default {
+  // English
+  en: {
+    app_name: "QPlan it!",
+    motto: "Plan your events before Elon Musk arrives at Mars",
+    eventName: "Event name",
+    createEvent: "Create event",
+    login: "Log in",
+    email: "Email",
+    password: "Password",
+    signUp: "Sign up",
+    close: "Close",
+    enter: "Enter",
+    failLoginMessage: "Oops! Check the email and password",
+    recoverPassword: "Recover password",
+    recover: "Recover",
+    forgotPasswordQuest: "Forgot your password?",
+    passwordRecoveryMessage: "If you have lost your password, don't worry, we will send you an email so you can change it",
+    return: "Return",
+    invalidEmail: "Oops! There is no user with that email",
+    recoveryPasswordEmailSent: "Ready! Check your email to update your password",
+  },
+
+  // Spanish
+  es: {
+    app_name: "QPlan it!",
+    motto: "Planifica tus eventos en menos que Elon Musk llega a marte",
+    eventName: "Nombre del evento",
+    createEvent: "Crear evento",
+    login: "Iniciar sesión",
+    email: "Email",
+    password: "Contraseña",
+    signUp: "Registrarse",
+    close: "Cerrar",
+    enter: "Entrar",
+    failLoginMessage: "Ups! Compruebe el email y contraseña",
+    recoverPassword: "Recuperar contraseña",
+    recover: "Recuperar",
+    forgotPasswordQuest: "¿Olvidaste la contraseña?",
+    passwordRecoveryMessage: "Si has perdido tu contraseña, no te preocupes, te enviaremos un correo para que puedas cambiarla",
+    return: "Volver",
+    invalidEmail: "Ups! No hay ningún usuario con ese email",
+    recoveryPasswordEmailSent: "¡Listo! Comprueba tu correo para cambiar la contraseña",
+  }
+};
