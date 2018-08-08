@@ -51,7 +51,9 @@ class App extends Component {
         <Particles params={isMobile ? particlesStatic : particlesMotion} width="100%" height="400px" className="backgroundHeader" />
 
         <div className="contentHeader">
-          <h1 className="title" style={{margin: 0, paddingTop: "50px"}}><Translate value="app_name" /></h1>
+          <h1 className="title" style={{fontFamily: "Audiowide", margin: 0, paddingTop: "50px", cursor: "pointer"}} onClick={() => this.props.goToUrl("/")}>
+            <Translate value="app_name" />
+          </h1>
           <h2 className="motto" style={{margin: 0, paddingBottom: "50px"}}><Translate value="motto" /></h2>
           <div>
             <Auth className="login" />
