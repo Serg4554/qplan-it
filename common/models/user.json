@@ -25,6 +25,7 @@
       "required": true
     }
   },
+  "hidden": ["emailVerified"],
   "relations": {},
   "acls": [],
   "methods": {}
