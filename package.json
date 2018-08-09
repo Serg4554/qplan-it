@@ -16,15 +16,18 @@
     "cors": "^2.5.2",
     "hashids": "^1.1.4",
     "helmet": "^3.10.0",
+    "install": "^0.12.1",
     "loopback": "^3.19.0",
     "loopback-boot": "^2.6.5",
     "loopback-component-explorer": "^6.0.0",
     "loopback-connector-mongodb": "^3.3.1",
+    "npm": "^6.3.0",
     "password-validator": "^4.1.1",
     "rand-token": "^0.4.0",
     "serve-favicon": "^2.0.1",
     "shortid": "^2.2.12",
     "strong-error-handler": "^2.0.0",
+    "uuid-token-generator": "^1.0.0",
     "validator": "^10.5.0"
   },
   "devDependencies": {
