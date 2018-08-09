@@ -498,7 +498,6 @@ class Auth extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     return (
       <div className={this.props.className} style={this.props.style}>
         <Button
