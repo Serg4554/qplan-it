@@ -27,7 +27,9 @@ export default {
     userAlreadyExists: "There is already a user with that email",
     checkSignUpFields: "Please, verify that all fields are correct",
     signUpSuccessCheckEmail: "Great! You will receive an email, verify your account to log in",
-    weakPasswordMessage: "Sorry, the password is too weak"
+    weakPasswordMessage: "Sorry, the password is too weak",
+    verifyCaptcha: "Please, check the captcha",
+    enterYourEmail: "Enter your email"
   },
 
   // Spanish
@@ -58,6 +60,8 @@ export default {
     userAlreadyExists: "Ya existe un usuario con ese email",
     checkSignUpFields: "Por favor, comprueba que todos los campos sean correctos",
     signUpSuccessCheckEmail: "¡Genial! Recibirás un correo, verifica tu cuenta para acceder",
-    weakPasswordMessage: "Lo siento, la contraseña es muy débil"
+    weakPasswordMessage: "Lo siento, la contraseña es muy débil",
+    verifyCaptcha: "Por favor, verifica el captcha",
+    enterYourEmail: "Introduce tu email"
   }
 };

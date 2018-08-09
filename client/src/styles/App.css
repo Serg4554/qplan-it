@@ -34,6 +34,10 @@
   margin-left: -12px;
 }
 
+.recaptcha {
+  display: inline-block;
+}
+
 @media screen and (min-width: 901px) {
   .title {
     font-size: 110px;

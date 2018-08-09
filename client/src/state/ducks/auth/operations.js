@@ -50,6 +50,8 @@ const logout = () => dispatch => {
 
 const badRequest = actions.badRequest;
 
+const goodRequest = actions.goodRequest;
+
 const recoverPassword = (email) => dispatch => {
   dispatch(actions.passRecoveryReq());
 
@@ -81,6 +83,7 @@ export {
   login,
   logout,
   badRequest,
+  goodRequest,
   recoverPassword,
   signUp
 }

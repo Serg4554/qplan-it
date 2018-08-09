@@ -66,7 +66,13 @@ const reducer = (state = initialState, action) => {
     case types.BAD_REQUEST:
       return {
         ...state,
-        fail: action.payload.badRequest
+        fail: true
+      };
+
+    case types.GOOD_REQUEST:
+      return {
+        ...state,
+        fail: false
       };
 
     default:

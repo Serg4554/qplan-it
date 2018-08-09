@@ -25,9 +25,12 @@ export const loginFail = () => ({
   type: types.LOGIN_FAIL
 });
 
-export const badRequest = (badRequest) => ({
-  type: types.BAD_REQUEST,
-  payload: { badRequest: typeof badRequest === 'undefined' || badRequest }
+export const badRequest = () => ({
+  type: types.BAD_REQUEST
+});
+
+export const goodRequest = () => ({
+  type: types.GOOD_REQUEST
 });
 
 export const passRecoveryReq = () => ({

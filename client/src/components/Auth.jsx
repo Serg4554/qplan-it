@@ -4,7 +4,9 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { push } from 'connected-react-router'
 import { MODE_LOGIN, MODE_PASSWORD_RECOVERY, MODE_SIGN_UP, LOGIN_SUCCESS } from '../state/ducks/auth/types'
-import { open, close, setMode, login, logout, badRequest, recoverPassword, signUp } from '../state/ducks/auth/operations'
+import {
+  open, close, setMode, login, logout, badRequest, goodRequest, recoverPassword, signUp
+} from '../state/ducks/auth/operations'
 import validator from "validator";
 import PasswordValidator from 'password-validator';
 
@@ -21,7 +23,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Chip from '@material-ui/core/Chip';
 import TextField from "@material-ui/core/TextField";
 import withMobileDialog from '@material-ui/core/withMobileDialog';
-import moment from "moment-timezone";
+import Recaptcha from 'react-recaptcha';
 
 const passwordSchema = new PasswordValidator();
 passwordSchema
@@ -50,6 +52,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   login,
   logout,
   badRequest,
+  goodRequest,
   recoverPassword,
   signUp,
   goToUrl: url => {
@@ -57,18 +60,19 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   }
 }, dispatch);
 
+const initialState = {
+  name: "",
+  surname: "",
+  email: "",
+  password: "",
+  confirmPassword: "",
+  captchaVerified: false
+};
+
 class Auth extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      name: "",
-      surname: "",
-      email: "",
-      password: "",
-      confirmPassword: ""
-    };
-    console.log(moment.tz.guess());
+    this.state = initialState;
   }
 
   componentWillMount() {
@@ -87,7 +91,7 @@ class Auth extends React.Component {
     const nextLocation = nextProps.router.location.pathname;
 
     if(this.props.opened !== nextProps.opened) {
-      this.setState({ name: "", surname: "", email: "", password: "", confirmPassword: "" });
+      this.setState(initialState);
       if(!nextProps.opened && location === "/login" && nextLocation === "/login") {
         this.props.goToUrl("/")
       }
@@ -124,7 +128,8 @@ class Auth extends React.Component {
   }
 
   handleSignUp() {
-    if(this.state.name &&
+    if(this.state.captchaVerified &&
+      this.state.name &&
       this.state.surname &&
       validator.isEmail(this.state.email)
       && this.state.password &&
@@ -157,24 +162,43 @@ class Auth extends React.Component {
   }
 
   passwordRecoveryStatusMessage() {
-    if(this.props.fail) {
-      return (
-        <div style={{textAlign: "center"}}>
-          <Chip
-            style={{margin: "10px", background: "#D50000", color: "#fff"}}
-            label={<Translate value="invalidEmail" />}
-          />
-        </div>
-      );
+    let success = false;
+    let message = "";
+
+    if(this.props.fail && !this.state.captchaVerified) {
+      success = false;
+      message = "verifyCaptcha";
+    } else if(this.props.fail && !this.state.email) {
+      success = false;
+      message = "enterYourEmail";
+    } else if(this.props.fail) {
+      success = false;
+      message = "invalidEmail";
     } else if(this.props.recoveryPasswordSent) {
-      return (
-        <div style={{textAlign: "center"}}>
-          <Chip
-            style={{marginTop: "10px", background: "#43A047", color: "#fff"}}
-            label={<Translate value="recoveryPasswordEmailSent" />}
-          />
-        </div>
-      );
+      success = true;
+      message = "recoveryPasswordEmailSent";
+    }
+
+    if(message) {
+      if(success) {
+        return (
+          <div style={{textAlign: "center"}}>
+            <Chip
+              style={{marginTop: "10px", background: "#43A047", color: "#fff"}}
+              label={<Translate value={message} />}
+            />
+          </div>
+        );
+      } else {
+        return (
+          <div style={{textAlign: "center"}}>
+            <Chip
+              style={{margin: "10px", background: "#D50000", color: "#fff"}}
+              label={<Translate value={message} />}
+            />
+          </div>
+        );
+      }
     }
   }
 
@@ -182,22 +206,25 @@ class Auth extends React.Component {
     let success = false;
     let message = "";
 
-    if(this.props.fail && this.state.password !== this.state.confirmPassword) {
+    if(this.props.fail && !this.state.captchaVerified) {
       success = false;
-      message="passwordsDoNotMatch";
+      message = "verifyCaptcha";
+    } else if(this.props.fail && this.state.password !== this.state.confirmPassword) {
+      success = false;
+      message = "passwordsDoNotMatch";
     } else if(this.props.fail &&
       (!this.state.name || !this.state.surname || !validator.isEmail(this.state.email) || !this.state.password)) {
       success = false;
-      message="checkSignUpFields";
+      message = "checkSignUpFields";
     } else if(this.props.fail && !passwordSchema.validate(this.state.password, {})) {
       success = false;
-      message="weakPasswordMessage";
+      message = "weakPasswordMessage";
     } else if(this.props.fail) {
       success = false;
-      message="userAlreadyExists";
+      message = "userAlreadyExists";
     } else if(this.props.signUpSuccess) {
       success = true;
-      message="signUpSuccessCheckEmail";
+      message = "signUpSuccessCheckEmail";
     }
 
     if(message) {
@@ -221,6 +248,29 @@ class Auth extends React.Component {
         );
       }
     }
+  }
+
+  renderCaptcha() {
+    return (
+      <div style={{textAlign: "center", marginTop: "8px"}}>
+        <Recaptcha
+          sitekey="6LeQOWkUAAAAAIDVaQOxyVAUAc3vf3bQzcUDTxk1"
+          verifyCallback={() => {
+            this.setState({ captchaVerified: true });
+            if(this.props.fail) {
+              this.props.goodRequest();
+            }
+          }}
+          expiredCallback={() => {
+            this.setState({ captchaVerified: false });
+            if(!this.props.fail) {
+              this.props.badRequest();
+            }
+          }}
+          className="recaptcha"
+        />
+      </div>
+    );
   }
 
   renderLogin() {
@@ -300,14 +350,26 @@ class Auth extends React.Component {
             margin="normal"
             fullWidth
             value={this.state.email}
-            onChange={event => this.setState({ email: event.target.value }) }
+            onChange={event => {
+              this.setState({ email: event.target.value });
+              if(this.props.fail) {
+                this.props.goodRequest();
+              }
+            }}
           />
+          { this.renderCaptcha() }
         </DialogContent>
 
         { this.passwordRecoveryStatusMessage() }
 
         <DialogActions>
-          <Button onClick={() => this.props.setMode(MODE_LOGIN)} color="secondary">
+          <Button
+            onClick={() => {
+              this.setState({captchaVerified: false});
+              this.props.setMode(MODE_LOGIN);
+            }}
+            color="secondary"
+          >
             <Translate value="return"/>
           </Button>
           <Button disabled={this.props.recoveryPasswordSent} type="submit" color="primary" variant="contained">
@@ -333,7 +395,7 @@ class Auth extends React.Component {
               value={this.state.name}
               onChange={event => {
                 this.setState({ name: event.target.value });
-                if(this.props.fail) this.props.badRequest(false);
+                if(this.props.fail) this.props.goodRequest();
               }}
             />
             <TextField
@@ -346,7 +408,7 @@ class Auth extends React.Component {
               value={this.state.surname}
               onChange={event => {
                 this.setState({ surname: event.target.value });
-                if(this.props.fail) this.props.badRequest(false);
+                if(this.props.fail) this.props.goodRequest();
               }}
             />
           </div>
@@ -360,7 +422,7 @@ class Auth extends React.Component {
             value={this.state.email}
             onChange={event => {
               this.setState({ email: event.target.value });
-              if(this.props.fail) this.props.badRequest(false);
+              if(this.props.fail) this.props.goodRequest();
             }}
           />
           <div>
@@ -374,7 +436,7 @@ class Auth extends React.Component {
               value={this.state.password}
               onChange={event => {
                 this.setState({ password: event.target.value });
-                if(this.props.fail) this.props.badRequest(false);
+                if(this.props.fail) this.props.goodRequest();
               }}
             />
             <TextField
@@ -386,16 +448,23 @@ class Auth extends React.Component {
               value={this.state.confirmPassword}
               onChange={event => {
                 this.setState({ confirmPassword: event.target.value });
-                if(this.props.fail) this.props.badRequest(false);
+                if(this.props.fail) this.props.goodRequest();
               }}
             />
           </div>
+          { this.renderCaptcha() }
         </DialogContent>
 
         { this.signUpStatusMessage() }
 
         <DialogActions>
-          <Button onClick={() => this.props.setMode(MODE_LOGIN)} color="secondary">
+          <Button
+            onClick={() => {
+              this.setState({captchaVerified: false});
+              this.props.setMode(MODE_LOGIN);
+            }}
+            color="secondary"
+          >
             <Translate value="return"/>
           </Button>
           <div style={{position: 'relative'}}>
@@ -428,6 +497,7 @@ class Auth extends React.Component {
   }
 
   render() {
+    console.log(this.state);
     return (
       <div className={this.props.className} style={this.props.style}>
         <Button
@@ -486,6 +556,8 @@ Auth.propTypes = {
   login: PropTypes.func,
   logout: PropTypes.func,
   badRequest: PropTypes.func,
+  goodRequest: PropTypes.func,
+  signUp: PropTypes.func,
   recoverPassword: PropTypes.func,
   goToUrl: PropTypes.func,
 };
