@@ -1,5 +1,6 @@
 import superagentPromise from 'superagent-promise';
 import _superagent from 'superagent';
+import store from './store';
 const agent = superagentPromise(_superagent, Promise);
 
 const API_URL = 'http://192.168.1.33:3001/api';
@@ -24,7 +25,11 @@ const Auth = {
   logout: () =>
     requests.post('/users/logout', {}),
   resetPassword: (email) =>
-    requests.post('/users/reset', { email })
+    requests.post('/users/reset', { email }),
+  signUp: (name, surname, email, password) => {
+    const language = store.getState().i18n.locale;
+    return requests.post('/users', { name, surname, email, password, language });
+  },
 };
 
 const Event = {

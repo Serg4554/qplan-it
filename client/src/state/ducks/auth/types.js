@@ -8,8 +8,11 @@ export const LOGIN_FAIL = 'auth/LOGIN_FAIL';
 export const PASS_RECOVERY_REQ = 'auth/PASS_RECOVERY_REQ';
 export const PASS_RECOVERY_SUCCESS = 'auth/PASS_RECOVERY_SUCCESS';
 export const PASS_RECOVERY_FAIL = 'auth/PASS_RECOVERY_FAIL';
+export const SIGN_UP_REQ = 'auth/SIGN_UP_REQ';
+export const SIGN_UP_SUCCESS = 'auth/SIGN_UP_SUCCESS';
+export const SIGN_UP_FAIL = 'auth/SIGN_UP_FAIL';
 
 // Constants
 export const MODE_LOGIN = 'LOGIN';
-export const MODE_REGISTER = 'REGISTER';
+export const MODE_SIGN_UP = 'SIGN_UP';
 export const MODE_PASSWORD_RECOVERY = 'PASSWORD_RECOVERY';

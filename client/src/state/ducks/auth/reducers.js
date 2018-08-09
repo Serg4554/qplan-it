@@ -1,14 +1,14 @@
 import * as types from "./types";
+import {SIGN_UP_SUCCESS} from "./types";
 
 /** State shape
  * {
  *  mode: string,
  *  opened: boolean,
- *  email: string
- *  password: string
  *  loading: boolean,
  *  fail: boolean
  *  recoveryPasswordSent: boolean,
+ *  signUpSuccess: boolean,
  * }
  */
 
@@ -27,11 +27,14 @@ const reducer = (state = initialState, action) => {
 
     case types.CHANGE_MODE:
       return {
-        opened: true,
-        mode: action.payload.mode,
+        ...state,
+        loading: false,
+        fail: false,
+        mode: action.payload.mode
       };
 
     case types.LOGIN_REQ:
+    case types.SIGN_UP_REQ:
     case types.PASS_RECOVERY_REQ:
       return { ...state, loading: true };
 
@@ -44,6 +47,7 @@ const reducer = (state = initialState, action) => {
       };
 
     case types.LOGIN_FAIL:
+    case types.SIGN_UP_FAIL:
     case types.PASS_RECOVERY_FAIL:
       return {
         ...state,
@@ -51,10 +55,18 @@ const reducer = (state = initialState, action) => {
         fail: true
       };
 
+    case SIGN_UP_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        fail: false,
+        signUpSuccess: true
+      };
+
     case types.BAD_REQUEST:
       return {
         ...state,
-        fail: true
+        fail: action.payload.badRequest
       };
 
     default:

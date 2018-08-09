@@ -19,6 +19,15 @@ export default {
     return: "Return",
     invalidEmail: "Oops! There is no user with that email",
     recoveryPasswordEmailSent: "Ready! Check your email to update your password",
+    name: "Name",
+    surname: "Surname",
+    confirmPassword: "Confirm password",
+    createAccount: "Create account",
+    passwordsDoNotMatch: "Passwords do not match",
+    userAlreadyExists: "There is already a user with that email",
+    checkSignUpFields: "Please, verify that all fields are correct",
+    signUpSuccessCheckEmail: "Great! You will receive an email, verify your account to log in",
+    weakPasswordMessage: "Sorry, the password is too weak"
   },
 
   // Spanish
@@ -41,5 +50,14 @@ export default {
     return: "Volver",
     invalidEmail: "Ups! No hay ningún usuario con ese email",
     recoveryPasswordEmailSent: "¡Listo! Comprueba tu correo para cambiar la contraseña",
+    name: "Nombre",
+    surname: "Apellidos",
+    confirmPassword: "Confirmar contraseña",
+    createAccount: "Crear cuenta",
+    passwordsDoNotMatch: "Las contraseñas no coinciden",
+    userAlreadyExists: "Ya existe un usuario con ese email",
+    checkSignUpFields: "Por favor, comprueba que todos los campos sean correctos",
+    signUpSuccessCheckEmail: "¡Genial! Recibirás un correo, verifica tu cuenta para acceder",
+    weakPasswordMessage: "Lo siento, la contraseña es muy débil"
   }
 };

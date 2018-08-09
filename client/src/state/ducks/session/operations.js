@@ -1,5 +1,5 @@
 import * as actions from "./actions"
-import agent from "../../apiService";
+import apiService from "../../apiService";
 
 const setUser = actions.setUser;
 
@@ -15,10 +15,10 @@ const retrieveUser = () => dispatch => {
   }
 
   if(token && user) {
-    agent.setToken(token);
+    apiService.setToken(token);
     dispatch(actions.setUser(user));
 
-    agent.Auth.getUser(user.id)
+    apiService.Auth.getUser(user.id)
       .then(response => {
         if(JSON.stringify(user) !== JSON.stringify(response)) {
           window.localStorage.setItem('usr', JSON.stringify(response));

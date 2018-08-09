@@ -1,6 +1,6 @@
 import * as actions from "./actions"
 import * as session from "../session/operations"
-import agent from "../../apiService";
+import apiService from "../../apiService";
 
 const open = actions.open;
 
@@ -11,16 +11,16 @@ const setMode = actions.setMode;
 const login = (email, password) => dispatch => {
   dispatch(actions.loginReq());
 
-  return agent.Auth.login(email, password)
+  return apiService.Auth.login(email, password)
     .then(loginResponse => {
       if(!loginResponse.id || !loginResponse.userId) {
         return dispatch(actions.loginFail())
       }
 
-      agent.setToken(loginResponse.id);
+      apiService.setToken(loginResponse.id);
       window.localStorage.setItem('jwt', loginResponse.id);
 
-      return agent.Auth.getUser(loginResponse.userId)
+      return apiService.Auth.getUser(loginResponse.userId)
         .then(userResponse => {
           window.localStorage.setItem('usr', JSON.stringify(userResponse));
           dispatch(session.setUser(userResponse));
@@ -35,14 +35,14 @@ const login = (email, password) => dispatch => {
 const logout = () => dispatch => {
   dispatch(session.unsetUser());
 
-  return agent.Auth.logout()
+  return apiService.Auth.logout()
     .then(() => {
-      agent.setToken(null);
+      apiService.setToken(null);
       window.localStorage.setItem('usr', '');
       window.localStorage.setItem('jwt', '');
     })
     .catch(() => {
-      agent.setToken(null);
+      apiService.setToken(null);
       window.localStorage.setItem('usr', '');
       window.localStorage.setItem('jwt', '');
     });
@@ -53,12 +53,24 @@ const badRequest = actions.badRequest;
 const recoverPassword = (email) => dispatch => {
   dispatch(actions.passRecoveryReq());
 
-  return agent.Auth.resetPassword(email)
+  return apiService.Auth.resetPassword(email)
     .then(() => {
       return dispatch(actions.passRecoverySuccess())
     })
     .catch(() => {
       return dispatch(actions.passRecoveryFail())
+    });
+};
+
+const signUp = (name, surname, email, password) => dispatch => {
+  dispatch(actions.signUpReq());
+
+  return apiService.Auth.signUp(name, surname, email, password)
+    .then(() => {
+      return dispatch(actions.signUpSuccess());
+    })
+    .catch(() => {
+      return dispatch(actions.signUpFail())
     });
 };
 
@@ -69,5 +81,6 @@ export {
   login,
   logout,
   badRequest,
-  recoverPassword
+  recoverPassword,
+  signUp
 }
