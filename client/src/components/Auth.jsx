@@ -46,6 +46,26 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 class Auth extends React.Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      email: "",
+      password: ""
+    };
+  }
+
+  componentWillMount() {
+    const logged = !!this.props.user;
+    if(this.props.router.location.pathname === "/login") {
+      if(logged) {
+        this.props.goToUrl("/");
+      } else {
+        this.props.open();
+      }
+    }
+  }
+
   componentWillReceiveProps(nextProps, nextContext) {
     const location = this.props.router.location.pathname;
     const nextLocation = nextProps.router.location.pathname;
@@ -62,15 +82,6 @@ class Auth extends React.Component {
     } else if(!nextProps.opened && location === "/" && nextLocation === "/login") {
       this.props.open();
     }
-  }
-
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      email: "",
-      password: ""
-    };
   }
 
   handleLogin() {

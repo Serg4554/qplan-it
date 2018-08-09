@@ -34,15 +34,6 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 class App extends Component {
   componentWillMount() {
     this.props.retrieveUser();
-
-    const logged = !!this.props.user || !!window.localStorage.getItem('jwt');
-    if(this.props.location.pathname === "/login") {
-      if(logged) {
-        this.props.goToUrl("/");
-      } else {
-        this.props.openAuth();
-      }
-    }
   }
 
   render() {
