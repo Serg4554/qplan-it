@@ -1,9 +1,10 @@
 import superagentPromise from 'superagent-promise';
 import _superagent from 'superagent';
+import credentials from '../config/credentials.json';
 import store from './store';
 const agent = superagentPromise(_superagent, Promise);
 
-const API_URL = 'http://192.168.1.33:3001/api';
+const API_URL = credentials.apiUrl;
 let token = null;
 
 const requests = {

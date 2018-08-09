@@ -9,6 +9,7 @@ import {
 } from '../state/ducks/auth/operations'
 import validator from "validator";
 import PasswordValidator from 'password-validator';
+import credentials from '../config/credentials.json';
 
 import theme from '../config/theme';
 import { Translate } from 'react-redux-i18n';
@@ -254,7 +255,7 @@ class Auth extends React.Component {
     return (
       <div style={{textAlign: "center", marginTop: "8px"}}>
         <Recaptcha
-          sitekey="6LeQOWkUAAAAAIDVaQOxyVAUAc3vf3bQzcUDTxk1"
+          sitekey={credentials.recaptchaSiteKey}
           verifyCallback={() => {
             this.setState({ captchaVerified: true });
             if(this.props.fail) {
