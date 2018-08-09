@@ -1,8 +1,24 @@
 'use strict';
 
 const validator = require('validator');
+const passwordValidator = require('password-validator');
+const passwordSchema = new passwordValidator();
+
+passwordSchema
+  .is().min(8)
+  .is().max(100)
+  .has().uppercase()
+  .has().lowercase();
 
 module.exports = function(model) {
+  model.beforeRemote('create', function (ctx, inst, next) {
+    if(!passwordSchema.validate(ctx.req.body.password, {})) {
+      return next(new Error("Password must have at least 8 characters, uppercase and lowercase letters"));
+    }
+
+    next();
+  });
+
   model.on('resetPasswordRequest', (info) => {
     if(validator.isEmail(info.email)) {
       model.app.models.Email.send({
