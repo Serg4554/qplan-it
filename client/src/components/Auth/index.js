@@ -15,14 +15,16 @@ import DialogTitle from "@material-ui/core/DialogTitle/DialogTitle";
 import withMobileDialog from '@material-ui/core/withMobileDialog';
 import LogIn from "./LogIn"
 import SignUp from "./SignUp"
-import PasswordRecovery from "./PasswordRecovery"
+import ForgotPassword from "./ForgotPassword"
 
 const mapStateToProps = state => {
+  /** @namespace state.auth */
+  /** @namespace state.session */
   return {
     mode: state.auth.mode,
     opened: state.auth.opened || false,
     loading: state.auth.loading || false,
-    fail: state.auth.fail || false,
+    error: state.auth.error,
     recoveryPasswordSent: state.auth.recoveryPasswordSent || false,
     signUpSuccess: state.auth.signUpSuccess || false,
     user: state.session.user,
@@ -34,10 +36,9 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   open: AuthOperations.open,
   close: AuthOperations.close,
   setMode: AuthOperations.setMode,
+  cleanError: AuthOperations.cleanError,
   login: AuthOperations.login,
   logout: AuthOperations.logout,
-  badRequest: AuthOperations.badRequest,
-  goodRequest: AuthOperations.goodRequest,
   recoverPassword: AuthOperations.recoverPassword,
   signUp: AuthOperations.signUp,
   goToUrl: url => {
@@ -53,7 +54,9 @@ const initialState = {
   email: "",
   password: "",
   confirmPassword: "",
-  captchaVerified: false
+  alertPasswordNotMatch: false,
+  captchaVerified: false,
+  showCaptchaAlert: false
 };
 
 class Index extends React.Component {
@@ -98,6 +101,12 @@ class Index extends React.Component {
         {...this.props}
         setEmail={email => this.setState({ email })}
         setPassword={password => this.setState({ password })}
+        onModeChange={() => {
+          if(this.props.error) {
+            this.props.cleanError();
+          }
+          this.setState({ captchaVerified: false, showCaptchaAlert: false });
+        }}
       />
     );
 
@@ -110,29 +119,26 @@ class Index extends React.Component {
         setEmail={email => this.setState({ email })}
         setPassword={password => this.setState({ password })}
         setConfirmPassword={confirmPassword => this.setState({ confirmPassword })}
+        setAlertPasswordNotMatch={alertPasswordNotMatch => this.setState({ alertPasswordNotMatch })}
         setCaptchaVerified={captchaVerified => {
-          if(captchaVerified && this.props.fail) {
-            this.props.goodRequest();
-          } else if(!captchaVerified && !this.props.fail) {
-            this.props.badRequest();
+          if(captchaVerified && this.props.error) {
+            this.props.cleanError();
           }
-          this.setState({ captchaVerified });
+          this.setState({ captchaVerified, showCaptchaAlert: !captchaVerified });
         }}
       />
     );
 
     const passwordRecovery = (
-      <PasswordRecovery
+      <ForgotPassword
         {...this.state}
         {...this.props}
         setEmail={email => this.setState({ email })}
         setCaptchaVerified={captchaVerified => {
-          if(captchaVerified && this.props.fail) {
-            this.props.goodRequest();
-          } else if(!captchaVerified && !this.props.fail) {
-            this.props.badRequest();
+          if(captchaVerified && this.props.error) {
+            this.props.cleanError();
           }
-          this.setState({ captchaVerified });
+          this.setState({ captchaVerified, showCaptchaAlert: !captchaVerified });
         }}
       />
     );
@@ -194,7 +200,7 @@ Index.propTypes = {
   mode: PropTypes.string,
   opened: PropTypes.bool,
   loading: PropTypes.bool,
-  fail: PropTypes.bool,
+  error: PropTypes.object,
   recoveryPasswordSent: PropTypes.bool,
   user: PropTypes.object,
   router: PropTypes.object,
@@ -202,10 +208,9 @@ Index.propTypes = {
   open: PropTypes.func,
   close: PropTypes.func,
   setMode: PropTypes.func,
+  cleanError: PropTypes.func,
   login: PropTypes.func,
   logout: PropTypes.func,
-  badRequest: PropTypes.func,
-  goodRequest: PropTypes.func,
   signUp: PropTypes.func,
   recoverPassword: PropTypes.func,
   goToUrl: PropTypes.func,

@@ -1,7 +1,6 @@
 import React  from "react";
 import PropTypes from 'prop-types';
-import validator from "validator";
-import { LOGIN_SUCCESS, MODE_PASSWORD_RECOVERY, MODE_SIGN_UP } from "../../state/ducks/auth/types";
+import { MODE_PASSWORD_RECOVERY, MODE_SIGN_UP } from "../../state/ducks/auth/types";
 
 import DialogContent from "@material-ui/core/DialogContent";
 import TextField from "@material-ui/core/TextField";
@@ -12,22 +11,16 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Chip from "@material-ui/core/Chip";
 
 function handleLogin(props) {
-  if(props.password && validator.isEmail(props.email)) {
-    props.login(props.email, props.password)
-      .then(state => {
-        if(state.type === LOGIN_SUCCESS) {
-          if(props.router.location.pathname === "/login") {
-            props.goToUrl("/")
-          }
-        }
-      });
-  } else {
-    props.badRequest();
-  }
+  props.login(props.email, props.password)
+    .then(() => {
+      if(!props.open && props.router.location.pathname === "/login") {
+        props.goToUrl("/")
+      }
+    });
 }
 
 function loginStatusMessage(props) {
-  if(props.fail) {
+  if(props.error) {
     return (
       <div style={{textAlign: "center"}}>
         <Chip
@@ -50,7 +43,12 @@ const LogIn = (props) => {
           margin="normal"
           fullWidth
           value={props.email}
-          onChange={event => props.setEmail(event.target.value) }
+          onChange={event => {
+            props.setEmail(event.target.value);
+            if(props.error) {
+              props.cleanError();
+            }
+          }}
         />
         <TextField
           label={<Translate value="password" />}
@@ -58,7 +56,12 @@ const LogIn = (props) => {
           margin="normal"
           fullWidth
           value={props.password}
-          onChange={event => props.setPassword(event.target.value) }
+          onChange={event => {
+            props.setPassword(event.target.value);
+            if(props.error) {
+              props.cleanError();
+            }
+          }}
         />
       </DialogContent>
 
@@ -67,7 +70,12 @@ const LogIn = (props) => {
       <div style={{textAlign: "center", padding: "24px"}}>
         <a
           style={{textDecoration: "underline", cursor: "pointer"}}
-          onClick={() => props.setMode(MODE_PASSWORD_RECOVERY)}
+          onClick={() => {
+            props.setMode(MODE_PASSWORD_RECOVERY);
+            if(props.onModeChange) {
+              props.onModeChange();
+            }
+          }}
         >
           <Translate value="forgotPasswordQuest" />
         </a>
@@ -78,7 +86,12 @@ const LogIn = (props) => {
           color="secondary"
           variant="contained"
           style={{position: "absolute", left: "4px"}}
-          onClick={() => props.setMode(MODE_SIGN_UP)}
+          onClick={() => {
+            props.setMode(MODE_SIGN_UP);
+            if(props.onModeChange) {
+              props.onModeChange();
+            }
+          }}
         >
           <Translate value="signUp" />
         </Button>
@@ -104,6 +117,7 @@ const LogIn = (props) => {
 LogIn.propTypes = {
   setEmail: PropTypes.func.isRequired,
   setPassword: PropTypes.func.isRequired,
+  onModeChange: PropTypes.func
 };
 
 export default LogIn;

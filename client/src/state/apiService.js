@@ -7,44 +7,87 @@ const agent = superagentPromise(_superagent, Promise);
 const API_URL = credentials.apiUrl;
 let token = null;
 
-const requests = {
-  get: url =>
-    agent.get(`${API_URL}${url}`).use(req => {if(token) req.set('authorization', token)}).then(res => res.body),
-  post: (url, body) =>
-    agent.post(`${API_URL}${url}`, body).use(req => {if(token) req.set('authorization', token)}).then(res => res.body),
-  put: (url, body) =>
-    agent.put(`${API_URL}${url}`, body).use(req => {if(token) req.set('authorization', token)}).then(res => res.body),
-  del: url =>
-    agent.del(`${API_URL}${url}`).use(req => {if(token) req.set('authorization', token)}).then(res => res.body)
+const setToken = (req, token) => {
+  if(token) {
+    req.set('authorization', token)
+  }
 };
 
+const getError = (response) => {
+  if(!response) {
+    return {
+      error: {
+        statusCode: 503,
+        name: "Error",
+        message: "",
+        code: "SERVICE_UNAVAILABLE"
+      }
+    }
+  } else if(response.body && response.body.error) {
+    return response.body;
+  } else {
+    return {
+      error: {
+        statusCode: response.status || 503,
+        name: "Error",
+        message: "Unknown error",
+      }
+    }
+  }
+};
+
+const requests = {
+  get: (url, _token) =>
+    agent.get(`${API_URL}${url}`)
+      .use(req => setToken(req, _token || token))
+      .then(res => res.body || { })
+      .catch(err => getError(err.response || { error : {} })),
+  post: (url, body, _token) =>
+    agent.post(`${API_URL}${url}`, body)
+      .use(req => setToken(req, _token || token))
+      .then(res => res.body || { })
+      .catch(err => getError(err.response || { error : {} })),
+  put: (url, body, _token) =>
+    agent.put(`${API_URL}${url}`, body)
+      .use(req => setToken(req, _token || token))
+      .then(res => res.body || { })
+      .catch(err => getError(err.response || { error : {} })),
+  del: (url, _token) =>
+    agent.del(`${API_URL}${url}`)
+      .use(req => setToken(req, _token || token))
+      .then(res => res.body || { })
+      .catch(err => getError(err.response || { error : {} }))
+};
+
+
+/** Users REST API **/
 const Auth = {
   login: (email, password) =>
     requests.post('/users/login', { email, password }),
-  getUser: (id) =>
-    requests.get(`/users/${id}`),
+
+  getUser: (id, token) =>
+    requests.get(`/users/${id}`, token),
+
   logout: () =>
     requests.post('/users/logout', {}),
+
   resetPassword: (email) =>
     requests.post('/users/reset', { email }),
-  signUp: (name, surname, email, password) => {
-    const language = store.getState().i18n.locale;
-    return requests.post('/users', { name, surname, email, password, language });
-  },
-  getUserWithToken: (id, token) =>
-    agent.get(`${API_URL}/users/${id}`).use(req => {if(token) req.set('authorization', token)}).then(res => res.body),
+
+  signUp: (name, surname, email, password) =>
+    requests.post('/users', { name, surname, email, password, language: store.getState().i18n.locale }),
+
   changeLostPassword: (newPassword, token) =>
-    agent.post(`${API_URL}/users/reset-password`, { newPassword })
-      .use(req => {
-        if(token) req.set('authorization', token);
-        req.set('Content-Type', 'application/x-www-form-urlencoded');
-      }).then(res => res.body),
+    requests.post('/users/reset-password', { newPassword }, token)
 };
 
+
+/** Event REST API **/
 const Event = {
   get: id =>
     requests.get(`/events/${id}`),
 };
+
 
 export default {
   Auth,

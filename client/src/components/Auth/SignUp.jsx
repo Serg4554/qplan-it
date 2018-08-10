@@ -1,8 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import validator from "validator";
 import credentials from "../../config/credentials";
-import { LOGIN_SUCCESS, MODE_LOGIN } from "../../state/ducks/auth/types";
+import { MODE_LOGIN } from "../../state/ducks/auth/types";
 
 import Chip from "@material-ui/core/Chip";
 import { Translate } from "react-redux-i18n";
@@ -11,55 +10,29 @@ import TextField from "@material-ui/core/TextField";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import PasswordValidator from "password-validator";
 import Recaptcha from "react-recaptcha";
 
-const passwordSchema = new PasswordValidator();
-passwordSchema
-  .is().min(8)
-  .is().max(100)
-  .has().uppercase()
-  .has().lowercase();
-
-function handleSignUp(props) {
-  if(props.captchaVerified &&
-    props.name &&
-    props.surname &&
-    validator.isEmail(props.email)
-    && props.password &&
-    props.password &&
-    props.password === props.confirmPassword) {
-    props.signUp(props.name, props.surname, props.email, props.password)
-      .then(state => {
-        if(state.type === LOGIN_SUCCESS) {
-          if(props.router.location.pathname === "/login") {
-            props.goToUrl("/")
-          }
-        }
-      });
-  } else {
-    props.badRequest();
-  }
-}
 
 function signUpStatusMessage(props) {
   let success = false;
   let message = "";
 
-  if(props.fail && !props.captchaVerified) {
+  if(props.showCaptchaAlert) {
     success = false;
     message = "verifyCaptcha";
-  } else if(props.fail && props.password !== props.confirmPassword) {
+  } else if(props.alertPasswordNotMatch) {
     success = false;
     message = "passwordsDoNotMatch";
-  } else if(props.fail &&
-    (!props.name || !props.surname || !validator.isEmail(props.email) || !props.password)) {
-    success = false;
-    message = "checkSignUpFields";
-  } else if(props.fail && !passwordSchema.validate(props.password, {})) {
+  } else if(props.error && props.error.code === "PASSWORD_TOO_WEAK") {
     success = false;
     message = "weakPasswordMessage";
-  } else if(props.fail) {
+  } else if(props.error && props.error.code === "INVALID_EMAIL") {
+    success = false;
+    message = "invalidEmail";
+  } else if (props.error && (!props.name || !props.surname)) {
+    success = false;
+    message = "checkEmptyFields";
+  } else if(props.error) {
     success = false;
     message = "userAlreadyExists";
   } else if(props.signUpSuccess) {
@@ -92,7 +65,23 @@ function signUpStatusMessage(props) {
 
 const SignUp = (props) => {
   return (
-    <form onSubmit={e => { e.preventDefault(); handleSignUp(props); }} noValidate>
+    <form
+      onSubmit={e => {
+        e.preventDefault();
+
+        if(!props.captchaVerified) {
+          props.setCaptchaVerified(false);
+        } else {
+          const passwordNotMatch = props.password !== props.confirmPassword;
+          props.setAlertPasswordNotMatch(passwordNotMatch);
+
+          if(!passwordNotMatch) {
+            props.signUp(props.name, props.surname, props.email, props.password);
+          }
+        }
+      }}
+      noValidate
+    >
       <DialogContent style={{padding: "0 24px", textAlign: "center"}}>
         <div style={{width: "100%"}}>
           <TextField
@@ -105,7 +94,9 @@ const SignUp = (props) => {
             value={props.name}
             onChange={event => {
               props.setName(event.target.value);
-              if(props.fail) props.goodRequest();
+              if(props.error) {
+                props.cleanError();
+              }
             }}
           />
           <TextField
@@ -118,7 +109,9 @@ const SignUp = (props) => {
             value={props.surname}
             onChange={event => {
               props.setSurname(event.target.value);
-              if(props.fail) props.goodRequest();
+              if(props.error) {
+                props.cleanError();
+              }
             }}
           />
         </div>
@@ -132,7 +125,9 @@ const SignUp = (props) => {
           value={props.email}
           onChange={event => {
             props.setEmail(event.target.value);
-            if(props.fail) props.goodRequest();
+            if(props.error) {
+              props.cleanError();
+            }
           }}
         />
         <div>
@@ -146,7 +141,9 @@ const SignUp = (props) => {
             value={props.password}
             onChange={event => {
               props.setPassword(event.target.value);
-              if(props.fail) props.goodRequest();
+              if(props.error) {
+                props.cleanError();
+              }
             }}
           />
           <TextField
@@ -158,16 +155,22 @@ const SignUp = (props) => {
             value={props.confirmPassword}
             onChange={event => {
               props.setConfirmPassword(event.target.value);
-              if(props.fail) props.goodRequest();
+              if(props.error) {
+                props.cleanError();
+              }
             }}
           />
         </div>
 
-        <div style={{textAlign: "center", marginTop: "8px"}}>
+        <div style={{textAlign: "center", marginTop: "8px", display: props.signUpSuccess ? "none" : "inherit"}}>
           <Recaptcha
             sitekey={credentials.recaptchaSiteKey}
             verifyCallback={() => props.setCaptchaVerified(true)}
-            expiredCallback={() => props.setCaptchaVerified(false)}
+            expiredCallback={() => {
+              if(!props.signUpSuccess) {
+                props.setCaptchaVerified(false)
+              }
+            }}
             className="recaptcha"
           />
         </div>
@@ -177,10 +180,7 @@ const SignUp = (props) => {
 
       <DialogActions>
         <Button
-          onClick={() => {
-            props.setCaptchaVerified(false);
-            props.setMode(MODE_LOGIN);
-          }}
+          onClick={() => props.setMode(MODE_LOGIN)}
           color="secondary"
         >
           <Translate value="return"/>
@@ -206,6 +206,7 @@ SignUp.propTypes = {
   setSurname: PropTypes.func.isRequired,
   setEmail: PropTypes.func.isRequired,
   setConfirmPassword: PropTypes.func.isRequired,
+  setAlertPasswordNotMatch: PropTypes.func.isRequired,
   setCaptchaVerified: PropTypes.func.isRequired
 };
 

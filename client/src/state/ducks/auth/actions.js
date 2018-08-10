@@ -21,16 +21,13 @@ export const loginSuccess = () => ({
   type: types.LOGIN_SUCCESS
 });
 
-export const loginFail = () => ({
-  type: types.LOGIN_FAIL
+export const loginFail = (error) => ({
+  type: types.LOGIN_FAIL,
+  payload: { error }
 });
 
-export const badRequest = () => ({
-  type: types.BAD_REQUEST
-});
-
-export const goodRequest = () => ({
-  type: types.GOOD_REQUEST
+export const cleanError = () => ({
+  type: types.CLEAN_ERROR
 });
 
 export const passRecoveryReq = () => ({
@@ -41,8 +38,9 @@ export const passRecoverySuccess = () => ({
   type: types.PASS_RECOVERY_SUCCESS
 });
 
-export const passRecoveryFail = () => ({
-  type: types.PASS_RECOVERY_FAIL
+export const passRecoveryFail = (error) => ({
+  type: types.PASS_RECOVERY_FAIL,
+  payload: { error }
 });
 
 export const signUpReq = () => ({
@@ -53,30 +51,7 @@ export const signUpSuccess = () => ({
   type: types.SIGN_UP_SUCCESS
 });
 
-export const signUpFail = () => ({
-  type: types.SIGN_UP_FAIL
-});
-
-export const isValidToken = () => ({
-  type: types.IS_VALID_TOKEN
-});
-
-export const validToken = () => ({
-  type: types.VALID_TOKEN
-});
-
-export const invalidToken = () => ({
-  type: types.INVALID_TOKEN
-});
-
-export const changePasswordReq = () => ({
-  type: types.CHANGE_PASSWORD_REQ
-});
-
-export const changePasswordSuccess = () => ({
-  type: types.CHANGE_PASSWORD_SUCCESS
-});
-
-export const changePasswordFail = () => ({
-  type: types.CHANGE_PASSWORD_FAIL
+export const signUpFail = (error) => ({
+  type: types.SIGN_UP_FAIL,
+  payload: { error }
 });

@@ -3,33 +3,25 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { push } from "connected-react-router";
-import apiService from "../state/apiService";
-import {
-  isValidToken, changeLostPassword, login, goodRequest, badRequest, close
-} from "../state/ducks/auth/operations"
-import { CHANGE_PASSWORD_SUCCESS } from "../state/ducks/auth/types"
+import { isValidToken, changeLostPassword, cleanError, close } from "../state/ducks/passwordRecovery/operations"
+import { login } from "../state/ducks/auth/operations"
 
 import Chip from "@material-ui/core/Chip";
 import { Translate } from "react-redux-i18n";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import PasswordValidator from "password-validator";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import LinearProgress from "@material-ui/core/LinearProgress/LinearProgress";
 
-const passwordSchema = new PasswordValidator();
-passwordSchema
-  .is().min(8)
-  .is().max(100)
-  .has().uppercase()
-  .has().lowercase();
-
 
 const mapStateToProps = state => {
+  /** @namespace state.passwordRecovery */
   return {
-    fail: state.auth.fail,
-    loading: state.auth.loading,
-    router: state.router,
+    email: state.passwordRecovery.email,
+    loading: state.passwordRecovery.loading,
+    success: state.passwordRecovery.success,
+    error: state.passwordRecovery.error,
+    router: state.router
   }
 };
 
@@ -37,8 +29,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   isValidToken,
   changeLostPassword,
   login,
-  goodRequest,
-  badRequest,
+  cleanError,
   close,
   goToUrl: url => {
     return push(url)
@@ -52,8 +43,7 @@ class PasswordRecovery extends React.Component {
     this.state = {
       password: "",
       confirmPassword: "",
-      loading: false,
-      success: false,
+      alertPasswordNotMatch: false,
       redirectProgress: 0
     };
 
@@ -73,8 +63,6 @@ class PasswordRecovery extends React.Component {
   }
 
   success() {
-    this.setState({loading: false, success: true});
-
     const progress = setInterval(() => this.setState({ redirectProgress: this.state.redirectProgress + 15 }), 200);
 
     const props = this.props;
@@ -85,50 +73,32 @@ class PasswordRecovery extends React.Component {
   }
 
   handleChangePassword() {
-    if(!this.props.fail) {
-      if(this.state.password && this.state.confirmPassword && this.state.password === this.state.confirmPassword) {
-        this.setState({loading: true});
-
-        this.props.changeLostPassword(this.state.password, this.token)
-          .then(response => {
-            if(response && response.type === CHANGE_PASSWORD_SUCCESS) {
-              apiService.setToken(this.token);
-              apiService.Auth.getUser(this.userId)
-                .then(user => {
-                  if(user && user.email) {
-                    this.props.login(user.email, this.state.password)
-                      .then(() => this.success())
-                      .catch(() => this.success());
-                  } else {
-                    this.success();
-                  }
-                })
-                .catch(() => this.success());
-            } else {
-              this.setState({loading: false})
-            }
-          })
-          .catch(() => this.setState({loading: false}));
-      } else {
-        this.props.badRequest();
-      }
-    }
+    this.props.changeLostPassword(this.state.password, this.token)
+      .then(() => {
+        if(this.props.success) {
+          this.props.login(this.props.email, this.state.password)
+            .then(() => this.success())
+        }
+      });
   }
 
   statusMessage() {
     let success = false;
     let message = "";
 
-    if(this.props.fail && this.state.password !== this.state.confirmPassword) {
+    if(this.state.alertPasswordNotMatch) {
       success = false;
       message = "passwordsDoNotMatch";
-    } else if(this.props.fail && this.state.password && !passwordSchema.validate(this.state.password, {})) {
+    } else if(this.props.error && this.props.error.code === "PASSWORD_TOO_WEAK") {
       success = false;
       message = "weakPasswordMessage";
-    } else if(this.props.fail) {
+    } else if(this.props.error && this.props.error.statusCode === 400) {
+      success = false;
+      message = "invalidPassword";
+    } else if(this.props.error && this.props.error.code === "AUTHORIZATION_REQUIRED") {
       success = false;
       message = "expiredLink";
-    } else if(this.state.success) {
+    } else if(this.props.success) {
       success = true;
       message = "passwordSuccessfullyChanged";
     }
@@ -162,12 +132,10 @@ class PasswordRecovery extends React.Component {
     }
   }
 
-  isButtonDisabled() {
-    return (this.props.fail && !this.state.password) ||
-      this.state.password === "" ||
-      this.state.confirmPassword === "" ||
-      this.state.loading ||
-      this.state.success;
+  isFormDisabled() {
+    return (this.props.error && this.props.error.code === "AUTHORIZATION_REQUIRED") ||
+      this.props.loading ||
+      this.props.success;
   }
 
   render() {
@@ -177,7 +145,10 @@ class PasswordRecovery extends React.Component {
           <form
             onSubmit={e => {
               e.preventDefault();
-              if(!this.isButtonDisabled()) {
+              const alertPasswordNotMatch = this.state.password !== this.state.confirmPassword;
+              this.setState({ alertPasswordNotMatch });
+
+              if(!alertPasswordNotMatch && !this.isFormDisabled()) {
                 this.handleChangePassword();
               }
             }}
@@ -190,12 +161,12 @@ class PasswordRecovery extends React.Component {
               type="password"
               margin="normal"
               fullWidth
-              disabled={(this.props.fail && !this.state.password)  || this.state.loading || this.state.success}
+              disabled={this.isFormDisabled()}
               value={this.state.password}
               onChange={event => {
                 this.setState({ password: event.target.value });
-                if(this.props.fail) {
-                  this.props.goodRequest();
+                if(this.props.error) {
+                  this.props.cleanError();
                 }
               }}
             />
@@ -204,12 +175,12 @@ class PasswordRecovery extends React.Component {
               type="password"
               margin="normal"
               fullWidth
-              disabled={(this.props.fail && !this.state.password) || this.state.loading || this.state.success}
+              disabled={this.isFormDisabled()}
               value={this.state.confirmPassword}
               onChange={event => {
                 this.setState({ confirmPassword: event.target.value });
-                if(this.props.fail) {
-                  this.props.goodRequest();
+                if(this.props.error) {
+                  this.props.cleanError();
                 }
               }}
             />
@@ -217,12 +188,12 @@ class PasswordRecovery extends React.Component {
               <Button
                 color="secondary"
                 variant="contained"
-                disabled={this.isButtonDisabled()}
+                disabled={this.isFormDisabled()}
                 type="submit"
               >
                 <Translate value="changePassword" />
               </Button>
-              {this.state.loading && <CircularProgress className="buttonLoading" size={24} />}
+              {this.props.loading && <CircularProgress className="buttonLoading" size={24} />}
             </div>
           </form>
         </div>
@@ -232,14 +203,13 @@ class PasswordRecovery extends React.Component {
 }
 
 PasswordRecovery.propTypes = {
-  fail: PropTypes.bool,
+  error: PropTypes.object,
   router: PropTypes.object,
 
   isValidUserToken: PropTypes.func,
   changeLostPassword: PropTypes.func,
   login: PropTypes.func,
-  goodRequest: PropTypes.func,
-  badRequest: PropTypes.func,
+  cleanError: PropTypes.func,
   close: PropTypes.func,
   goToUrl: PropTypes.func
 };

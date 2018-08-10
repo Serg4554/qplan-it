@@ -1,6 +1,5 @@
 import React from "react";
 import PropTypes from "prop-types";
-import validator from "validator";
 import {MODE_LOGIN} from "../../state/ducks/auth/types";
 import credentials from "../../config/credentials";
 
@@ -13,27 +12,16 @@ import Recaptcha from "react-recaptcha";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 
-function handlePasswordRecovery(props) {
-  if(props.captchaVerified && validator.isEmail(props.email)) {
-    props.recoverPassword(props.email);
-  } else {
-    props.badRequest();
-  }
-}
-
-function passwordRecoveryStatusMessage(props) {
+function forgotPasswordStatusMessage(props) {
   let success = false;
   let message = "";
 
-  if(props.fail && !props.captchaVerified) {
+  if(props.showCaptchaAlert) {
     success = false;
     message = "verifyCaptcha";
-  } else if(props.fail && !props.email) {
+  } else if(props.error && props.error.code === "EMAIL_NOT_FOUND") {
     success = false;
-    message = "enterYourEmail";
-  } else if(props.fail) {
-    success = false;
-    message = "invalidEmail";
+    message = "emailNotFound";
   } else if(props.recoveryPasswordSent) {
     success = true;
     message = "recoveryPasswordEmailSent";
@@ -62,10 +50,19 @@ function passwordRecoveryStatusMessage(props) {
   }
 }
 
-const PasswordRecovery = (props) => {
-  console.log(props);
+const ForgotPassword = (props) => {
   return (
-    <form onSubmit={e => { e.preventDefault(); handlePasswordRecovery(props); }} noValidate>
+    <form
+      onSubmit={e => {
+        e.preventDefault();
+        if(!props.captchaVerified) {
+          props.setCaptchaVerified(false);
+        } else {
+          props.recoverPassword(props.email);
+        }
+      }}
+      noValidate
+    >
       <DialogContent style={{padding: "0 24px", textAlign: "center"}}>
         <DialogContentText style={{textAlign: "left", maxWidth: props.fullScreen ? "initial" : "400px"}}>
           <Translate value="passwordRecoveryMessage" />
@@ -80,30 +77,31 @@ const PasswordRecovery = (props) => {
           value={props.email}
           onChange={event => {
             props.setEmail(event.target.value);
-            if(props.fail) {
-              props.goodRequest();
+            if(props.error) {
+              props.cleanError();
             }
           }}
         />
 
-        <div style={{textAlign: "center", marginTop: "8px"}}>
+        <div style={{textAlign: "center", marginTop: "8px", display: props.recoveryPasswordSent ? "none" : "inherit"}}>
           <Recaptcha
             sitekey={credentials.recaptchaSiteKey}
             verifyCallback={() => props.setCaptchaVerified(true)}
-            expiredCallback={() => props.setCaptchaVerified(false)}
+            expiredCallback={() => {
+              if(!props.recoveryPasswordSent) {
+                props.setCaptchaVerified(false)
+              }
+            }}
             className="recaptcha"
           />
         </div>
       </DialogContent>
 
-      { passwordRecoveryStatusMessage(props) }
+      { forgotPasswordStatusMessage(props) }
 
       <DialogActions>
         <Button
-          onClick={() => {
-            props.setCaptchaVerified(false);
-            props.setMode(MODE_LOGIN);
-          }}
+          onClick={() => props.setMode(MODE_LOGIN)}
           color="secondary"
         >
           <Translate value="return"/>
@@ -116,9 +114,9 @@ const PasswordRecovery = (props) => {
   );
 };
 
-PasswordRecovery.propTypes = {
+ForgotPassword.propTypes = {
   setEmail: PropTypes.func.isRequired,
   setCaptchaVerified: PropTypes.func.isRequired
 };
 
-export default PasswordRecovery;
+export default ForgotPassword;

@@ -1,14 +1,13 @@
 import * as types from "./types";
-import {SIGN_UP_SUCCESS} from "./types";
 
 /** State shape
  * {
  *  mode: string,
  *  opened: boolean,
  *  loading: boolean,
- *  fail: boolean
+ *  error: object
  *  recoveryPasswordSent: boolean,
- *  signUpSuccess: boolean,
+ *  signUpSuccess: boolean
  * }
  */
 
@@ -28,62 +27,44 @@ const reducer = (state = {}, action) => {
       return {
         ...state,
         loading: false,
-        fail: false,
+        error: null,
         mode: action.payload.mode
       };
 
     case types.LOGIN_REQ:
     case types.SIGN_UP_REQ:
     case types.PASS_RECOVERY_REQ:
-    case types.IS_VALID_TOKEN:
-    case types.CHANGE_PASSWORD_REQ:
       return { ...state, loading: true };
 
     case types.PASS_RECOVERY_SUCCESS:
       return {
         ...state,
         loading: false,
-        fail: false,
+        error: null,
         recoveryPasswordSent: true
       };
 
     case types.LOGIN_FAIL:
     case types.SIGN_UP_FAIL:
     case types.PASS_RECOVERY_FAIL:
-    case types.INVALID_TOKEN:
-    case types.CHANGE_PASSWORD_FAIL:
       return {
         ...state,
         loading: false,
-        fail: true
+        error: action.payload.error
       };
 
-    case SIGN_UP_SUCCESS:
+    case types.SIGN_UP_SUCCESS:
       return {
         ...state,
         loading: false,
-        fail: false,
+        error: null,
         signUpSuccess: true
       };
 
-    case types.VALID_TOKEN:
-    case types.CHANGE_PASSWORD_SUCCESS:
+    case types.CLEAN_ERROR:
       return {
         ...state,
-        loading: false,
-        fail: false,
-      };
-
-    case types.BAD_REQUEST:
-      return {
-        ...state,
-        fail: true
-      };
-
-    case types.GOOD_REQUEST:
-      return {
-        ...state,
-        fail: false
+        error: null
       };
 
     default:

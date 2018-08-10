@@ -19,15 +19,14 @@ const retrieveUser = () => dispatch => {
     dispatch(actions.setUser(user));
 
     apiService.Auth.getUser(user.id)
-      .then(response => {
-        if(JSON.stringify(user) !== JSON.stringify(response)) {
-          window.localStorage.setItem('usr', JSON.stringify(response));
-          dispatch(actions.setUser(response));
+      .then(res => {
+        if(res.error) {
+          window.localStorage.setItem('usr', '');
+          window.localStorage.setItem('jwt', '');
+        } else if(JSON.stringify(user) !== JSON.stringify(res)) {
+          window.localStorage.setItem('usr', JSON.stringify(res));
+          dispatch(actions.setUser(res));
         }
-      })
-      .catch(() => {
-        window.localStorage.setItem('usr', '');
-        window.localStorage.setItem('jwt', '');
       });
   }
 };
