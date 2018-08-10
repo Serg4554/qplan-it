@@ -166,18 +166,8 @@ const SignUp = (props) => {
         <div style={{textAlign: "center", marginTop: "8px"}}>
           <Recaptcha
             sitekey={credentials.recaptchaSiteKey}
-            verifyCallback={() => {
-              props.setCaptchaVerified(true);
-              if(props.fail) {
-                props.goodRequest();
-              }
-            }}
-            expiredCallback={() => {
-              props.setCaptchaVerified(false);
-              if(!props.fail) {
-                props.badRequest();
-              }
-            }}
+            verifyCallback={() => props.setCaptchaVerified(true)}
+            expiredCallback={() => props.setCaptchaVerified(false)}
             className="recaptcha"
           />
         </div>

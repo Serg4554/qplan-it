@@ -63,6 +63,7 @@ function passwordRecoveryStatusMessage(props) {
 }
 
 const PasswordRecovery = (props) => {
+  console.log(props);
   return (
     <form onSubmit={e => { e.preventDefault(); handlePasswordRecovery(props); }} noValidate>
       <DialogContent style={{padding: "0 24px", textAlign: "center"}}>
@@ -88,18 +89,8 @@ const PasswordRecovery = (props) => {
         <div style={{textAlign: "center", marginTop: "8px"}}>
           <Recaptcha
             sitekey={credentials.recaptchaSiteKey}
-            verifyCallback={() => {
-              props.setCaptchaVerified(true);
-              if(props.fail) {
-                props.goodRequest();
-              }
-            }}
-            expiredCallback={() => {
-              props.setCaptchaVerified(false);
-              if(!props.fail) {
-                props.badRequest();
-              }
-            }}
+            verifyCallback={() => props.setCaptchaVerified(true)}
+            expiredCallback={() => props.setCaptchaVerified(false)}
             className="recaptcha"
           />
         </div>

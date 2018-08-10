@@ -110,7 +110,14 @@ class Index extends React.Component {
         setEmail={email => this.setState({ email })}
         setPassword={password => this.setState({ password })}
         setConfirmPassword={confirmPassword => this.setState({ confirmPassword })}
-        setCaptchaVerified={captchaVerified => this.setState({ captchaVerified })}
+        setCaptchaVerified={captchaVerified => {
+          if(captchaVerified && this.props.fail) {
+            this.props.goodRequest();
+          } else if(!captchaVerified && !this.props.fail) {
+            this.props.badRequest();
+          }
+          this.setState({ captchaVerified });
+        }}
       />
     );
 
@@ -119,7 +126,14 @@ class Index extends React.Component {
         {...this.state}
         {...this.props}
         setEmail={email => this.setState({ email })}
-        setCaptchaVerified={captchaVerified => this.setState({ captchaVerified })}
+        setCaptchaVerified={captchaVerified => {
+          if(captchaVerified && this.props.fail) {
+            this.props.goodRequest();
+          } else if(!captchaVerified && !this.props.fail) {
+            this.props.badRequest();
+          }
+          this.setState({ captchaVerified });
+        }}
       />
     );
 
