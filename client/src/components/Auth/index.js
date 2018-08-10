@@ -92,43 +92,42 @@ class Index extends React.Component {
   }
 
   renderContent() {
+    const logIn = (
+      <LogIn
+        {...this.state}
+        {...this.props}
+        setEmail={email => this.setState({ email })}
+        setPassword={password => this.setState({ password })}
+      />
+    );
+
+    const signUp = (
+      <SignUp
+        {...this.state}
+        {...this.props}
+        setName={name => this.setState({ name })}
+        setSurname={surname => this.setState({ surname })}
+        setEmail={email => this.setState({ email })}
+        setPassword={password => this.setState({ password })}
+        setConfirmPassword={confirmPassword => this.setState({ confirmPassword })}
+        setCaptchaVerified={captchaVerified => this.setState({ captchaVerified })}
+      />
+    );
+
+    const passwordRecovery = (
+      <PasswordRecovery
+        {...this.state}
+        {...this.props}
+        setEmail={email => this.setState({ email })}
+        setCaptchaVerified={captchaVerified => this.setState({ captchaVerified })}
+      />
+    );
+
     switch (this.props.mode) {
-      case MODE_LOGIN:
-        return (
-          <LogIn
-            {...this.state}
-            {...this.props}
-            setEmail={email => this.setState({ email })}
-            setPassword={password => this.setState({ password })}
-          />
-        );
-
-      case MODE_SIGN_UP:
-        return (
-          <SignUp
-            {...this.state}
-            {...this.props}
-            setName={name => this.setState({ name })}
-            setSurname={surname => this.setState({ surname })}
-            setEmail={email => this.setState({ email })}
-            setPassword={password => this.setState({ password })}
-            setConfirmPassword={confirmPassword => this.setState({ confirmPassword })}
-            setCaptchaVerified={captchaVerified => this.setState({ captchaVerified })}
-          />
-        );
-
-      case MODE_PASSWORD_RECOVERY:
-        return (
-          <PasswordRecovery
-            {...this.state}
-            {...this.props}
-            setEmail={email => this.setState({ email })}
-            setCaptchaVerified={captchaVerified => this.setState({ captchaVerified })}
-          />
-        );
-
-      default:
-        return;
+      case MODE_LOGIN: return logIn;
+      case MODE_SIGN_UP: return signUp;
+      case MODE_PASSWORD_RECOVERY: return passwordRecovery;
+      default: return logIn;
     }
   }
 
@@ -164,7 +163,8 @@ class Index extends React.Component {
           <DialogTitle id="login-title">
             <Translate
               value={this.props.mode === MODE_LOGIN ? "login" :
-                (this.props.mode === MODE_SIGN_UP ? "signUp" : "recoverPassword")}/>
+                (this.props.mode === MODE_SIGN_UP ? "signUp" :
+                  (this.props.mode === MODE_PASSWORD_RECOVERY ? "recoverPassword" : "login"))}/>
           </DialogTitle>
           { this.renderContent() }
         </Dialog>
