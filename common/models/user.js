@@ -15,37 +15,32 @@ passwordSchema
 
 
 module.exports = function(model) {
-  model.beforeRemote('create', function (ctx, inst, next) {
+  model.beforeRemote('create', async function (ctx) {
     if(!passwordSchema.validate(ctx.req.body.password, {})) {
-      return next(UserErrors.PASSWORD_TOO_WEAK);
+      throw UserErrors.PASSWORD_TOO_WEAK;
     }
     if(!validator.isEmail(ctx.req.body.email)) {
-      return next(UserErrors.INVALID_EMAIL);
+      throw  UserErrors.INVALID_EMAIL;
     }
-    return next();
   });
 
 
-  model.observe('before save', async function(ctx, next) {
+  model.observe('before save', async function(ctx) {
     if(ctx.isNewInstance) {
-      return model.findOne({where: {email: ctx.instance.email}})
+      await model.findOne({where: {email: ctx.instance.email}})
         .then(user => {
           if(!user) {
             ctx.instance.verificationToken = token.generate();
           }
-          return next();
         })
-        .catch(() => next());
     } else if(ctx.data.password) {
       if(!passwordSchema.validate(ctx.data.password, {})) {
-        return next(UserErrors.PASSWORD_TOO_WEAK);
+        throw UserErrors.PASSWORD_TOO_WEAK;
       }
       if(ctx.options.accessToken && ctx.options.accessToken.ttl === 900) {
-        model.app.models.AccessToken.deleteById(ctx.options.accessToken.id)
+        await model.app.models.AccessToken.deleteById(ctx.options.accessToken.id);
       }
-      return next();
     }
-    return next();
   });
 
 
@@ -53,7 +48,7 @@ module.exports = function(model) {
     if(ctx.isNewInstance) {
       const redirectUrl = encodeURIComponent("http://localhost:3000/account_verified");
 
-      model.findOne({where: {email: ctx.instance.email}})
+      await model.findOne({where: {email: ctx.instance.email}})
         .then(user => {
           if(user) {
             const url  = "http://localhost:3001/api/users/confirm?uid=" + user.id + "&token=" + user.verificationToken + "&redirect=" + redirectUrl;
@@ -71,7 +66,7 @@ module.exports = function(model) {
   });
 
 
-  model.on('resetPasswordRequest', (info) => {
+  model.on('resetPasswordRequest', function(info) {
     if(validator.isEmail(info.email)) {
       model.app.models.Email.send({
         from: "QPlan it! <no-reply@qplan.it>", // sender address
