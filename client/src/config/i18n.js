@@ -29,7 +29,11 @@ export default {
     signUpSuccessCheckEmail: "Great! You will receive an email, verify your account to log in",
     weakPasswordMessage: "Sorry, the password is too weak",
     verifyCaptcha: "Please, check the captcha",
-    enterYourEmail: "Enter your email"
+    enterYourEmail: "Enter your email",
+    setNewPassword: "Set a new password",
+    changePassword: "Change password",
+    expiredLink: "The link to change the password has expired",
+    passwordSuccessfullyChanged: "The password has been successfully changed"
   },
 
   // Spanish
@@ -62,6 +66,10 @@ export default {
     signUpSuccessCheckEmail: "¡Genial! Recibirás un correo, verifica tu cuenta para acceder",
     weakPasswordMessage: "Lo siento, la contraseña es muy débil",
     verifyCaptcha: "Por favor, verifica el captcha",
-    enterYourEmail: "Introduce tu email"
+    enterYourEmail: "Introduce tu email",
+    setNewPassword: "Establece una nueva contraseña",
+    changePassword: "Cambiar contraseña",
+    expiredLink: "El enlace para cambiar la contraseña ha caducado",
+    passwordSuccessfullyChanged: "La contraseña se ha cambiado correctamente"
   }
 };

@@ -12,18 +12,17 @@ import {SIGN_UP_SUCCESS} from "./types";
  * }
  */
 
-let initialState = {
-  mode: types.MODE_LOGIN
-};
-
-const reducer = (state = initialState, action) => {
+const reducer = (state = {}, action) => {
   switch (action.type) {
     case types.OPEN:
-      return { ...state, opened: true };
+      return {
+        mode: types.MODE_LOGIN,
+        opened: true
+      };
 
     case types.CLOSE:
     case types.LOGIN_SUCCESS:
-      return initialState;
+      return {};
 
     case types.CHANGE_MODE:
       return {
@@ -36,6 +35,8 @@ const reducer = (state = initialState, action) => {
     case types.LOGIN_REQ:
     case types.SIGN_UP_REQ:
     case types.PASS_RECOVERY_REQ:
+    case types.IS_VALID_TOKEN:
+    case types.CHANGE_PASSWORD_REQ:
       return { ...state, loading: true };
 
     case types.PASS_RECOVERY_SUCCESS:
@@ -49,6 +50,8 @@ const reducer = (state = initialState, action) => {
     case types.LOGIN_FAIL:
     case types.SIGN_UP_FAIL:
     case types.PASS_RECOVERY_FAIL:
+    case types.INVALID_TOKEN:
+    case types.CHANGE_PASSWORD_FAIL:
       return {
         ...state,
         loading: false,
@@ -61,6 +64,14 @@ const reducer = (state = initialState, action) => {
         loading: false,
         fail: false,
         signUpSuccess: true
+      };
+
+    case types.VALID_TOKEN:
+    case types.CHANGE_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        fail: false,
       };
 
     case types.BAD_REQUEST:

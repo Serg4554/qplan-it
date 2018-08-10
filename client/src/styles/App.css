@@ -5,12 +5,43 @@
   z-index: -1;
 }
 
-.contentHeader {
+.contentHeaderLarge {
   padding: 0 20px;
   color: white;
   max-width: 1400px;
   margin: 0 auto;
   text-align: center;
+}
+
+.contentHeaderSmall {
+  padding: 0 20px;
+  color: white;
+  max-width: 1400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.headerTitleLarge {
+  font-family: Audiowide, Roboto, 'helvetica neue', helvetica, arial, sans-serif;
+  margin: 0;
+  padding-top: 50px;
+  cursor: pointer;
+}
+
+.headerTitleSmall {
+  font-family: Audiowide, Roboto, 'helvetica neue', helvetica, arial, sans-serif;
+  margin: 0;
+  padding: 20px 0;
+  cursor: pointer;
+}
+
+.headerMottoLarge {
+  margin: 0;
+  padding-bottom: 50px;
+}
+
+.headerMottoSmall {
+  display: none;
 }
 
 .content {
@@ -39,41 +70,65 @@
 }
 
 @media screen and (min-width: 901px) {
-  .title {
+  .headerTitleLarge {
     font-size: 110px;
   }
 
-  .motto {
+  .headerTitleSmall {
+    font-size: 50px;
+  }
+
+  .headerMottoLarge {
     font-size: 30px;
   }
 
-  .login {
+  .headerAuthLarge {
     float: right;
     margin-top: -250px;
+  }
+
+  .headerAuthSmall {
+    float: right;
+    margin-top: -78px;
+  }
+}
+
+@media screen and (max-width: 1440px) {
+  .content {
+    border-radius: 0 !important;
   }
 }
 
 @media screen and (max-width: 900px) {
-  .title {
+  .headerTitleLarge {
     font-size: 90px;
   }
 
-  .motto {
+  .headerTitleSmall {
+    font-size: 50px;
+  }
+
+  .headerMottoLarge {
     font-size: 25px;
   }
 
-  .login {
+  .headerAuthLarge {
     float: none;
     margin: -30px 0 20px 0;
+  }
+
+  .headerAuthSmall {
+    float: none;
+    margin: -10px 0 20px 0;
   }
 }
 
 @media screen and (max-width: 500px) {
-  .title {
+  .headerTitleLarge {
     font-size: 60px;
   }
 
-  .motto {
+  .headerMottoLarge {
     font-size: 17px;
   }
 }

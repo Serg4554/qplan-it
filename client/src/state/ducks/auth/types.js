@@ -12,6 +12,12 @@ export const PASS_RECOVERY_FAIL = 'auth/PASS_RECOVERY_FAIL';
 export const SIGN_UP_REQ = 'auth/SIGN_UP_REQ';
 export const SIGN_UP_SUCCESS = 'auth/SIGN_UP_SUCCESS';
 export const SIGN_UP_FAIL = 'auth/SIGN_UP_FAIL';
+export const IS_VALID_TOKEN = 'auth/IS_VALID_TOKEN';
+export const VALID_TOKEN = 'auth/VALID_TOKEN';
+export const INVALID_TOKEN = 'auth/INVALID_TOKEN';
+export const CHANGE_PASSWORD_REQ = 'auth/CHANGE_PASSWORD_REQ';
+export const CHANGE_PASSWORD_SUCCESS = 'auth/CHANGE_PASSWORD_SUCCESS';
+export const CHANGE_PASSWORD_FAIL = 'auth/CHANGE_PASSWORD_FAIL';
 
 // Constants
 export const MODE_LOGIN = 'LOGIN';

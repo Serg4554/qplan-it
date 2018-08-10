@@ -76,6 +76,36 @@ const signUp = (name, surname, email, password) => dispatch => {
     });
 };
 
+const isValidToken = (id, token) => dispatch => {
+  dispatch(actions.isValidToken());
+
+  return apiService.Auth.getUserWithToken(id, token)
+    .then(user => {
+      if(user && user.id) {
+        return dispatch(actions.validToken());
+      } else {
+        return dispatch(actions.invalidToken());
+      }
+    })
+    .catch(() => {
+      return dispatch(actions.invalidToken());
+    });
+
+};
+
+const changeLostPassword = (password, token) => dispatch => {
+  dispatch(actions.changePasswordReq());
+
+  return apiService.Auth.changeLostPassword(password, token)
+    .then(() => {
+      return dispatch(actions.changePasswordSuccess());
+    })
+    .catch(() => {
+      return dispatch(actions.changePasswordFail());
+    });
+
+};
+
 export {
   open,
   close,
@@ -85,5 +115,7 @@ export {
   badRequest,
   goodRequest,
   recoverPassword,
-  signUp
+  signUp,
+  isValidToken,
+  changeLostPassword
 }

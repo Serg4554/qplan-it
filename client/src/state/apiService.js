@@ -31,6 +31,14 @@ const Auth = {
     const language = store.getState().i18n.locale;
     return requests.post('/users', { name, surname, email, password, language });
   },
+  getUserWithToken: (id, token) =>
+    agent.get(`${API_URL}/users/${id}`).use(req => {if(token) req.set('authorization', token)}).then(res => res.body),
+  changeLostPassword: (newPassword, token) =>
+    agent.post(`${API_URL}/users/reset-password`, { newPassword })
+      .use(req => {
+        if(token) req.set('authorization', token);
+        req.set('Content-Type', 'application/x-www-form-urlencoded');
+      }).then(res => res.body),
 };
 
 const Event = {

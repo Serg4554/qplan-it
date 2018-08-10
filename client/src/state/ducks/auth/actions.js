@@ -56,3 +56,27 @@ export const signUpSuccess = () => ({
 export const signUpFail = () => ({
   type: types.SIGN_UP_FAIL
 });
+
+export const isValidToken = () => ({
+  type: types.IS_VALID_TOKEN
+});
+
+export const validToken = () => ({
+  type: types.VALID_TOKEN
+});
+
+export const invalidToken = () => ({
+  type: types.INVALID_TOKEN
+});
+
+export const changePasswordReq = () => ({
+  type: types.CHANGE_PASSWORD_REQ
+});
+
+export const changePasswordSuccess = () => ({
+  type: types.CHANGE_PASSWORD_SUCCESS
+});
+
+export const changePasswordFail = () => ({
+  type: types.CHANGE_PASSWORD_FAIL
+});
