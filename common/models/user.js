@@ -4,6 +4,7 @@ const validator = require('validator');
 const passwordValidator = require('password-validator');
 const passwordSchema = new passwordValidator();
 const TokenGenerator = require('uuid-token-generator');
+const UserErrors = require('../errors/user');
 const token = new TokenGenerator(256, TokenGenerator.BASE62);
 
 passwordSchema
@@ -12,39 +13,43 @@ passwordSchema
   .has().uppercase()
   .has().lowercase();
 
+
 module.exports = function(model) {
   model.beforeRemote('create', function (ctx, inst, next) {
     if(!passwordSchema.validate(ctx.req.body.password, {})) {
-      return next(new Error("Password must have at least 8 characters, uppercase and lowercase letters"));
+      return next(UserErrors.PASSWORD_TOO_WEAK);
     }
-
     if(!validator.isEmail(ctx.req.body.email)) {
-      return next(new Error("Email is not valid"));
+      return next(UserErrors.INVALID_EMAIL);
     }
-
-    next();
+    return next();
   });
 
-  model.observe('before save', async function(ctx) {
+
+  model.observe('before save', async function(ctx, next) {
     if(ctx.isNewInstance) {
-      model.findOne({where: {email: ctx.instance.email}})
+      return model.findOne({where: {email: ctx.instance.email}})
         .then(user => {
           if(!user) {
             ctx.instance.verificationToken = token.generate();
           }
-        });
+          return next();
+        })
+        .catch(() => next());
     } else if(ctx.data.password) {
       if(!passwordSchema.validate(ctx.data.password, {})) {
-        return next(new Error("Password must have at least 8 characters, uppercase and lowercase letters"));
+        return next(UserErrors.PASSWORD_TOO_WEAK);
       }
-
       if(ctx.options.accessToken && ctx.options.accessToken.ttl === 900) {
         model.app.models.AccessToken.deleteById(ctx.options.accessToken.id)
       }
+      return next();
     }
+    return next();
   });
 
-  model.observe('after save', async function (ctx) {
+
+  model.observe('after save', async function(ctx) {
     if(ctx.isNewInstance) {
       const redirectUrl = encodeURIComponent("http://localhost:3000/account_verified");
 
@@ -64,6 +69,7 @@ module.exports = function(model) {
         });
     }
   });
+
 
   model.on('resetPasswordRequest', (info) => {
     if(validator.isEmail(info.email)) {
