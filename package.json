@@ -7,7 +7,7 @@
   },
   "scripts": {
     "lint": "eslint .",
-    "start": "nodemon .",
+    "start": "NODE_ENV=development nodemon .",
     "posttest": "npm run lint && nsp check"
   },
   "dependencies": {
