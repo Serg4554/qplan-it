@@ -33,6 +33,14 @@ module.exports = function(model) {
             ctx.instance.verificationToken = token.generate();
           }
         });
+    } else if(ctx.data.password) {
+      if(!passwordSchema.validate(ctx.data.password, {})) {
+        return next(new Error("Password must have at least 8 characters, uppercase and lowercase letters"));
+      }
+
+      if(ctx.options.accessToken && ctx.options.accessToken.ttl === 900) {
+        model.app.models.AccessToken.deleteById(ctx.options.accessToken.id)
+      }
     }
   });
 
@@ -65,7 +73,7 @@ module.exports = function(model) {
         subject: "Restablecer contraseña de QPlan it!", // Subject line
         text: "", // plain text body
         html: 'Se ha solicitado cambiar la contraseña de tu cuenta QPlan it, puedes introducir una nueva haciendo click ' +
-          '<a href="http://localhost:3000/password_recovery?jwt=' + info.accessToken.id + '">aqu&iacute;</a>. Si no ha ' +
+          '<a href="http://localhost:3000/password_recovery?jwt=' + info.accessToken.id + '&usr=' + info.user.id + '">aqu&iacute;</a>. Si no ha ' +
           'solicitado cambiar la contraseña, por favor, ignore este correo.<br/>' +
           'El enlace expirará en 15 minutos.'
       });
