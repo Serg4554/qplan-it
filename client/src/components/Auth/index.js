@@ -126,6 +126,9 @@ class Index extends React.Component {
             setCaptchaVerified={captchaVerified => this.setState({ captchaVerified })}
           />
         );
+
+      default:
+        return;
     }
   }
 
