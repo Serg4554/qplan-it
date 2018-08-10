@@ -105,7 +105,7 @@ const PasswordRecovery = (props) => {
         </div>
       </DialogContent>
 
-      { passwordRecoveryStatusMessage() }
+      { passwordRecoveryStatusMessage(props) }
 
       <DialogActions>
         <Button
