@@ -14,7 +14,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 
 function handlePasswordRecovery(props) {
-  if(validator.isEmail(props.email)) {
+  if(props.captchaVerified && validator.isEmail(props.email)) {
     props.recoverPassword(props.email);
   } else {
     props.badRequest();
