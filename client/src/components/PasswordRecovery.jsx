@@ -59,16 +59,22 @@ class PasswordRecovery extends React.Component {
   }
 
   componentWillUnmount() {
+    if(this.progress) {
+      clearInterval(this.progress);
+    }
+    if(this.timeout) {
+      clearTimeout(this.timeout);
+    }
     this.props.close();
   }
 
   success() {
-    const progress = setInterval(() => this.setState({ redirectProgress: this.state.redirectProgress + 15 }), 200);
+    this.progress = setInterval(() => this.setState({ redirectProgress: this.state.redirectProgress + 15 }), 200);
 
-    const props = this.props;
-    setTimeout(function () {
-      clearInterval(progress);
-      props.goToUrl("/");
+    const that = this;
+    this.timeout = setTimeout(function () {
+      clearInterval(that.progress);
+      that.props.goToUrl("/");
     }, 2000);
   }
 
