@@ -60,7 +60,7 @@
           "login": true,
           "logout": true,
           "findById": true,
-          "patchAttributes": true,
+          "prototype.patchAttributes": true,
           "replaceById": true,
           "verify": true,
           "confirm": true,
