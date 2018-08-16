@@ -2,10 +2,10 @@ const _ = require('lodash');
 const ErrorConst = require('./error-const');
 
 function includes(err, code, problem) {
-  if(code.constructor !== Array) {
+  if(problem.constructor !== Array) {
     problem = [problem];
   }
-  return _.difference(problem, _.get(err.details.codes, code, [])).length === 0
+  return _.difference(_.get(err.details.codes, code, []), problem).length === 0
 }
 
 module.exports = () => (err, req, res, next) => {
