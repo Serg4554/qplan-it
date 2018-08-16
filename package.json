@@ -23,14 +23,13 @@
     "loopback-component-explorer": "^6.0.0",
     "loopback-connector-mongodb": "^3.3.1",
     "moment": "^2.22.2",
-    "npm": "^6.3.0",
+    "npm": "^6.4.0",
     "password-validator": "^4.1.1",
     "rand-token": "^0.4.0",
     "serve-favicon": "^2.0.1",
     "shortid": "^2.2.12",
     "strong-error-handler": "^2.0.0",
-    "uuid-token-generator": "^1.0.0",
-    "validator": "^10.5.0"
+    "uuid-token-generator": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^3.17.1",

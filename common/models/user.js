@@ -1,6 +1,5 @@
 'use strict';
 
-const validator = require('validator');
 const passwordValidator = require('password-validator');
 const passwordSchema = new passwordValidator();
 const TokenGenerator = require('uuid-token-generator');
@@ -28,12 +27,6 @@ module.exports = function(model) {
 
   model.beforeRemote('prototype.patchAttributes', async function (ctx) {
     if(!passwordSchema.validate(ctx.req.body.password, {})) {
-      throw ErrorConst.Error(ErrorConst.PASSWORD_TOO_WEAK);
-    }
-  });
-
-  model.beforeRemote('resetPassword', async function (ctx) {
-    if(!validator.isEmail(ctx.req.body.email)) {
       throw ErrorConst.Error(ErrorConst.PASSWORD_TOO_WEAK);
     }
   });

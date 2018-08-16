@@ -5,7 +5,8 @@ function includes(err, code, problem) {
   if(problem.constructor !== Array) {
     problem = [problem];
   }
-  return _.difference(_.get(err.details.codes, code, []), problem).length === 0
+  const errors = _.get(err.details.codes, code, []);
+  return errors.length !== 0 && _.difference(errors, problem).length === 0
 }
 
 module.exports = () => (err, req, res, next) => {
