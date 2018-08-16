@@ -26,15 +26,17 @@ export default {
     createAccount: "Create account",
     passwordsDoNotMatch: "Passwords do not match",
     userAlreadyExists: "There is already a user with that email",
-    checkEmptyFields: "Please check that there are no empty fields",
+    invalidName: "The name is required, it can't be empty",
     signUpSuccessCheckEmail: "Great! You will receive an email, verify your account to log in",
     weakPasswordMessage: "The password is too weak, try a more secure one",
     invalidPassword: "Invalid password",
+    emailNotVerified: "Oops! The email has not been verified",
     verifyCaptcha: "Please, check the captcha",
     setNewPassword: "Set a new password",
     changePassword: "Change password",
     expiredLink: "The link to change the password has expired",
-    passwordSuccessfullyChanged: "The password has been successfully changed"
+    passwordSuccessfullyChanged: "The password has been successfully changed",
+    errorOccurred: "An error has occurred"
   },
 
   // Spanish
@@ -64,14 +66,16 @@ export default {
     createAccount: "Crear cuenta",
     passwordsDoNotMatch: "Las contraseñas no coinciden",
     userAlreadyExists: "Ya existe un usuario con ese email",
-    checkEmptyFields: "Por favor, comprueba que no haya campos vacíos",
+    invalidName: "El nombre es obligatorio, no puede estar vacío",
     signUpSuccessCheckEmail: "¡Genial! Recibirás un correo, verifica tu cuenta para acceder",
     weakPasswordMessage: "La contraseña es muy débil, pruebe una más segura",
     invalidPassword: "La contraseña no es válida",
+    emailNotVerified: "Ups! El correo no ha sido verificado",
     verifyCaptcha: "Por favor, verifica el captcha",
     setNewPassword: "Establece una nueva contraseña",
     changePassword: "Cambiar contraseña",
     expiredLink: "El enlace para cambiar la contraseña ha caducado",
-    passwordSuccessfullyChanged: "La contraseña se ha cambiado correctamente"
+    passwordSuccessfullyChanged: "La contraseña se ha cambiado correctamente",
+    errorOccurred: "Ha ocurrido un error",
   }
 };

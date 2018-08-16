@@ -22,6 +22,12 @@ function forgotPasswordStatusMessage(props) {
   } else if(props.error && props.error.code === "EMAIL_NOT_FOUND") {
     success = false;
     message = "emailNotFound";
+  } else if(props.error && props.error.code === "RESET_FAILED_EMAIL_NOT_VERIFIED") {
+    success = false;
+    message = "emailNotVerified";
+  } else if(props.error) {
+    success = false;
+    message = "errorOccurred";
   } else if(props.recoveryPasswordSent) {
     success = true;
     message = "recoveryPasswordEmailSent";
@@ -87,11 +93,7 @@ const ForgotPassword = (props) => {
           <Recaptcha
             sitekey={credentials.recaptchaSiteKey}
             verifyCallback={() => props.setCaptchaVerified(true)}
-            expiredCallback={() => {
-              if(!props.recoveryPasswordSent) {
-                props.setCaptchaVerified(false)
-              }
-            }}
+            expiredCallback={() => props.setCaptchaVerified(false)}
             className="recaptcha"
           />
         </div>

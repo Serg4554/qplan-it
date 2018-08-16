@@ -92,12 +92,12 @@ class PasswordRecovery extends React.Component {
     } else if(this.props.error && this.props.error.code === "PASSWORD_TOO_WEAK") {
       success = false;
       message = "weakPasswordMessage";
-    } else if(this.props.error && this.props.error.statusCode === 400) {
-      success = false;
-      message = "invalidPassword";
     } else if(this.props.error && this.props.error.code === "AUTHORIZATION_REQUIRED") {
       success = false;
       message = "expiredLink";
+    } else if(this.props.error) {
+      success = false;
+      message = "invalidPassword";
     } else if(this.props.success) {
       success = true;
       message = "passwordSuccessfullyChanged";

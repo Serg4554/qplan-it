@@ -29,12 +29,15 @@ function signUpStatusMessage(props) {
   } else if(props.error && props.error.code === "INVALID_EMAIL") {
     success = false;
     message = "invalidEmail";
-  } else if (props.error && (!props.name || !props.surname)) {
+  } else if (props.error && props.error.code === "INVALID_NAME") {
     success = false;
-    message = "checkEmptyFields";
-  } else if(props.error) {
+    message = "invalidName";
+  } else if(props.error && props.error.code === "USER_ALREADY_EXISTS") {
     success = false;
     message = "userAlreadyExists";
+  } else if(props.error) {
+    success = false;
+    message = "errorOccurred";
   } else if(props.signUpSuccess) {
     success = true;
     message = "signUpSuccessCheckEmail";
@@ -64,6 +67,8 @@ function signUpStatusMessage(props) {
 }
 
 const SignUp = (props) => {
+  console.log("RENDER");
+  console.log(props.signUpSuccess);
   return (
     <form
       onSubmit={e => {
@@ -105,7 +110,6 @@ const SignUp = (props) => {
             style={{}}
             margin="normal"
             fullWidth={props.fullScreen}
-            required
             value={props.surname}
             onChange={event => {
               props.setSurname(event.target.value);
@@ -166,11 +170,7 @@ const SignUp = (props) => {
           <Recaptcha
             sitekey={credentials.recaptchaSiteKey}
             verifyCallback={() => props.setCaptchaVerified(true)}
-            expiredCallback={() => {
-              if(!props.signUpSuccess) {
-                props.setCaptchaVerified(false)
-              }
-            }}
+            expiredCallback={() => props.setCaptchaVerified(false)}
             className="recaptcha"
           />
         </div>

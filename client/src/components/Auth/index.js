@@ -124,7 +124,9 @@ class Index extends React.Component {
           if(captchaVerified && this.props.error) {
             this.props.cleanError();
           }
-          this.setState({ captchaVerified, showCaptchaAlert: !captchaVerified });
+          if(!this.props.signUpSuccess) {
+            this.setState({ captchaVerified, showCaptchaAlert: !captchaVerified });
+          }
         }}
       />
     );
@@ -138,7 +140,9 @@ class Index extends React.Component {
           if(captchaVerified && this.props.error) {
             this.props.cleanError();
           }
-          this.setState({ captchaVerified, showCaptchaAlert: !captchaVerified });
+          if(!this.props.recoveryPasswordSent) {
+            this.setState({ captchaVerified, showCaptchaAlert: !captchaVerified });
+          }
         }}
       />
     );
