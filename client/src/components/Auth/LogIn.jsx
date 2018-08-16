@@ -25,7 +25,7 @@ function loginStatusMessage(props) {
       <div style={{textAlign: "center"}}>
         <Chip
           style={{marginTop: "24px", background: "#D50000", color: "#fff"}}
-          label={<Translate value="failLoginMessage" />}
+          label={<Translate value="auth.message.failLogin" />}
         />
       </div>
     );
@@ -38,7 +38,7 @@ const LogIn = (props) => {
       <DialogContent style={{padding: "0 24px", textAlign: "center"}}>
         <TextField
           autoFocus
-          label={<Translate value="email" />}
+          label={<Translate value="auth.email" />}
           type="email"
           margin="normal"
           fullWidth
@@ -51,7 +51,7 @@ const LogIn = (props) => {
           }}
         />
         <TextField
-          label={<Translate value="password" />}
+          label={<Translate value="auth.password" />}
           type="password"
           margin="normal"
           fullWidth
@@ -77,7 +77,7 @@ const LogIn = (props) => {
             }
           }}
         >
-          <Translate value="forgotPasswordQuest" />
+          <Translate value="auth.forgotPasswordQuest" />
         </a>
       </div>
 
@@ -93,10 +93,10 @@ const LogIn = (props) => {
             }
           }}
         >
-          <Translate value="signUp" />
+          <Translate value="auth.signUp" />
         </Button>
         <Button onClick={() => props.close()} color="secondary">
-          <Translate value="close"/>
+          <Translate value="common.close"/>
         </Button>
         <div style={{position: 'relative'}}>
           <Button
@@ -105,7 +105,7 @@ const LogIn = (props) => {
             variant="contained"
             disabled={props.loading}
           >
-            <Translate value="enter" />
+            <Translate value="common.enter" />
           </Button>
           {props.loading && <CircularProgress className="buttonLoading" size={24} />}
         </div>

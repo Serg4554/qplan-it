@@ -94,19 +94,19 @@ class PasswordRecovery extends React.Component {
 
     if(this.state.alertPasswordNotMatch) {
       success = false;
-      message = "passwordsDoNotMatch";
+      message = "auth.message.passwordsDoNotMatch";
     } else if(this.props.error && this.props.error.code === "PASSWORD_TOO_WEAK") {
       success = false;
-      message = "weakPasswordMessage";
+      message = "auth.message.weakPassword";
     } else if(this.props.error && this.props.error.code === "AUTHORIZATION_REQUIRED") {
       success = false;
-      message = "expiredLink";
+      message = "auth.message.expiredLink";
     } else if(this.props.error) {
       success = false;
-      message = "invalidPassword";
+      message = "auth.message.invalidPassword";
     } else if(this.props.success) {
       success = true;
-      message = "passwordSuccessfullyChanged";
+      message = "auth.message.passwordSuccessfullyChanged";
     }
 
     if(message) {
@@ -160,10 +160,10 @@ class PasswordRecovery extends React.Component {
             }}
             noValidate
           >
-            <h2><Translate value="setNewPassword" /></h2>
+            <h2><Translate value="auth.setNewPassword" /></h2>
             { this.statusMessage() }
             <TextField
-              label={<Translate value="password" />}
+              label={<Translate value="auth.password" />}
               type="password"
               margin="normal"
               fullWidth
@@ -177,7 +177,7 @@ class PasswordRecovery extends React.Component {
               }}
             />
             <TextField
-              label={<Translate value="confirmPassword" />}
+              label={<Translate value="auth.confirmPassword" />}
               type="password"
               margin="normal"
               fullWidth
@@ -197,7 +197,7 @@ class PasswordRecovery extends React.Component {
                 disabled={this.isFormDisabled()}
                 type="submit"
               >
-                <Translate value="changePassword" />
+                <Translate value="auth.changePassword" />
               </Button>
               {this.props.loading && <CircularProgress className="buttonLoading" size={24} />}
             </div>

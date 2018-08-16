@@ -18,19 +18,19 @@ function forgotPasswordStatusMessage(props) {
 
   if(props.showCaptchaAlert) {
     success = false;
-    message = "verifyCaptcha";
+    message = "auth.message.verifyCaptcha";
   } else if(props.error && props.error.code === "EMAIL_NOT_FOUND") {
     success = false;
-    message = "emailNotFound";
+    message = "auth.message.emailNotFound";
   } else if(props.error && props.error.code === "RESET_FAILED_EMAIL_NOT_VERIFIED") {
     success = false;
-    message = "emailNotVerified";
+    message = "auth.message.emailNotVerified";
   } else if(props.error) {
     success = false;
-    message = "errorOccurred";
+    message = "auth.message.errorOccurred";
   } else if(props.recoveryPasswordSent) {
     success = true;
-    message = "recoveryPasswordEmailSent";
+    message = "auth.message.recoveryPasswordEmailSent";
   }
 
   if(message) {
@@ -71,12 +71,12 @@ const ForgotPassword = (props) => {
     >
       <DialogContent style={{padding: "0 24px", textAlign: "center"}}>
         <DialogContentText style={{textAlign: "left", maxWidth: props.fullScreen ? "initial" : "400px"}}>
-          <Translate value="passwordRecoveryMessage" />
+          <Translate value="auth.passwordRecoveryHeader" />
         </DialogContentText>
 
         <TextField
           autoFocus
-          label={<Translate value="email" />}
+          label={<Translate value="auth.email" />}
           type="email"
           margin="normal"
           fullWidth
@@ -106,10 +106,10 @@ const ForgotPassword = (props) => {
           onClick={() => props.setMode(MODE_LOGIN)}
           color="secondary"
         >
-          <Translate value="return"/>
+          <Translate value="common.return"/>
         </Button>
         <Button disabled={props.recoveryPasswordSent} type="submit" color="primary" variant="contained">
-          <Translate value="recover"/>
+          <Translate value="auth.recover"/>
         </Button>
       </DialogActions>
     </form>

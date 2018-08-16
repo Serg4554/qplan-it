@@ -58,10 +58,10 @@ class App extends Component {
             className={this.isLargeHeader() ? "headerTitleLarge" : "headerTitleSmall"}
             onClick={() => this.props.goToUrl("/")}
           >
-            <Translate value="app_name" />
+            <Translate value="common.app_name" />
           </h1>
           <h2 className={this.isLargeHeader() ? "headerMottoLarge" : "headerMottoSmall"}>
-            <Translate value="motto" />
+            <Translate value="common.motto" />
           </h2>
           <div>
             <Auth className={this.isLargeHeader() ? "headerAuthLarge" : "headerAuthSmall"} />

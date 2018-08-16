@@ -48,14 +48,14 @@ class AccountVerified extends React.Component {
     return (
       <div>
         <div style={{maxWidth: "500px", margin: "0 auto", textAlign: "center"}}>
-          <h1><Translate value="accountVerified" /></h1>
+          <h1><Translate value="auth.accountVerified" /></h1>
           <LinearProgress
             style={{marginTop: "20px"}}
             color="secondary"
             variant="determinate"
             value={this.state.redirectProgress}
           />
-          <h3><Translate value="accountVerifiedMessage" /></h3>
+          <h3><Translate value="auth.youCanNowLogIn" /></h3>
         </div>
       </div>
     );

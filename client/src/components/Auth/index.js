@@ -176,7 +176,7 @@ class Index extends React.Component {
           }}
         >
           <PersonIcon style={{marginRight: "10px"}}/>
-          {this.props.user ? this.props.user.name : <Translate value="login" />}
+          {this.props.user ? this.props.user.name : <Translate value="auth.login" />}
         </Button>
 
         <Dialog
@@ -186,9 +186,9 @@ class Index extends React.Component {
           aria-labelledby="login-title">
           <DialogTitle id="login-title">
             <Translate
-              value={this.props.mode === MODE_LOGIN ? "login" :
-                (this.props.mode === MODE_SIGN_UP ? "signUp" :
-                  (this.props.mode === MODE_PASSWORD_RECOVERY ? "recoverPassword" : "login"))}/>
+              value={this.props.mode === MODE_LOGIN ? "auth.login" :
+                (this.props.mode === MODE_SIGN_UP ? "auth.signUp" :
+                  (this.props.mode === MODE_PASSWORD_RECOVERY ? "auth.recoverPassword" : "auth.login"))}/>
           </DialogTitle>
           { this.renderContent() }
         </Dialog>

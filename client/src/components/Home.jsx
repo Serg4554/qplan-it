@@ -26,7 +26,7 @@ const Home = (props) => {
       <div className="createEventLayout">
         <TextField
           id="event"
-          label={<Translate value="eventName" />}
+          label={<Translate value="event.eventName" />}
           margin="normal"
           fullWidth={true}
         />
@@ -35,7 +35,7 @@ const Home = (props) => {
           color="primary"
           onClick={() => props.goToUrl("/create")}
         >
-          <Translate value="createEvent" />
+          <Translate value="event.createEvent" />
         </Button>
         <img
           src={"/mars.png"}

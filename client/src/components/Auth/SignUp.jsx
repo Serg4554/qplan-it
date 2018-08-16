@@ -19,28 +19,28 @@ function signUpStatusMessage(props) {
 
   if(props.showCaptchaAlert) {
     success = false;
-    message = "verifyCaptcha";
+    message = "auth.message.verifyCaptcha";
   } else if(props.alertPasswordNotMatch) {
     success = false;
-    message = "passwordsDoNotMatch";
+    message = "auth.message.passwordsDoNotMatch";
   } else if(props.error && props.error.code === "PASSWORD_TOO_WEAK") {
     success = false;
-    message = "weakPasswordMessage";
+    message = "auth.message.weakPassword";
   } else if(props.error && props.error.code === "INVALID_EMAIL") {
     success = false;
-    message = "invalidEmail";
+    message = "auth.message.invalidEmail";
   } else if (props.error && props.error.code === "INVALID_NAME") {
     success = false;
-    message = "invalidName";
+    message = "auth.message.invalidName";
   } else if(props.error && props.error.code === "USER_ALREADY_EXISTS") {
     success = false;
-    message = "userAlreadyExists";
+    message = "auth.message.userAlreadyExists";
   } else if(props.error) {
     success = false;
-    message = "errorOccurred";
+    message = "auth.message.errorOccurred";
   } else if(props.signUpSuccess) {
     success = true;
-    message = "signUpSuccessCheckEmail";
+    message = "auth.message.signUpSuccessCheckEmail";
   }
 
   if(message) {
@@ -88,7 +88,7 @@ const SignUp = (props) => {
       <DialogContent style={{padding: "0 24px", textAlign: "center"}}>
         <div style={{width: "100%"}}>
           <TextField
-            label={<Translate value="name" />}
+            label={<Translate value="auth.name" />}
             type="text"
             margin="normal"
             style={{marginRight: props.fullScreen ? "0" : "20px"}}
@@ -103,7 +103,7 @@ const SignUp = (props) => {
             }}
           />
           <TextField
-            label={<Translate value="surname" />}
+            label={<Translate value="auth.surname" />}
             type="text"
             style={{}}
             margin="normal"
@@ -118,7 +118,7 @@ const SignUp = (props) => {
           />
         </div>
         <TextField
-          label={<Translate value="email" />}
+          label={<Translate value="auth.email" />}
           type="email"
           margin="normal"
           fullWidth
@@ -134,7 +134,7 @@ const SignUp = (props) => {
         />
         <div>
           <TextField
-            label={<Translate value="password" />}
+            label={<Translate value="auth.password" />}
             type="password"
             margin="normal"
             style={{marginRight: props.fullScreen ? "0" : "20px"}}
@@ -149,7 +149,7 @@ const SignUp = (props) => {
             }}
           />
           <TextField
-            label={<Translate value="confirmPassword" />}
+            label={<Translate value="auth.confirmPassword" />}
             type="password"
             margin="normal"
             fullWidth={props.fullScreen}
@@ -181,7 +181,7 @@ const SignUp = (props) => {
           onClick={() => props.setMode(MODE_LOGIN)}
           color="secondary"
         >
-          <Translate value="return"/>
+          <Translate value="common.return"/>
         </Button>
         <div style={{position: 'relative'}}>
           <Button
@@ -190,7 +190,7 @@ const SignUp = (props) => {
             variant="contained"
             disabled={props.loading || props.signUpSuccess}
           >
-            <Translate value="createAccount" />
+            <Translate value="auth.createAccount" />
           </Button>
           {props.loading && <CircularProgress className="buttonLoading" size={24} />}
         </div>
