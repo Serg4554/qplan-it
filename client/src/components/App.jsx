@@ -16,6 +16,7 @@ import Auth from './Auth'
 import Paper from '@material-ui/core/Paper';
 import Home from './Home'
 import PasswordRecovery from './PasswordRecovery'
+import AccountVerified from './AccountVerified'
 
 
 const mapStateToProps = state => {
@@ -81,6 +82,7 @@ class App extends Component {
             <Route exact path="/login" component={Home} />
             <Route exact path="/create" component={Home} />
             <Route exact path="/password_recovery" component={PasswordRecovery} />
+            <Route exact path="/account_verified" component={AccountVerified} />
           </Switch>
         </Paper>
       </div>

@@ -36,7 +36,9 @@ export default {
     changePassword: "Change password",
     expiredLink: "The link to change the password has expired",
     passwordSuccessfullyChanged: "The password has been successfully changed",
-    errorOccurred: "An error has occurred"
+    errorOccurred: "An error has occurred",
+    accountVerified: "Account verified",
+    accountVerifiedMessage: "You can now log in, we are redirecting you"
   },
 
   // Spanish
@@ -77,5 +79,7 @@ export default {
     expiredLink: "El enlace para cambiar la contraseña ha caducado",
     passwordSuccessfullyChanged: "La contraseña se ha cambiado correctamente",
     errorOccurred: "Ha ocurrido un error",
+    accountVerified: "Cuenta verificada",
+    accountVerifiedMessage: "Ya puede iniciar sesión, le estamos redirigiendo"
   }
 };

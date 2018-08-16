@@ -87,9 +87,9 @@ class Index extends React.Component {
       }
     }
 
-    if(this.props.router.location.pathname === "/login" && nextLocation === "/") {
+    if(location === "/login" && nextLocation !== "/login") {
       this.props.close();
-    } else if(!nextProps.opened && location === "/" && nextLocation === "/login") {
+    } else if(!nextProps.opened && nextLocation === "/login") {
       this.props.open();
     }
   }
