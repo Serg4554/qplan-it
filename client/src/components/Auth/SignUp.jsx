@@ -67,8 +67,6 @@ function signUpStatusMessage(props) {
 }
 
 const SignUp = (props) => {
-  console.log("RENDER");
-  console.log(props.signUpSuccess);
   return (
     <form
       onSubmit={e => {
