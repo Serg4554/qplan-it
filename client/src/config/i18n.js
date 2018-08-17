@@ -7,6 +7,13 @@ export default {
       enter: "Enter",
       close: "Close",
       return: "Return",
+      clear: "Clear",
+      yes: "Yes",
+      no: "No",
+      back: "Back",
+      next: "Next",
+      finish: "Finish",
+      optional: "Optional",
     },
     auth: {
       login: "Log in",
@@ -45,8 +52,18 @@ export default {
     },
     event: {
       eventName: "Event name",
-      createEvent: "Create event",
-      selectDays: "Select days can be carried out",
+      create: "Create event",
+      continue: "Continue event",
+      selectDays: "Select days",
+      selectDaysDescription: "Select days can be carried out",
+      selectHours: "Select hours",
+      selectHoursDescription: "What hours can they choose?", //TODO: Not used
+      extraOptions: "Extra options",
+      extraOptionsDescription: "Great! Anything else?", //TODO: Not used
+      days: "days",
+      day: "day",
+      areYouSure: "Are you sure?",
+      hoursConfigLostAlert: "If you go back, all the configuration about hours will be lost. Do you want to continue?",
     },
   },
 
@@ -60,6 +77,13 @@ export default {
       enter: "Entrar",
       close: "Cerrar",
       return: "Volver",
+      clear: "Limpiar",
+      yes: "Sí",
+      no: "No",
+      back: "Atrás",
+      next: "Siguiente",
+      finish: "Finalizar",
+      optional: "Opcional",
     },
     auth: {
       login: "Iniciar sesión",
@@ -98,8 +122,18 @@ export default {
     },
     event: {
       eventName: "Nombre del evento",
-      createEvent: "Crear evento",
-      selectDays: "Selecciona los días puede llevarse a cabo",
+      create: "Crear evento",
+      continue: "Continuar evento",
+      selectDays: "Seleccionar días",
+      selectDaysDescription: "Selecciona los días puede llevarse a cabo",
+      selectHours: "Seleccionar horas",
+      selectHoursDescription: "¿Qué horas se pueden elegir?", //TODO: Not used
+      extraOptions: "Opciones extra",
+      extraOptionsDescription: "¡Genial! ¿Algo más?", //TODO: Not used
+      days: "días",
+      day: "día",
+      areYouSure: "¿Estás seguro?",
+      hoursConfigLostAlert: "Si vuelve atrás, toda la configuración sobre horas se perderá. ¿Desea continuar?",
     },
   },
 };

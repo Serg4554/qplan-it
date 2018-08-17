@@ -9,9 +9,9 @@ import { Translate } from 'react-redux-i18n';
 import Button from "@material-ui/core/Button";
 
 
-const mapStateToProps = () => {
+const mapStateToProps = state => {
   return {
-
+    eventTitle: state.event.title
   }
 };
 
@@ -27,7 +27,7 @@ class Home extends React.Component {
     super(props);
 
     this.state = {
-      eventTitle: ""
+      eventTitle: props.eventTitle
     }
   };
 
@@ -46,6 +46,7 @@ class Home extends React.Component {
         <div className="createEventLayout">
           <form onSubmit={e => { e.preventDefault(); this.handleCreateEvent(); }} noValidate>
             <TextField
+              autoFocus
               inputRef={obj => this.eventTitleInput = obj}
               id="event"
               label={<Translate value="event.eventName" />}
@@ -59,7 +60,7 @@ class Home extends React.Component {
               }}
             />
             <Button type="submit" variant="contained" color="primary">
-              <Translate value="event.createEvent" />
+              <Translate value={this.props.eventTitle ? "event.continue" : "event.create"} />
             </Button>
           </form>
           <img

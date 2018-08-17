@@ -6,6 +6,8 @@ import { ConnectedRouter } from "connected-react-router";
 import { Route, Switch } from "react-router-dom";
 
 import './styles/index.css';
+import 'react-date-range/dist/styles.css';
+import 'react-date-range/dist/theme/default.css';
 import registerServiceWorker from './registerServiceWorker';
 import { createMuiTheme, MuiThemeProvider } from "@material-ui/core/styles";
 import theme from "./config/theme";
