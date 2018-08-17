@@ -66,26 +66,14 @@ class Index extends React.Component {
   }
 
   componentWillMount() {
-    const logged = !!this.props.user;
-    if(this.props.router.location.pathname === "/login") {
-      if(logged) {
-        this.props.goToUrl("/");
-      } else {
-        this.props.open();
-      }
+    if(!this.props.user && this.props.router.location.pathname === "/login") {
+      this.props.open();
     }
   }
 
   componentWillReceiveProps(nextProps, nextContext) {
     const location = this.props.router.location.pathname;
     const nextLocation = nextProps.router.location.pathname;
-
-    if(this.props.opened !== nextProps.opened) {
-      this.setState(initialState);
-      if(!nextProps.opened && location === "/login" && nextLocation === "/login") {
-        this.props.goToUrl("/")
-      }
-    }
 
     if(location === "/login" && nextLocation !== "/login") {
       this.props.close();
@@ -94,11 +82,21 @@ class Index extends React.Component {
     }
   }
 
+  close() {
+    this.setState(initialState);
+    if(this.props.router.location.pathname === "/login") {
+      this.props.goToUrl("/")
+    } else {
+      this.props.close();
+    }
+  }
+
   renderContent() {
     const logIn = (
       <LogIn
         {...this.state}
         {...this.props}
+        onClose={() => this.close()}
         setEmail={email => this.setState({ email })}
         setPassword={password => this.setState({ password })}
         onModeChange={() => {
@@ -167,8 +165,7 @@ class Index extends React.Component {
           onClick={() => {
             if(!this.props.user && this.props.router.location.pathname === "/") {
               this.props.goToUrl("/login")
-            }
-            if(!this.props.user) {
+            } else if(!this.props.user) {
               this.props.open();
             } else {
               this.props.logout();
@@ -181,7 +178,7 @@ class Index extends React.Component {
 
         <Dialog
           open={!this.props.user && this.props.opened}
-          onClose={() => this.props.close()}
+          onClose={() => this.close()}
           fullScreen={this.props.fullScreen}
           aria-labelledby="login-title">
           <DialogTitle id="login-title">

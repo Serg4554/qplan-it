@@ -46,6 +46,7 @@ export default {
     event: {
       eventName: "Event name",
       createEvent: "Create event",
+      selectDays: "Select days can be carried out",
     },
   },
 
@@ -98,6 +99,7 @@ export default {
     event: {
       eventName: "Nombre del evento",
       createEvent: "Crear evento",
+      selectDays: "Selecciona los días puede llevarse a cabo",
     },
   },
 };

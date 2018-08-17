@@ -95,7 +95,7 @@ const LogIn = (props) => {
         >
           <Translate value="auth.signUp" />
         </Button>
-        <Button onClick={() => props.close()} color="secondary">
+        <Button onClick={() => props.onClose()} color="secondary">
           <Translate value="common.close"/>
         </Button>
         <div style={{position: 'relative'}}>
@@ -115,6 +115,7 @@ const LogIn = (props) => {
 };
 
 LogIn.propTypes = {
+  onClose: PropTypes.func.isRequired,
   setEmail: PropTypes.func.isRequired,
   setPassword: PropTypes.func.isRequired,
   onModeChange: PropTypes.func

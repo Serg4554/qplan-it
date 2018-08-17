@@ -17,11 +17,14 @@ import Paper from '@material-ui/core/Paper';
 import Home from './Home'
 import PasswordRecovery from './PasswordRecovery'
 import AccountVerified from './AccountVerified'
+import CreateEvent from './CreateEvent'
+import Redirect from "react-router-dom/Redirect";
 
 
 const mapStateToProps = state => {
   return {
-    user: state.auth.user,
+    eventTitle: state.event.title,
+    user: state.session.user,
     location: state.router.location.pathname
   }
 };
@@ -71,6 +74,18 @@ class App extends Component {
     );
   }
 
+  renderLogin() {
+    return !this.props.user ?
+      <Home /> :
+      <Redirect to='/' />;
+  }
+
+  renderCreate() {
+    return this.props.eventTitle ?
+      <CreateEvent /> :
+      <Redirect to='/' />;
+  }
+
   render() {
     return (
       <div>
@@ -79,8 +94,8 @@ class App extends Component {
         <Paper className="content" elevation={1}>
           <Switch>
             <Route exact path="/" component={Home} />
-            <Route exact path="/login" component={Home} />
-            <Route exact path="/create" component={Home} />
+            <Route exact path="/login" component={ () => this.renderLogin() } />
+            <Route exact path="/create" component={ () => this.renderCreate() } />
             <Route exact path="/password_recovery" component={PasswordRecovery} />
             <Route exact path="/account_verified" component={AccountVerified} />
           </Switch>
