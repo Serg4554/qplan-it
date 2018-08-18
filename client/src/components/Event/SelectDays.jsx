@@ -13,6 +13,7 @@ const SelectDays = (props) => {
       <Calendar
         selectedDays={props.selectedDays}
         onSelectedDaysChanged={props.onSelectedDaysChanged.bind(this)}
+        appendDays={true}
         selectRange={true}
         primaryColor={theme.palette.primary.main}
         secondaryColor={theme.palette.secondary.light}
