@@ -14,6 +14,7 @@ export default {
       next: "Next",
       finish: "Finish",
       optional: "Optional",
+      selectAll: "Select all",
     },
     auth: {
       login: "Log in",
@@ -57,9 +58,9 @@ export default {
       selectDays: "Select days",
       selectDaysDescription: "Select days can be carried out",
       selectHours: "Select hours",
-      selectHoursDescription: "What hours can they choose?", //TODO: Not used
+      selectHoursDescription: "What hours can they choose?",
       extraOptions: "Extra options",
-      extraOptionsDescription: "Great! Anything else?", //TODO: Not used
+      extraOptionsDescription: "Great! Anything else?",
       days: "days",
       day: "day",
       areYouSure: "Are you sure?",
@@ -84,6 +85,7 @@ export default {
       next: "Siguiente",
       finish: "Finalizar",
       optional: "Opcional",
+      selectAll: "Seleccionar todo",
     },
     auth: {
       login: "Iniciar sesión",
@@ -127,9 +129,9 @@ export default {
       selectDays: "Seleccionar días",
       selectDaysDescription: "Selecciona los días puede llevarse a cabo",
       selectHours: "Seleccionar horas",
-      selectHoursDescription: "¿Qué horas se pueden elegir?", //TODO: Not used
+      selectHoursDescription: "¿Qué horas se pueden elegir?",
       extraOptions: "Opciones extra",
-      extraOptionsDescription: "¡Genial! ¿Algo más?", //TODO: Not used
+      extraOptionsDescription: "¡Genial! ¿Algo más?",
       days: "días",
       day: "día",
       areYouSure: "¿Estás seguro?",

@@ -1,12 +1,14 @@
 {
   "palette": {
     "primary": {
+      "clear": "#ff9b9d",
       "light": "#ff8285",
       "main": "#ed3e3d",
       "dark": "#d3313d",
       "contrastText": "#fff"
     },
     "secondary": {
+      "clear": "#BDBDBD",
       "light": "#757575",
       "main": "#424242",
       "dark": "#212121",

@@ -17,6 +17,8 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import Dialog from "@material-ui/core/Dialog";
 import SelectDays from "./Event/SelectDays"
+import SelectHours from "./Event/SelectHours"
+import ExtraOptions from "./Event/ExtraOptions"
 
 
 const mapStateToProps = state => {
@@ -44,7 +46,8 @@ class CreateEvent extends React.Component {
     super(props);
 
     this.state = {
-      backDialogOpen: false
+      backDialogOpen: false,
+      selectedDays: []
     }
   }
 
@@ -71,7 +74,24 @@ class CreateEvent extends React.Component {
         return (
           <SelectDays
             selectedDays={this.props.days}
-            onSelectedDaysChanged={selectedDays => this.props.setDays(selectedDays)}
+            onSelectedDaysChanged={selectedDays => {
+              this.props.setDays(selectedDays);
+              this.setState({ selectedDays })
+            }}
+          />
+        );
+      case 1:
+        return (
+          <SelectHours
+            highlightedDays={this.props.days}
+            selectedDays={this.state.selectedDays}
+            onSelectedDaysChanged={selectedDays => this.setState({ selectedDays })}
+          />
+        );
+      case 2:
+        return (
+          <ExtraOptions
+
           />
         );
       default:
