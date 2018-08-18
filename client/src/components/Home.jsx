@@ -27,7 +27,7 @@ class Home extends React.Component {
     super(props);
 
     this.state = {
-      eventTitle: props.eventTitle
+      eventTitle: props.eventTitle || ""
     }
   };
 
