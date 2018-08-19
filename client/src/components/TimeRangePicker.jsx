@@ -203,7 +203,13 @@ class TimeRangePicker extends React.Component {
     events = events.concat(this.getUnavailableEvents());
 
     return (
-      <div className="rbc-calendar-wrapper" style={{maxWidth: "400px"}}>
+      <div
+        className="rbc-calendar-wrapper"
+        style={{
+          maxWidth: this.props.maxWidth ? this.props.maxWidth + "px" : "100%",
+          maxHeight: this.props.maxHeight ? this.props.maxHeight + "px" : "100%",
+          overflowY: "scroll"
+        }}>
         { this.state.touchMoveLocked && <ScrollLock /> }
         <BigCalendar
           ref={obj => this.calendar = obj}
@@ -283,6 +289,8 @@ TimeRangePicker.propTypes = {
   ranges: PropTypes.arrayOf(PropTypes.object).isRequired,
   onRangesChange: PropTypes.func,
   rangeTitle: PropTypes.string,
+  maxWidth: PropTypes.number,
+  maxHeight: PropTypes.number,
 };
 
 export default TimeRangePicker;
