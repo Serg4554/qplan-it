@@ -22,10 +22,16 @@ class TimeRangePicker extends React.Component {
 
     this.state = {
       events: [],
-      scrollLocked: false,
+      touchMoveLocked: false,
       eventToRemove: null
     };
+
+    document.addEventListener("touchmove", this.touchMoveHandler.bind(this), { passive: false });
   };
+
+  componentWillUnmount() {
+    document.removeEventListener("touchmove", this.touchMoveHandler.bind(this));
+  }
 
   componentDidMount() {
     if(this.isValidProps()) {
@@ -47,6 +53,12 @@ class TimeRangePicker extends React.Component {
           JSON.stringify(this.state.events) !== JSON.stringify(prevState.events))) {
         this.props.onRangesChange(timeRanges);
       }
+    }
+  }
+
+  touchMoveHandler(e) {
+    if(this.state.touchMoveLocked) {
+      e.preventDefault();
     }
   }
 
@@ -140,7 +152,9 @@ class TimeRangePicker extends React.Component {
     let startDate = moment(start).seconds(0).milliseconds(0);
     let endDate = moment(end).seconds(0).milliseconds(0);
 
-    this.setState({ scrollLocked: false });
+    if(this.state.touchMoveLocked) {
+      this.setState({ touchMoveLocked: false });
+    }
 
     if(startDate.isSameOrAfter(moment(this.props.endDate))) {
       return;
@@ -190,7 +204,7 @@ class TimeRangePicker extends React.Component {
 
     return (
       <div className="rbc-calendar-wrapper" style={{maxWidth: "400px"}}>
-        { this.state.scrollLocked && <ScrollLock /> }
+        { this.state.touchMoveLocked && <ScrollLock /> }
         <BigCalendar
           ref={obj => this.calendar = obj}
           selectable
@@ -218,8 +232,8 @@ class TimeRangePicker extends React.Component {
               moment(start).format('HH:mm') + " - " + moment(end).format('HH:mm')
           }}
           onSelecting={() => {
-            if(!this.state.scrollLocked) {
-              this.setState({ scrollLocked: true });
+            if(!this.state.touchMoveLocked) {
+              this.setState({ touchMoveLocked: true });
             }
           }}
           step={this.props.precise ? 5 : 30}
