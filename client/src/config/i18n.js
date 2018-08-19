@@ -65,6 +65,9 @@ export default {
       day: "day",
       areYouSure: "Are you sure?",
       hoursConfigLostAlert: "If you go back, all the configuration about hours will be lost. Do you want to continue?",
+      releaseBlockedHours: "Release blocked hours?",
+      releaseBlockedHoursMessage: "Participants will be able to select these hours",
+      unavailable: "Not available",
     },
   },
 
@@ -136,6 +139,9 @@ export default {
       day: "día",
       areYouSure: "¿Estás seguro?",
       hoursConfigLostAlert: "Si vuelve atrás, toda la configuración sobre horas se perderá. ¿Desea continuar?",
+      releaseBlockedHours: "¿Liberar bloqueo de horas?",
+      releaseBlockedHoursMessage: "Los participantes podrán seleccionar estas horas",
+      unavailable: "No disponible",
     },
   },
 };
