@@ -207,83 +207,84 @@ class TimeRangePicker extends React.Component {
     const timeFormat = this.props.mode24Hours ? 'HH:mm' : 'h:mm a';
 
     return (
-      <Paper
-        elevation={1}
-        style={{
-          maxWidth: this.props.maxWidth ? this.props.maxWidth + "px" : "100%",
-          maxHeight: this.props.maxHeight ? this.props.maxHeight + "px" : "100%",
-          overflowY: "scroll",
-          width: "100%"
-        }}
-      >
-        { this.state.touchMoveLocked && <ScrollLock /> }
-        <BigCalendar
-          ref={obj => this.calendar = obj}
-          selectable
-          events={events}
-          defaultView={BigCalendar.Views.DAY}
-          views={['day']}
-          toolbar={false}
-          scrollToTime={new Date()}
-          defaultDate={new Date()}
-          onSelectEvent={eventToRemove => this.setState({ eventToRemove })}
-          onSelectSlot={this.addRange}
-          showMultiDayTimes={false}
-          min={moment(this.props.startTime).minutes(0).toDate()}
-          max={
-            this.props.endTime.getMinutes() > 0 ?
-              moment(this.props.endTime).add(1, 'h').minutes(0).toDate() :
-              this.props.endTime
-          }
-          formats={{
-            dayFormat: (date) =>
-              moment(date).format('MM/DD'),
-            timeGutterFormat: (date) =>
-              moment(date).format(timeFormat),
-            selectRangeFormat: ({start, end}) =>
-              moment(start).format(timeFormat) + " - " + moment(end).format(timeFormat)
-          }}
-          onSelecting={() => {
-            if(!this.state.touchMoveLocked) {
-              this.setState({ touchMoveLocked: true });
+      <div style={this.props.style || {}}>
+        <Paper
+          elevation={this.props.elevation}
+          style={{
+            maxWidth: this.props.maxWidth ? this.props.maxWidth + "px" : "100%",
+            maxHeight: this.props.maxHeight ? this.props.maxHeight + "px" : "100%",
+            overflowY: "scroll",
+            width: "100%"
+          }}>
+          { this.state.touchMoveLocked && <ScrollLock /> }
+          <BigCalendar
+            ref={obj => this.calendar = obj}
+            selectable
+            events={events}
+            defaultView={BigCalendar.Views.DAY}
+            views={['day']}
+            toolbar={false}
+            scrollToTime={new Date()}
+            defaultDate={new Date()}
+            onSelectEvent={eventToRemove => this.setState({ eventToRemove })}
+            onSelectSlot={this.addRange}
+            showMultiDayTimes={false}
+            min={moment(this.props.startTime).minutes(0).toDate()}
+            max={
+              this.props.endTime.getMinutes() > 0 ?
+                moment(this.props.endTime).add(1, 'h').minutes(0).toDate() :
+                this.props.endTime
             }
-          }}
-          step={this.props.precise ? 5 : 30}
-          timeslots={this.props.precise ? 12 : 2}
-          components={{ eventWrapper: this.getEventWrapper.bind(this) }}
-        />
+            formats={{
+              dayFormat: (date) =>
+                moment(date).format('MM/DD'),
+              timeGutterFormat: (date) =>
+                moment(date).format(timeFormat),
+              selectRangeFormat: ({start, end}) =>
+                moment(start).format(timeFormat) + " - " + moment(end).format(timeFormat)
+            }}
+            onSelecting={() => {
+              if(!this.state.touchMoveLocked) {
+                this.setState({ touchMoveLocked: true });
+              }
+            }}
+            step={this.props.precise ? 5 : 30}
+            timeslots={this.props.precise ? 12 : 2}
+            components={{ eventWrapper: this.getEventWrapper.bind(this) }}
+          />
 
-        <Dialog
-          open={this.state.eventToRemove != null}
-          onClose={() => this.setState({ eventToRemove: null })}
-        >
-          <DialogTitle><Translate value="event.releaseBlockedHours" /></DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              <Translate value="event.releaseBlockedHoursMessage" />
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => this.setState({ eventToRemove: null })}
-              color="secondary"
-            >
-              <Translate value="common.no" />
-            </Button>
-            <Button
-              onClick={() => {
-                let events = this.state.events.slice();
-                events.splice(events.indexOf(this.state.eventToRemove), 1);
-                this.setState({ events, eventToRemove: null });
-              }}
-              color="primary"
-              autoFocus
-            >
-              <Translate value="common.yes" />
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </Paper>
+          <Dialog
+            open={this.state.eventToRemove != null}
+            onClose={() => this.setState({ eventToRemove: null })}
+          >
+            <DialogTitle><Translate value="event.releaseBlockedHours" /></DialogTitle>
+            <DialogContent>
+              <DialogContentText>
+                <Translate value="event.releaseBlockedHoursMessage" />
+              </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => this.setState({ eventToRemove: null })}
+                color="secondary"
+              >
+                <Translate value="common.no" />
+              </Button>
+              <Button
+                onClick={() => {
+                  let events = this.state.events.slice();
+                  events.splice(events.indexOf(this.state.eventToRemove), 1);
+                  this.setState({ events, eventToRemove: null });
+                }}
+                color="primary"
+                autoFocus
+              >
+                <Translate value="common.yes" />
+              </Button>
+            </DialogActions>
+          </Dialog>
+        </Paper>
+      </div>
     );
   }
 }
@@ -298,6 +299,8 @@ TimeRangePicker.propTypes = {
   maxWidth: PropTypes.number,
   maxHeight: PropTypes.number,
   mode24Hours: PropTypes.bool,
+  elevation: PropTypes.number,
+  style: PropTypes.object
 };
 
 export default TimeRangePicker;
