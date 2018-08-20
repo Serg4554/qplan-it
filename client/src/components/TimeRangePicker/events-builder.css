@@ -116,7 +116,6 @@
   flex: 1;
 }
 .rbc-day-slot .rbc-timeslot-group {
-  border-bottom: 1px solid #fff;
 }
 .rbc-day-slot .rbc-time-slot {
   border-bottom: 1px solid #f7f7f7;
@@ -126,10 +125,12 @@
   flex-flow: column nowrap;
 }
 .rbc-time-gutter .rbc-timeslot-group {
+  height: 60px;
   border-bottom: 1px solid #ddd;
 }
 .rbc-time-gutter {
   flex: none;
+  margin-top: 1px;
   border-top-left-radius: 4px;
   border-bottom-left-radius: 4px;
 }

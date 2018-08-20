@@ -68,6 +68,10 @@ export default {
       releaseBlockedHours: "Release blocked hours?",
       releaseBlockedHoursMessage: "Participants will be able to select these hours",
       unavailable: "Not available",
+      start: "Start",
+      end: "End",
+      hoursAvailable: "Hours available",
+      preciseSelection: "Precise selection",
     },
   },
 
@@ -142,6 +146,10 @@ export default {
       releaseBlockedHours: "¿Liberar bloqueo de horas?",
       releaseBlockedHoursMessage: "Los participantes podrán seleccionar estas horas",
       unavailable: "No disponible",
+      start: "Inicio",
+      end: "Final",
+      hoursAvailable: "Horas disponibles",
+      preciseSelection: "Selección precisa",
     },
   },
 };

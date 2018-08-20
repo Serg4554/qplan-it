@@ -47,7 +47,14 @@ class CreateEvent extends React.Component {
 
     this.state = {
       backDialogOpen: false,
-      selectedDays: []
+      selectedDays: [],
+      timeData: {
+        startHour: 8,
+        startMinutes: 0,
+        endHour: 21,
+        endMinutes: 0
+      },
+      preciseTimeSelection: false
     }
   }
 
@@ -83,9 +90,13 @@ class CreateEvent extends React.Component {
       case 1:
         return (
           <SelectHours
-            highlightedDays={this.props.days}
+            allowedDays={this.props.days}
             selectedDays={this.state.selectedDays}
             onSelectedDaysChanged={selectedDays => this.setState({ selectedDays })}
+            timeData={this.state.timeData}
+            onTimeDataUpdated={timeData => this.setState({ timeData })}
+            precise={this.state.preciseTimeSelection}
+            onPreciseChange={preciseTimeSelection => this.setState({ preciseTimeSelection })}
           />
         );
       case 2:
