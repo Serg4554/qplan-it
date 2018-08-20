@@ -47,8 +47,8 @@ class TimeRangePicker extends React.Component {
       const timeRanges = this.getAvailableEvents().map(e => ({ start: e.start, end: e.end }));
 
       if(this.props.onRangesChange &&
-        (this.props.startDate.getTime() !== prevProps.startDate.getTime() ||
-          this.props.endDate.getTime() !== prevProps.endDate.getTime()  ||
+        (this.props.startTime.getTime() !== prevProps.startTime.getTime() ||
+          this.props.endTime.getTime() !== prevProps.endTime.getTime()  ||
           JSON.stringify(this.props.ranges) !== JSON.stringify(timeRanges) ||
           JSON.stringify(this.state.events) !== JSON.stringify(prevState.events))) {
         this.props.onRangesChange(timeRanges);
@@ -63,7 +63,7 @@ class TimeRangePicker extends React.Component {
   }
 
   isValidProps() {
-    return moment(this.props.startDate).isBefore(moment(this.props.endDate));
+    return moment(this.props.startTime).isBefore(moment(this.props.endTime));
   }
 
   updateFieldSize() {
@@ -83,15 +83,15 @@ class TimeRangePicker extends React.Component {
   getAvailableEvents() {
     let events = this.state.events.slice().map(e => Object.assign({}, e));
 
-    events = events.filter(e => moment(e.end).isAfter(moment(this.props.startDate)) &&
-      moment(e.start).isBefore(moment(this.props.endDate)));
+    events = events.filter(e => moment(e.end).isAfter(moment(this.props.startTime)) &&
+      moment(e.start).isBefore(moment(this.props.endTime)));
 
     events.forEach(event => {
-      if(moment(event.start).isBefore(moment(this.props.startDate))) {
-        event.start = this.props.startDate;
+      if(moment(event.start).isBefore(moment(this.props.startTime))) {
+        event.start = this.props.startTime;
       }
-      if(moment(event.end).isAfter(moment(this.props.endDate))) {
-        event.end = this.props.endDate;
+      if(moment(event.end).isAfter(moment(this.props.endTime))) {
+        event.end = this.props.endTime;
       }
     });
 
@@ -101,18 +101,18 @@ class TimeRangePicker extends React.Component {
   getUnavailableEvents() {
     let events = [];
 
-    if(this.props.startDate.getMinutes() !== 0) {
+    if(this.props.startTime.getMinutes() !== 0) {
       events.push({
-        start: moment(this.props.startDate).minutes(0).toDate(),
-        end: this.props.startDate,
+        start: moment(this.props.startTime).minutes(0).toDate(),
+        end: this.props.startTime,
         unavailable: true
       });
     }
 
-    if(this.props.endDate.getMinutes() !== 0) {
+    if(this.props.endTime.getMinutes() !== 0) {
       events.push({
-        start: this.props.endDate,
-        end: moment(this.props.endDate).add(1, 'h').minutes(0).toDate(),
+        start: this.props.endTime,
+        end: moment(this.props.endTime).add(1, 'h').minutes(0).toDate(),
         unavailable: true
       });
     }
@@ -156,7 +156,7 @@ class TimeRangePicker extends React.Component {
       this.setState({ touchMoveLocked: false });
     }
 
-    if(startDate.isSameOrAfter(moment(this.props.endDate))) {
+    if(startDate.isSameOrAfter(moment(this.props.endTime))) {
       return;
     }
 
@@ -208,7 +208,8 @@ class TimeRangePicker extends React.Component {
         style={{
           maxWidth: this.props.maxWidth ? this.props.maxWidth + "px" : "100%",
           maxHeight: this.props.maxHeight ? this.props.maxHeight + "px" : "100%",
-          overflowY: "scroll"
+          overflowY: "scroll",
+          width: "100%"
         }}>
         { this.state.touchMoveLocked && <ScrollLock /> }
         <BigCalendar
@@ -223,11 +224,11 @@ class TimeRangePicker extends React.Component {
           onSelectEvent={eventToRemove => this.setState({ eventToRemove })}
           onSelectSlot={this.addRange}
           showMultiDayTimes={false}
-          min={moment(this.props.startDate).minutes(0).toDate()}
+          min={moment(this.props.startTime).minutes(0).toDate()}
           max={
-            this.props.endDate.getMinutes() > 0 ?
-              moment(this.props.endDate).add(1, 'h').minutes(0).toDate() :
-              this.props.endDate
+            this.props.endTime.getMinutes() > 0 ?
+              moment(this.props.endTime).add(1, 'h').minutes(0).toDate() :
+              this.props.endTime
           }
           formats={{
             dayFormat: (date) =>
@@ -283,8 +284,8 @@ class TimeRangePicker extends React.Component {
 }
 
 TimeRangePicker.propTypes = {
-  startDate: PropTypes.instanceOf(Date),
-  endDate: PropTypes.instanceOf(Date),
+  startTime: PropTypes.instanceOf(Date),
+  endTime: PropTypes.instanceOf(Date),
   precise: PropTypes.bool,
   ranges: PropTypes.arrayOf(PropTypes.object).isRequired,
   onRangesChange: PropTypes.func,
