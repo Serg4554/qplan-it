@@ -69,6 +69,10 @@
   display: inline-block;
 }
 
+.text-align-center {
+  text-align: center;
+}
+
 @media screen and (min-width: 901px) {
   .headerTitleLarge {
     font-size: 110px;
@@ -90,6 +94,24 @@
   .headerAuthSmall {
     float: right;
     margin-top: -78px;
+  }
+
+  .selectHoursContent {
+    position: relative;
+    width: 100%;
+    height: 500px;
+  }
+
+  .selectHoursContent .timeRangePicker {
+    display: inline-block;
+    width: 350px;
+    margin-right: 48px;
+  }
+
+  .selectHoursContent .calendar {
+    display: inline-block;
+    width: 355px;
+    vertical-align: top;
   }
 }
 
@@ -120,6 +142,19 @@
   .headerAuthSmall {
     float: none;
     margin: -10px 0 20px 0;
+  }
+
+  .selectHoursContent {
+  }
+
+  .selectHoursContent .timeRangePicker {
+    margin: 0 auto;
+    width: 400px;
+  }
+
+  .selectHoursContent .calendar {
+    margin: 0 auto;
+    text-align: center;
   }
 }
 

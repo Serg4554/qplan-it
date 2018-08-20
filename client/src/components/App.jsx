@@ -7,7 +7,7 @@ import { push } from "connected-react-router";
 import { Route, Switch } from "react-router-dom";
 import { isMobile } from 'react-device-detect';
 
-import '../styles/App.css';
+import '../styles/app.css';
 import { Translate } from 'react-redux-i18n';
 import Particles from 'react-particles-js';
 import particlesMotion from '../config/particlesMotion.json'
