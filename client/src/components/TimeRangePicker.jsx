@@ -13,6 +13,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import Dialog from "@material-ui/core/Dialog";
+import Paper from "@material-ui/core/Paper";
 
 BigCalendar.setLocalizer(BigCalendar.momentLocalizer(moment));
 
@@ -206,14 +207,15 @@ class TimeRangePicker extends React.Component {
     const timeFormat = this.props.mode24Hours ? 'HH:mm' : 'h:mm a';
 
     return (
-      <div
-        className="rbc-calendar-wrapper"
+      <Paper
+        elevation={1}
         style={{
           maxWidth: this.props.maxWidth ? this.props.maxWidth + "px" : "100%",
           maxHeight: this.props.maxHeight ? this.props.maxHeight + "px" : "100%",
           overflowY: "scroll",
           width: "100%"
-        }}>
+        }}
+      >
         { this.state.touchMoveLocked && <ScrollLock /> }
         <BigCalendar
           ref={obj => this.calendar = obj}
@@ -281,7 +283,7 @@ class TimeRangePicker extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
-      </div>
+      </Paper>
     );
   }
 }
