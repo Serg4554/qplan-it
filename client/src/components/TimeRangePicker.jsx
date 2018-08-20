@@ -179,8 +179,9 @@ class TimeRangePicker extends React.Component {
     this.setState({ events });
   };
 
-  static getEventWrapper(data) {
-    const date = moment(data.event.start).format('HH:mm') + " - " + moment(data.event.end).format('HH:mm');
+  getEventWrapper(data) {
+    const timeFormat = this.props.mode24Hours ? 'HH:mm' : 'h:mm a';
+    const date = moment(data.event.start).format(timeFormat) + " - " + moment(data.event.end).format(timeFormat);
     const unavailableClassName = data.event.unavailable ? " rbc-event-unavailable" : "";
     return (
       <div
@@ -201,6 +202,8 @@ class TimeRangePicker extends React.Component {
 
     let events = this.props.ranges.map(r => ({...r, title: this.props.rangeTitle || ""}));
     events = events.concat(this.getUnavailableEvents());
+
+    const timeFormat = this.props.mode24Hours ? 'HH:mm' : 'h:mm a';
 
     return (
       <div
@@ -234,9 +237,9 @@ class TimeRangePicker extends React.Component {
             dayFormat: (date) =>
               moment(date).format('MM/DD'),
             timeGutterFormat: (date) =>
-              moment(date).format('HH:mm'),
+              moment(date).format(timeFormat),
             selectRangeFormat: ({start, end}) =>
-              moment(start).format('HH:mm') + " - " + moment(end).format('HH:mm')
+              moment(start).format(timeFormat) + " - " + moment(end).format(timeFormat)
           }}
           onSelecting={() => {
             if(!this.state.touchMoveLocked) {
@@ -245,7 +248,7 @@ class TimeRangePicker extends React.Component {
           }}
           step={this.props.precise ? 5 : 30}
           timeslots={this.props.precise ? 12 : 2}
-          components={{ eventWrapper: TimeRangePicker.getEventWrapper }}
+          components={{ eventWrapper: this.getEventWrapper.bind(this) }}
         />
 
         <Dialog
@@ -292,6 +295,7 @@ TimeRangePicker.propTypes = {
   rangeTitle: PropTypes.string,
   maxWidth: PropTypes.number,
   maxHeight: PropTypes.number,
+  mode24Hours: PropTypes.bool,
 };
 
 export default TimeRangePicker;
