@@ -11,8 +11,8 @@ const SelectDays = (props) => {
     <div>
       <h3><Translate value="event.selectDaysDescription" /></h3>
       <Calendar
-        selectedDays={props.selectedDays}
-        onSelectedDaysChanged={props.onSelectedDaysChanged.bind(this)}
+        selectedDays={props.selectedDates}
+        onSelectedDaysUpdated={props.onSelectedDatesUpdated.bind(this)}
         appendDays={true}
         selectRange={true}
         primaryColor={theme.palette.primary.main}
@@ -20,15 +20,15 @@ const SelectDays = (props) => {
       />
       <div style={{marginTop: "-10px"}}>
         <h3 style={{display: "inline-block"}}>
-          {props.selectedDays.length}
+          {props.selectedDates.length}
           &nbsp;
-          <Translate value={props.selectedDays.length === 1 ? "event.day" : "event.days"} />
+          <Translate value={props.selectedDates.length === 1 ? "event.day" : "event.days"} />
         </h3>
         <Button
           color="secondary"
           variant="contained"
-          onClick={() => props.onSelectedDaysChanged([])}
-          disabled={props.selectedDays.length === 0}
+          onClick={() => props.onSelectedDatesUpdated([])}
+          disabled={props.selectedDates.length === 0}
           style={{display: "inline-block", marginLeft: "10px"}}
         >
           <Translate value="common.clear" />
@@ -38,9 +38,9 @@ const SelectDays = (props) => {
   );
 };
 
-Calendar.propTypes = {
-  selectedDays: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
-  onSelectedDaysChanged: PropTypes.func.isRequired
+SelectDays.propTypes = {
+  selectedDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
+  onSelectedDatesUpdated: PropTypes.func.isRequired
 };
 
 export default SelectDays;

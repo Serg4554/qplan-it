@@ -4,8 +4,9 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { push } from "connected-react-router";
 import * as EventOperations from '../state/ducks/event/operations';
+import moment from "moment";
 
-import { Translate } from "react-redux-i18n";
+import { I18n, Translate } from "react-redux-i18n";
 import Button from "@material-ui/core/Button";
 import Stepper from "@material-ui/core/Stepper";
 import Step from "@material-ui/core/Step";
@@ -20,6 +21,16 @@ import SelectDays from "./Event/SelectDays"
 import SelectHours from "./Event/SelectHours"
 import ExtraOptions from "./Event/ExtraOptions"
 
+
+const defaultPeriod = () => {
+  const DEFAULT_START_HOUR = 8;
+  const DEFAULT_END_HOUR = 22;
+
+  return {
+    start: moment().startOf('day').hours(DEFAULT_START_HOUR).toDate(),
+    end: moment().startOf('day').hours(DEFAULT_END_HOUR).toDate()
+  };
+};
 
 const mapStateToProps = state => {
   /** @namespace state.passwordRecovery */
@@ -36,6 +47,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   nextStep: EventOperations.nextStep,
   previousStep: EventOperations.previousStep,
   setDays: EventOperations.setDays,
+  updateDays: EventOperations.updateDays,
   goToUrl: url => {
     return push(url)
   }
@@ -47,14 +59,11 @@ class CreateEvent extends React.Component {
 
     this.state = {
       backDialogOpen: false,
-      selectedDays: [],
-      timeData: {
-        startHour: 8,
-        startMinutes: 0,
-        endHour: 21,
-        endMinutes: 0
-      },
-      preciseTimeSelection: false
+      selectedDates: this.props.days.map(d => d.date),
+      possibleSelectedDates: null,
+      preciseTimeSelection: false,
+      invalidDaysDialogOpen: false,
+      allCancelledDialogOpen: false
     };
 
     window.onbeforeunload = () => "Changes will be lost";
@@ -78,7 +87,87 @@ class CreateEvent extends React.Component {
   }
 
   handleNextButton() {
-    this.props.nextStep();
+    switch (this.props.step) {
+      case 0:
+        this.props.nextStep();
+        break;
+      case 1:
+        if(this.props.days.filter(d => moment(d.period.end).isBefore(moment(d.period.start))).length > 0) {
+          this.setState({ invalidDaysDialogOpen: true });
+        } else {
+          let cancelledDays = this.props.days.filter(day => {
+            const blockedPeriod = day.blockedPeriods.length === 1 ? day.blockedPeriods[0] : null;
+            const allBlocked = blockedPeriod &&
+              blockedPeriod.start.getTime() === day.period.start.getTime() &&
+              blockedPeriod.end.getTime() === day.period.end.getTime();
+            const cancelled = moment(day.period.start).isSameOrAfter(moment(day.period.end));
+            return allBlocked || cancelled;
+          });
+
+          if(cancelledDays.length === this.props.days.length) {
+            this.setState({ allCancelledDialogOpen: true });
+          } else {
+            this.props.nextStep();
+          }
+        }
+        break;
+      default:
+        this.props.nextStep();
+    }
+  }
+
+  getSelectedDays(dates) {
+    const times = dates.map(d => d.getTime());
+    return this.props.days.filter(day => times.includes(day.date.getTime()))
+  }
+
+  onSelectedDaysUpdated(selectedDates) {
+    const selectedDays = this.getSelectedDays(selectedDates);
+    if(selectedDays.length > 0) {
+      const strPeriod = JSON.stringify(selectedDays[0].period);
+      const strBlockedPeriods = JSON.stringify(selectedDays[0].blockedPeriods);
+
+      if(selectedDays.every(day =>
+        JSON.stringify(day.period) === strPeriod &&
+        JSON.stringify(day.blockedPeriods) === strBlockedPeriods)) {
+        this.setState({ selectedDates });
+      } else {
+        this.setState({ possibleSelectedDates: selectedDates });
+      }
+    }
+  }
+
+  dialog(title, message, openProperty, onConfirm, question, noBoolean) {
+    let closeObj = [];
+    closeObj[openProperty] = noBoolean ? null : false;
+
+    return (
+      <Dialog
+        open={noBoolean ? this.state[openProperty] !== null : this.state[openProperty]}
+        onClose={() => this.setState(closeObj)}
+      >
+        <DialogTitle>{title}</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {message}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          {question &&
+            <Button onClick={() => this.setState(closeObj)} color="secondary">
+              <Translate value="common.no"/>
+            </Button>
+          }
+          <Button
+            onClick={() => onConfirm()}
+            color="primary"
+            autoFocus
+          >
+            <Translate value={question ? "common.yes" : "common.ok"} />
+          </Button>
+        </DialogActions>
+      </Dialog>
+    );
   }
 
   renderContent() {
@@ -86,21 +175,28 @@ class CreateEvent extends React.Component {
       case 0:
         return (
           <SelectDays
-            selectedDays={this.props.days}
-            onSelectedDaysChanged={selectedDays => {
-              this.props.setDays(selectedDays);
-              this.setState({ selectedDays })
+            selectedDates={this.props.days.map(d => d.date)}
+            onSelectedDatesUpdated={selectedDates => {
+              this.props.setDays(selectedDates.map(date => ({
+                date,
+                period: defaultPeriod(),
+                blockedPeriods: []
+              })));
+              this.setState({ selectedDates });
             }}
           />
         );
       case 1:
         return (
           <SelectHours
-            allowedDays={this.props.days}
-            selectedDays={this.state.selectedDays}
-            onSelectedDaysChanged={selectedDays => this.setState({ selectedDays })}
-            timeData={this.state.timeData}
-            onTimeDataUpdated={timeData => this.setState({ timeData })}
+            allowedDays={this.props.days.map(d => d.date)}
+            selectedDays={this.state.selectedDates}
+            onSelectedDaysUpdated={this.onSelectedDaysUpdated.bind(this)}
+            times={this.getSelectedDays(this.state.selectedDates)[0]}
+            onTimesUpdated={times => {
+              const { period, blockedPeriods } = times;
+              this.props.updateDays(this.state.selectedDates.map(date => ({ date, period, blockedPeriods })));
+            }}
             precise={this.state.preciseTimeSelection}
             onPreciseChange={preciseTimeSelection => this.setState({ preciseTimeSelection })}
           />
@@ -119,6 +215,50 @@ class CreateEvent extends React.Component {
   render() {
     return (
       <div>
+        {this.dialog(I18n.t("event.areYouSure"), I18n.t("event.hoursConfigLostAlert"), "backDialogOpen",
+          () => {
+            const period = defaultPeriod();
+            let days = this.props.days.map(d => ({...d}));
+            days.forEach(day => {
+              day.period = period;
+              day.blockedPeriods = [];
+            });
+            this.props.updateDays(days);
+            this.props.previousStep();
+            this.setState({backDialogOpen: false});
+          }, true)}
+
+        {this.dialog(I18n.t("event.resetHoursAlert"), I18n.t("event.resetHoursAlertMessage"),
+          "possibleSelectedDates", () => {
+            const period = defaultPeriod();
+            let days = this.getSelectedDays(this.state.possibleSelectedDates).map(d => ({...d}));
+            days.forEach(day => {
+              day.period = period;
+              day.blockedPeriods = [];
+            });
+            this.props.updateDays(days);
+            this.setState({selectedDates: this.state.possibleSelectedDates, possibleSelectedDates: null});
+          }, true, true)}
+
+        {this.dialog(I18n.t("event.cancelInvalidDaysAlert"), I18n.t("event.cancelInvalidDaysMessage"),
+          "invalidDaysDialogOpen", () => {
+            let days = this.props.days
+              .filter(d => moment(d.period.end).isBefore(moment(d.period.start)))
+              .map(d => ({...d}));
+            days.forEach(day => {
+              day.period.end = day.period.start;
+            });
+            this.props.updateDays(days);
+            this.setState({invalidDaysDialogOpen: false});
+            this.handleNextButton();
+          }, true)}
+
+        {this.dialog(I18n.t("event.noDaysAvailable"), I18n.t("event.noDaysAvailableMessage"),
+          "allCancelledDialogOpen", () => {
+            this.setState({allCancelledDialogOpen: false});
+          })}
+
+
         <div style={{textAlign: "center"}}>
           <Stepper activeStep={this.props.step}>
             <Step>
@@ -150,38 +290,6 @@ class CreateEvent extends React.Component {
             </Button>
           </div>
         </div>
-
-
-        <Dialog
-          open={this.state.backDialogOpen}
-          onClose={() => this.setState({ backDialogOpen: false })}
-        >
-          <DialogTitle><Translate value="event.areYouSure" /></DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              <Translate value="event.hoursConfigLostAlert" />
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => this.setState({ backDialogOpen: false })}
-              color="secondary"
-            >
-              <Translate value="common.no" />
-            </Button>
-            <Button
-              onClick={() => {
-                this.setState({ backDialogOpen: false });
-                //TODO: Remove hours configuration
-                this.props.previousStep();
-              }}
-              color="primary"
-              autoFocus
-            >
-              <Translate value="common.yes" />
-            </Button>
-          </DialogActions>
-        </Dialog>
       </div>
     );
   }
@@ -190,7 +298,7 @@ class CreateEvent extends React.Component {
 CreateEvent.propTypes = {
   step: PropTypes.number,
   title: PropTypes.string,
-  days: PropTypes.arrayOf(PropTypes.instanceOf(Date)),
+  days: PropTypes.arrayOf(PropTypes.object),
   router: PropTypes.object,
 
   cancel: PropTypes.func,

@@ -21,3 +21,9 @@ export const setDays = (days) => ({
   type: types.SET_DAYS,
   payload: { days }
 });
+
+
+export const updateDays = (days) => ({
+  type: types.UPDATE_DAYS,
+  payload: { days }
+});

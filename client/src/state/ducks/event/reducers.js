@@ -4,7 +4,18 @@ import * as types from "./types";
  * {
  *  step: number,
  *  title: string,
- *  days: Date[],
+ *  days: [{
+ *    date: Date,
+ *    period: Period,
+ *    blockedPeriods: [Period]
+ *  }]
+ * }
+ */
+
+/** Period shape
+ * {
+ *  start: Date,
+ *  end: Date,
  * }
  */
 
@@ -36,6 +47,18 @@ const reducer = (state = {}, action) => {
         ...state,
         days: action.payload.days
       };
+
+    case types.UPDATE_DAYS:
+      const updatedDays = action.payload.days;
+      let days = state.days.slice();
+      updatedDays.forEach(updatedDay => {
+        let index = days.findIndex(d => d.date.getTime() === updatedDay.date.getTime());
+        if(index !== -1) {
+          days[index].period = updatedDay.period;
+          days[index].blockedPeriods = updatedDay.blockedPeriods;
+        }
+      });
+      return({ ...state, days });
 
     default:
       return state;

@@ -73,8 +73,8 @@ const Calendar = (props) => {
       });
     }
 
-    if(props.onSelectedDaysChanged && (props.appendDays || selectedDays.length !== 0)) {
-      props.onSelectedDaysChanged(selectedDays);
+    if(props.onSelectedDaysUpdated && (props.appendDays || selectedDays.length !== 0)) {
+      props.onSelectedDaysUpdated(selectedDays);
     }
   }
 
@@ -131,7 +131,7 @@ Calendar.propTypes = {
   appendDays: PropTypes.bool,
   selectedDays: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
   allowedDays: PropTypes.arrayOf(PropTypes.instanceOf(Date)),
-  onSelectedDaysChanged: PropTypes.func,
+  onSelectedDaysUpdated: PropTypes.func,
   primaryColor: PropTypes.string,
   secondaryColor: PropTypes.string,
   allowedDaysColor: PropTypes.string,

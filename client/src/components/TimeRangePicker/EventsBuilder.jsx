@@ -8,7 +8,7 @@ import BigCalendar from "react-big-calendar";
 
 BigCalendar.setLocalizer(BigCalendar.momentLocalizer(moment));
 
-export const getAvailableEvents = (startTime, endTime, events) => {
+export const getEvents = (startTime, endTime, events) => {
   let availableEvents = events.slice().map(e => ({...e}));
 
   availableEvents = availableEvents.filter(e => moment(e.end).isAfter(moment(startTime)) &&
@@ -176,7 +176,7 @@ const EventsBuilder = (props) => {
         <BigCalendar
           ref={obj => calendar = obj}
           selectable
-          events={getAvailableEvents(startTime, endTime, events)
+          events={getEvents(startTime, endTime, events)
             .map(e => ({...e, title: eventsTitle || ""}))
             .concat(getUnavailableEvents())}
           defaultView={BigCalendar.Views.DAY}

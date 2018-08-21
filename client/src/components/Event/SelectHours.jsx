@@ -1,7 +1,6 @@
 import React from "react";
 import PropTypes from 'prop-types'
 import theme from "../../config/theme";
-import moment from "moment";
 
 import { Translate } from "react-redux-i18n";
 import Calendar from "../Calendar";
@@ -9,17 +8,9 @@ import TimeRangePicker from "../TimeRangePicker";
 import Button from "@material-ui/core/Button";
 
 const SelectHours = (props) => {
-  const startTime = moment()
-    .startOf('day')
-    .hour(props.timeData.startHour)
-    .minutes(props.timeData.startMinutes)
-    .toDate();
-
-  const endTime = moment()
-    .startOf('day')
-    .hour(props.timeData.endHour)
-    .minutes(props.timeData.endMinutes)
-    .toDate();
+  if(!props.times || !props.times.period || !props.times.period.start || !props.times.period.end) {
+    return <div />;
+  }
 
   return (
     <div>
@@ -28,17 +19,8 @@ const SelectHours = (props) => {
       <div className="selectHoursContent">
         <div className="timeRangePicker">
           <TimeRangePicker
-            start={startTime}
-            end={endTime}
-            onTimesUpdated={({start, end, blocked}) => {
-              console.log(blocked);
-              props.onTimeDataUpdated({
-                startHour: start.getHours(),
-                startMinutes: start.getMinutes(),
-                endHour: end.getHours(),
-                endMinutes: end.getMinutes(),
-              });
-            }}
+            times={props.times}
+            onTimesUpdated={props.onTimesUpdated.bind(this)}
           />
         </div>
 
@@ -46,7 +28,7 @@ const SelectHours = (props) => {
           <Calendar
             selectedDays={props.selectedDays}
             allowedDays={props.allowedDays}
-            onSelectedDaysChanged={props.onSelectedDaysChanged.bind(this)}
+            onSelectedDaysUpdated={props.onSelectedDaysUpdated.bind(this)}
             appendDays={false}
             selectRange={true}
             primaryColor={theme.palette.primary.main}
@@ -56,7 +38,7 @@ const SelectHours = (props) => {
           <Button
             color="primary"
             variant="contained"
-            onClick={() => props.onSelectedDaysChanged(props.allowedDays)}
+            onClick={() => props.onSelectedDaysUpdated(props.allowedDays)}
             disabled={props.selectedDays.length === props.allowedDays.length}
             style={{display: "inline-block", marginTop: "4px"}}
           >
@@ -71,9 +53,9 @@ const SelectHours = (props) => {
 SelectHours.propTypes = {
   allowedDays: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
   selectedDays: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
-  onSelectedDaysChanged: PropTypes.func.isRequired,
-  timeData: PropTypes.object,
-  onTimeDataUpdated: PropTypes.func.isRequired,
+  onSelectedDaysUpdated: PropTypes.func.isRequired,
+  times: PropTypes.object,
+  onTimesUpdated: PropTypes.func.isRequired,
   precise: PropTypes.bool.isRequired,
   onPreciseChange: PropTypes.func.isRequired
 };
