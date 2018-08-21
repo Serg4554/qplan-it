@@ -55,7 +55,13 @@ class CreateEvent extends React.Component {
         endMinutes: 0
       },
       preciseTimeSelection: false
-    }
+    };
+
+    window.onbeforeunload = () => "Changes will be lost";
+  }
+
+  componentWillUnmount() {
+    window.onbeforeunload = null;
   }
 
   handleBackButton() {
