@@ -84,7 +84,6 @@
 }
 .rbc-event-label {
   position: absolute;
-  font-size: 9pt;
 }
 .rbc-event-unavailable {
   background: #757575;
@@ -175,7 +174,7 @@
 .rbc-slot-selection {
   z-index: 10;
   position: absolute;
-  background-color: rgba(236, 58, 60, .8);
+  background-color: rgba(66, 66, 66, .8);
   color: white;
   font-size: 10pt;
   overflow: hidden;

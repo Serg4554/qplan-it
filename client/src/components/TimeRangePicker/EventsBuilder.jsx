@@ -8,30 +8,30 @@ import BigCalendar from "react-big-calendar";
 
 BigCalendar.setLocalizer(BigCalendar.momentLocalizer(moment));
 
+export const getAvailableEvents = (startTime, endTime, events) => {
+  let availableEvents = events.slice().map(e => ({...e}));
+
+  availableEvents = availableEvents.filter(e => moment(e.end).isAfter(moment(startTime)) &&
+    moment(e.start).isBefore(moment(endTime)));
+
+  availableEvents.forEach(event => {
+    if(moment(event.start).isBefore(moment(startTime))) {
+      event.start = startTime;
+    }
+    if(moment(event.end).isAfter(moment(endTime))) {
+      event.end = endTime;
+    }
+  });
+
+  return availableEvents;
+};
+
 const EventsBuilder = (props) => {
   let touchMoveLocked = false;
   let calendar = null;
 
   function isValidProps() {
     return moment(props.startTime).isBefore(moment(props.endTime));
-  }
-
-  function getAvailableEvents() {
-    let events = props.events.slice().map(e => Object.assign({}, e));
-
-    events = events.filter(e => moment(e.end).isAfter(moment(props.startTime)) &&
-      moment(e.start).isBefore(moment(props.endTime)));
-
-    events.forEach(event => {
-      if(moment(event.start).isBefore(moment(props.startTime))) {
-        event.start = props.startTime;
-      }
-      if(moment(event.end).isAfter(moment(props.endTime))) {
-        event.end = props.endTime;
-      }
-    });
-
-    return events;
   }
 
   function getUnavailableEvents() {
@@ -117,16 +117,30 @@ const EventsBuilder = (props) => {
   }
 
   function getEventWrapper(data) {
-    const date = moment(data.event.start).format(props.timeFormat) + " - " + moment(data.event.end).format(props.timeFormat);
+    const start = moment(data.event.start);
+    const end = moment(data.event.end);
+    const date = start.format(props.timeFormat) + " - " + end.format(props.timeFormat);
     const unavailableClassName = data.event.unavailable ? " rbc-event-unavailable" : "";
+    const diff = end.diff(start) / 60000;
+
     return (
       <div
         className={data.children.props.className + unavailableClassName}
         style={data.children.props.style}
         onClick={!data.event.unavailable ? () => data.children.props.onClick() : undefined}
       >
-        <div className="rbc-event-label">{data.event.unavailable ? "" : date}</div>
-        <div className="rbc-event-content">{data.event.title}</div>
+        <div
+          className="rbc-event-label"
+          style={{fontSize: (diff < 60 ? 7 : 8) + "pt"}}
+        >
+          {diff > 10 && !data.event.unavailable ? date : ""}
+        </div>
+        <div
+          className="rbc-event-content"
+          style={{fontSize: (diff < 60 ? 10 : 15) + "pt"}}
+        >
+          {diff >= 30 ? data.event.title : ""}
+        </div>
       </div>
     );
   }
@@ -142,22 +156,14 @@ const EventsBuilder = (props) => {
     endTime,
     precise,
     events,
-    onEventsUpdated,
     onRemoveEvent,
     eventsTitle,
     maxHeight,
     timeFormat,
-    style,
-    ...other
+    style
   } = props;
 
   if (isValidProps()) {
-    const availableEvents = getAvailableEvents().map(e => ({start: e.start, end: e.end}));
-
-    if(onEventsUpdated && JSON.stringify(events) !== JSON.stringify(availableEvents)) {
-      onEventsUpdated(events);
-    }
-
     return (
       <div
         ref={obj => calendar = obj}
@@ -166,12 +172,13 @@ const EventsBuilder = (props) => {
           overflowY: maxHeight ? "scroll" : "auto",
           width: "100%",
         }, style)}
-        {...other}
       >
         <BigCalendar
           ref={obj => calendar = obj}
           selectable
-          events={availableEvents.map(r => ({...r, title: eventsTitle || ""})).concat(getUnavailableEvents())}
+          events={getAvailableEvents(startTime, endTime, events)
+            .map(e => ({...e, title: eventsTitle || ""}))
+            .concat(getUnavailableEvents())}
           defaultView={BigCalendar.Views.DAY}
           views={['day']}
           toolbar={false}

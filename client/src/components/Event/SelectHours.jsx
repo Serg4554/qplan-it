@@ -28,14 +28,15 @@ const SelectHours = (props) => {
       <div className="selectHoursContent">
         <div className="timeRangePicker">
           <TimeRangePicker
-            startTime={startTime}
-            endTime={endTime}
-            onTimesUpdated={(startTime, endTime) => {
+            start={startTime}
+            end={endTime}
+            onTimesUpdated={({start, end, blocked}) => {
+              console.log(blocked);
               props.onTimeDataUpdated({
-                startHour: startTime.getHours(),
-                startMinutes: startTime.getMinutes(),
-                endHour: endTime.getHours(),
-                endMinutes: endTime.getMinutes(),
+                startHour: start.getHours(),
+                startMinutes: start.getMinutes(),
+                endHour: end.getHours(),
+                endMinutes: end.getMinutes(),
               });
             }}
           />

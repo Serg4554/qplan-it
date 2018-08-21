@@ -10,6 +10,7 @@ import GpsNotFixed from "../../../node_modules/@material-ui/icons/GpsNotFixed";
 import GpsFixedIcon from "../../../node_modules/@material-ui/icons/GpsFixed";
 import Paper from "@material-ui/core/Paper";
 import EventsBuilder from "./EventsBuilder";
+import { getAvailableEvents } from "./EventsBuilder";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
@@ -50,8 +51,9 @@ class TimeRangePicker extends React.Component {
           <Button
             onClick={() => {
               let events = this.state.events.slice();
-              events.splice(events.indexOf(this.state.removeEvent), 1);
+              events.splice(events.findIndex(e => e.start.getTime() === this.state.removeEvent.start.getTime()), 1);
               this.setState({ events, removeEvent: null });
+              this.props.onTimesUpdated(this.getTimes(events));
             }}
             color="primary"
             autoFocus
@@ -63,6 +65,14 @@ class TimeRangePicker extends React.Component {
     );
   }
 
+  getTimes(events) {
+    return {
+      start: this.props.start,
+      end: this.props.end,
+      blocked: getAvailableEvents(this.props.start, this.props.end, events)
+    };
+  }
+
   getPreciseIcon() {
     return this.state.precise ?
       <GpsFixedIcon style={{fontSize: "15pt"}} /> :
@@ -70,7 +80,7 @@ class TimeRangePicker extends React.Component {
   }
 
   render() {
-    const { startTime, endTime, onTimesUpdated } = this.props;
+    const { start, end, onTimesUpdated } = this.props;
 
     return (
       <Paper style={{width: "368px", textAlign: "center", position: "relative"}}>
@@ -82,11 +92,11 @@ class TimeRangePicker extends React.Component {
             <span style={{fontWeight: "bold"}}><Translate value="event.start" /></span>
             <TimeInput
               mode='12h'
-              value={startTime}
+              value={start}
               onChange={time => {
-                startTime.setHours(time.getHours());
-                startTime.setMinutes(time.getMinutes());
-                onTimesUpdated(startTime, endTime);
+                start.setHours(time.getHours());
+                start.setMinutes(time.getMinutes());
+                onTimesUpdated(this.getTimes(this.state.events));
               }}
               style={{width: "90px", marginLeft: "5px"}}
               minutesStep={5}
@@ -98,11 +108,11 @@ class TimeRangePicker extends React.Component {
             <span style={{fontWeight: "bold"}}><Translate value="event.end" /></span>
             <TimeInput
               mode='12h'
-              value={endTime}
+              value={end}
               onChange={time => {
-                endTime.setHours(time.getHours());
-                endTime.setMinutes(time.getMinutes());
-                onTimesUpdated(startTime, endTime);
+                end.setHours(time.getHours());
+                end.setMinutes(time.getMinutes());
+                onTimesUpdated(this.getTimes(this.state.events));
               }}
               style={{width: "90px", marginLeft: "5px"}}
               minutesStep={5}
@@ -112,11 +122,14 @@ class TimeRangePicker extends React.Component {
           </div>
         </div>
         <EventsBuilder
-          startTime={startTime}
-          endTime={endTime}
+          startTime={start}
+          endTime={end}
           precise={this.state.precise}
-          events={[]}
-          onEventsUpdated={() => {}}
+          events={this.state.events}
+          onEventsUpdated={events => {
+            this.setState({ events });
+            onTimesUpdated(this.getTimes(events));
+          }}
           onRemoveEvent={removeEvent => this.setState({ removeEvent })}
           eventsTitle={I18n.t("event.unavailable")}
           maxHeight={400}
@@ -147,8 +160,8 @@ class TimeRangePicker extends React.Component {
 }
 
 TimeRangePicker.propTypes = {
-  startTime: PropTypes.instanceOf(Date).isRequired,
-  endTime: PropTypes.instanceOf(Date).isRequired,
+  start: PropTypes.instanceOf(Date).isRequired,
+  end: PropTypes.instanceOf(Date).isRequired,
   onTimesUpdated: PropTypes.func.isRequired,
   preciseByDefault: PropTypes.bool,
 };
