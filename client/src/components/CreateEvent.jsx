@@ -58,13 +58,18 @@ class CreateEvent extends React.Component {
     super(props);
 
     this.state = {
-      backDialogOpen: false,
       selectedDates: this.props.days.map(d => d.date),
       possibleSelectedDates: null,
       preciseTimeSelection: false,
-      invalidDaysDialogOpen: false,
-      allCancelledDialogOpen: false
+      dialogs: {
+        back: false,
+        resetTime: false,
+        invalidDays: false,
+        allCancelled: false
+      }
     };
+
+    this.dialog = { opened: false };
 
     window.onbeforeunload = () => "Changes will be lost";
   }
@@ -79,7 +84,9 @@ class CreateEvent extends React.Component {
         this.props.goToUrl("/");
         break;
       case 1:
-        this.setState({ backDialogOpen: true });
+        let dialogs = this.state.dialogs;
+        dialogs.back = true;
+        this.setState({ dialogs });
         break;
       default:
         this.props.previousStep();
@@ -93,7 +100,9 @@ class CreateEvent extends React.Component {
         break;
       case 1:
         if(this.props.days.filter(d => moment(d.period.end).isBefore(moment(d.period.start))).length > 0) {
-          this.setState({ invalidDaysDialogOpen: true });
+          let dialogs = this.state.dialogs;
+          dialogs.invalidDays = true;
+          this.setState({ dialogs });
         } else {
           let cancelledDays = this.props.days.filter(day => {
             const blockedPeriod = day.blockedPeriods.length === 1 ? day.blockedPeriods[0] : null;
@@ -105,7 +114,9 @@ class CreateEvent extends React.Component {
           });
 
           if(cancelledDays.length === this.props.days.length) {
-            this.setState({ allCancelledDialogOpen: true });
+            let dialogs = this.state.dialogs;
+            dialogs.allCancelled = true;
+            this.setState({ dialogs });
           } else {
             this.props.nextStep();
           }
@@ -132,42 +143,96 @@ class CreateEvent extends React.Component {
         JSON.stringify(day.blockedPeriods) === strBlockedPeriods)) {
         this.setState({ selectedDates });
       } else {
-        this.setState({ possibleSelectedDates: selectedDates });
+        let dialogs = this.state.dialogs;
+        dialogs.resetTime = true;
+        this.setState({ possibleSelectedDates: selectedDates, dialogs });
       }
     }
   }
 
-  dialog(title, message, openProperty, onConfirm, question, noBoolean) {
-    let closeObj = [];
-    closeObj[openProperty] = noBoolean ? null : false;
+  updateDialogContent() {
+    let openedDialogKey = Object.keys(this.state.dialogs).find(key => this.state.dialogs[key]);
+    this.dialog.opened = !!openedDialogKey;
 
-    return (
-      <Dialog
-        open={noBoolean ? this.state[openProperty] !== null : this.state[openProperty]}
-        onClose={() => this.setState(closeObj)}
-      >
-        <DialogTitle>{title}</DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            {message}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          {question &&
-            <Button onClick={() => this.setState(closeObj)} color="secondary">
-              <Translate value="common.no"/>
-            </Button>
-          }
-          <Button
-            onClick={() => onConfirm()}
-            color="primary"
-            autoFocus
-          >
-            <Translate value={question ? "common.yes" : "common.ok"} />
-          </Button>
-        </DialogActions>
-      </Dialog>
-    );
+    if(this.dialog.opened) {
+      let dialogs = this.state.dialogs;
+      switch(openedDialogKey) {
+        case "back":
+          this.dialog.title = I18n.t("event.areYouSure");
+          this.dialog.message = I18n.t("event.hoursConfigLostAlert");
+          this.dialog.onClose = () => {
+            dialogs.back = false;
+            this.setState({ dialogs });
+          };
+          this.dialog.onConfirm = () => {
+            const period = defaultPeriod();
+            let days = this.props.days.map(d => ({...d}));
+            days.forEach(day => {
+              day.period = period;
+              day.blockedPeriods = [];
+            });
+            this.props.updateDays(days);
+            this.props.previousStep();
+            dialogs.back = false;
+            this.setState({ dialogs });
+          };
+          break;
+
+        case "resetTime":
+          this.dialog.title = I18n.t("event.resetTimesAlert");
+          this.dialog.message = I18n.t("event.resetTimesAlertMessage");
+          this.dialog.onClose = () => {
+            dialogs.resetTime = false;
+            this.setState({ dialogs });
+          };
+          this.dialog.onConfirm = () => {
+            const period = defaultPeriod();
+            let days = this.getSelectedDays(this.state.possibleSelectedDates).map(d => ({...d}));
+            days.forEach(day => {
+              day.period = period;
+              day.blockedPeriods = [];
+            });
+            this.props.updateDays(days);
+            dialogs.resetTime = false;
+            this.setState({selectedDates: this.state.possibleSelectedDates, possibleSelectedDates: null, dialogs});
+          };
+          break;
+
+        case "invalidDays":
+          this.dialog.title = I18n.t("event.cancelInvalidDaysAlert");
+          this.dialog.message = I18n.t("event.cancelInvalidDaysMessage");
+          this.dialog.onClose = () => {
+            dialogs.invalidDays = false;
+            this.setState({ dialogs });
+          };
+          this.dialog.onConfirm = () => {
+            let days = this.props.days
+              .filter(d => moment(d.period.end).isBefore(moment(d.period.start)))
+              .map(d => ({...d}));
+            days.forEach(day => {
+              day.period.end = day.period.start;
+            });
+            this.props.updateDays(days);
+            dialogs.invalidDays = false;
+            this.setState({ dialogs });
+            this.handleNextButton();
+          };
+          break;
+
+        case "allCancelled":
+          this.dialog.title = I18n.t("event.noDaysAvailable");
+          this.dialog.message = I18n.t("event.noDaysAvailableMessage");
+          this.dialog.onClose = () => {
+            dialogs.allCancelled = false;
+            this.setState({ dialogs });
+          };
+          this.dialog.onConfirm = undefined;
+          break;
+
+        default:
+          break;
+      }
+    }
   }
 
   renderContent() {
@@ -213,52 +278,10 @@ class CreateEvent extends React.Component {
   }
 
   render() {
+    this.updateDialogContent();
+
     return (
       <div>
-        {this.dialog(I18n.t("event.areYouSure"), I18n.t("event.hoursConfigLostAlert"), "backDialogOpen",
-          () => {
-            const period = defaultPeriod();
-            let days = this.props.days.map(d => ({...d}));
-            days.forEach(day => {
-              day.period = period;
-              day.blockedPeriods = [];
-            });
-            this.props.updateDays(days);
-            this.props.previousStep();
-            this.setState({backDialogOpen: false});
-          }, true)}
-
-        {this.dialog(I18n.t("event.resetHoursAlert"), I18n.t("event.resetHoursAlertMessage"),
-          "possibleSelectedDates", () => {
-            const period = defaultPeriod();
-            let days = this.getSelectedDays(this.state.possibleSelectedDates).map(d => ({...d}));
-            days.forEach(day => {
-              day.period = period;
-              day.blockedPeriods = [];
-            });
-            this.props.updateDays(days);
-            this.setState({selectedDates: this.state.possibleSelectedDates, possibleSelectedDates: null});
-          }, true, true)}
-
-        {this.dialog(I18n.t("event.cancelInvalidDaysAlert"), I18n.t("event.cancelInvalidDaysMessage"),
-          "invalidDaysDialogOpen", () => {
-            let days = this.props.days
-              .filter(d => moment(d.period.end).isBefore(moment(d.period.start)))
-              .map(d => ({...d}));
-            days.forEach(day => {
-              day.period.end = day.period.start;
-            });
-            this.props.updateDays(days);
-            this.setState({invalidDaysDialogOpen: false});
-            this.handleNextButton();
-          }, true)}
-
-        {this.dialog(I18n.t("event.noDaysAvailable"), I18n.t("event.noDaysAvailableMessage"),
-          "allCancelledDialogOpen", () => {
-            this.setState({allCancelledDialogOpen: false});
-          })}
-
-
         <div style={{textAlign: "center"}}>
           <Stepper activeStep={this.props.step}>
             <Step>
@@ -290,6 +313,34 @@ class CreateEvent extends React.Component {
             </Button>
           </div>
         </div>
+
+
+        <Dialog
+          open={this.dialog.opened}
+          onClose={() => this.dialog.onClose()}
+        >
+          <DialogTitle>{this.dialog.title}</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {this.dialog.message}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            {
+              this.dialog.onConfirm &&
+              <Button onClick={() => this.dialog.onClose()} color="secondary">
+                <Translate value="common.no"/>
+              </Button>
+            }
+            <Button
+              onClick={() => this.dialog.onConfirm ? this.dialog.onConfirm() : this.dialog.onClose()}
+              color="primary"
+              autoFocus
+            >
+              <Translate value={this.dialog.onConfirm ? "common.yes" : "common.ok"} />
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }
