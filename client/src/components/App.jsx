@@ -23,7 +23,7 @@ import Redirect from "react-router-dom/Redirect";
 
 const mapStateToProps = state => {
   return {
-    eventTitle: state.event.title,
+    eventTitle: state.createEvent.title,
     user: state.session.user,
     location: state.router.location.pathname
   }

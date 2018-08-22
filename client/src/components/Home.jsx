@@ -2,7 +2,7 @@ import React from "react";
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { push } from "connected-react-router";
-import { setTitle as setEventTitle } from "../state/ducks/event/operations";
+import { setTitle as setEventTitle } from "../state/ducks/createEvent/operations";
 
 import TextField from "@material-ui/core/TextField";
 import { Translate } from 'react-redux-i18n';
@@ -11,7 +11,7 @@ import Button from "@material-ui/core/Button";
 
 const mapStateToProps = state => {
   return {
-    eventTitle: state.event.title
+    eventTitle: state.createEvent.title
   }
 };
 

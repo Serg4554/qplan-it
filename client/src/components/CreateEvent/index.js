@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { push } from "connected-react-router";
-import * as EventOperations from '../../state/ducks/event/operations';
+import * as CreateEventOperations from '../../state/ducks/createEvent/operations';
 import moment from "moment";
 
 import { I18n, Translate } from "react-redux-i18n";
@@ -35,19 +35,19 @@ const defaultPeriod = () => {
 const mapStateToProps = state => {
   /** @namespace state.passwordRecovery */
   return {
-    step: state.event.step || 0,
-    title: state.event.title,
-    days: state.event.days || [],
+    step: state.createEvent.step || 0,
+    title: state.createEvent.title,
+    days: state.createEvent.days || [],
     router: state.router,
   }
 };
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  cancel: EventOperations.cancel,
-  nextStep: EventOperations.nextStep,
-  previousStep: EventOperations.previousStep,
-  setDays: EventOperations.setDays,
-  updateDays: EventOperations.updateDays,
+  cancel: CreateEventOperations.cancel,
+  nextStep: CreateEventOperations.nextStep,
+  previousStep: CreateEventOperations.previousStep,
+  setDays: CreateEventOperations.setDays,
+  updateDays: CreateEventOperations.updateDays,
   goToUrl: url => {
     return push(url)
   }
