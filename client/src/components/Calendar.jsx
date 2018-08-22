@@ -5,8 +5,8 @@ import moment from 'moment'
 import DateRange from 'react-date-range/dist/components/DateRange';
 
 const Calendar = (props) => {
-  let minDate = undefined;
-  let maxDate = undefined;
+  let minDate = props.minDate;
+  let maxDate = props.maxDate;
   let disabledTimes = [];
 
   if(props.allowedDays) {
@@ -135,6 +135,8 @@ Calendar.propTypes = {
   primaryColor: PropTypes.string,
   secondaryColor: PropTypes.string,
   allowedDaysColor: PropTypes.string,
+  minDate: PropTypes.instanceOf(Date),
+  maxDate: PropTypes.instanceOf(Date),
   style: PropTypes.object,
 };
 
