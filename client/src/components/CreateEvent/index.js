@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { push } from "connected-react-router";
 import * as CreateEventOperations from '../../state/ducks/createEvent/operations';
+import * as AuthOperations from "../../state/ducks/auth/operations";
 import moment from "moment";
 
 import { I18n, Translate } from "react-redux-i18n";
@@ -24,6 +25,7 @@ import ExtraOptions from "./ExtraOptions"
 
 const mapStateToProps = state => {
   return {
+    user: state.session.user,
     step: state.createEvent.step || 0,
     title: state.createEvent.title,
     days: state.createEvent.days || [],
@@ -45,6 +47,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   updatePassword: CreateEventOperations.updatePassword,
   updateExpirationDate: CreateEventOperations.updateExpirationDate,
   updateExpirationDateEnabled: CreateEventOperations.updateExpirationDateEnabled,
+  openLogin: AuthOperations.open,
   goToUrl: url => {
     return push(url)
   }
@@ -250,9 +253,7 @@ class CreateEvent extends React.Component {
           />
         );
       case 2:
-        return (
-          <ExtraOptions {...this.props} />
-        );
+        return <ExtraOptions {...this.props} logged={!!this.props.user} />;
       default:
         break;
     }

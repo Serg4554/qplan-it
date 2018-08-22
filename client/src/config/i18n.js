@@ -61,7 +61,7 @@ export default {
       selectHours: "Select hours",
       selectHoursDescription: "What hours can they choose?",
       extraOptions: "Extra options",
-      extraOptionsDescription: "Great! Anything else?",
+      extraOptionsDescription: "Get more control over your event",
       days: "days",
       day: "day",
       areYouSure: "Are you sure?",
@@ -90,6 +90,12 @@ export default {
       setDeadlineToParticipate: "Set deadline to participate",
       undefined: "Undefined",
       selectDeadline: "Select a deadline",
+      loginBenefits: {
+        benefit_1: "Allows you to modify your event in the future",
+        benefit_2: "Set a password to participate",
+        benefit_3: "Select a deadline to participate",
+        benefit_4: "Choose a definitive date and notify everyone"
+      }
     },
   },
 
@@ -157,7 +163,7 @@ export default {
       selectHours: "Seleccionar horas",
       selectHoursDescription: "¿Qué horas se pueden elegir?",
       extraOptions: "Opciones extra",
-      extraOptionsDescription: "¡Genial! ¿Algo más?",
+      extraOptionsDescription: "Obtén más control sobre tu evento",
       days: "días",
       day: "día",
       areYouSure: "¿Estás seguro?",
@@ -186,6 +192,12 @@ export default {
       setDeadlineToParticipate: "Establecer fecha límite para participar",
       undefined: "Indefinido",
       selectDeadline: "Selecciona una fecha límite",
+      loginBenefits: {
+        benefit_1: "Permite modificar tu evento en un futuro",
+        benefit_2: "Establece una contraseña para poder participar",
+        benefit_3: "Selecciona una fecha límite para participar",
+        benefit_4: "Elige una fecha definitiva y notifica a todos"
+      }
     },
   },
 };
