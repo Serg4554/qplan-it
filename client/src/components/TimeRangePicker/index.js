@@ -148,12 +148,21 @@ class TimeRangePicker extends React.Component {
           />
         </div>
       );
-    } else if(this.isDayCancelledByHours() || this.isDayCancelledByBlockedPeriods()) {
+    } else if(this.isDayCancelledByHours()) {
       return (
         <div style={{textAlign: "center"}}>
           <Chip
             style={{marginBottom: "16px", background: "#424242", color: "#fff"}}
-            label={<Translate value="event.cancelledDay" />}
+            label={<Translate value="event.dayCancelledByHours" />}
+          />
+        </div>
+      );
+    } else if(this.isDayCancelledByBlockedPeriods()) {
+      return (
+        <div style={{textAlign: "center"}}>
+          <Chip
+            style={{marginBottom: "16px", background: "#424242", color: "#fff"}}
+            label={<Translate value="event.dayCancelledByBlockedPeriods" />}
           />
         </div>
       );
