@@ -97,21 +97,24 @@
   }
 
   .selectHoursContent {
-    position: relative;
+    display: table;
+    border-spacing: 48px 0;
     width: 100%;
-    height: 500px;
-  }
-
-  .selectHoursContent .timeRangePicker {
-    display: inline-block;
-    width: 350px;
-    margin-right: 48px;
   }
 
   .selectHoursContent .calendar {
-    display: inline-block;
-    width: 355px;
+    display: table-cell;
     vertical-align: top;
+    text-align: right;
+    width: 355px;
+  }
+
+  .selectHoursContent .timeRangePicker {
+    display: table-cell;
+    vertical-align: top;
+    text-align: left;
+    width: 350px;
+    padding-top: 24px;
   }
 }
 
