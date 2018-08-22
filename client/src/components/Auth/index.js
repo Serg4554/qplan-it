@@ -59,7 +59,7 @@ const initialState = {
   showCaptchaAlert: false
 };
 
-class Index extends React.Component {
+class Auth extends React.Component {
   constructor(props) {
     super(props);
     this.state = initialState;
@@ -194,7 +194,7 @@ class Index extends React.Component {
   }
 }
 
-Index.propTypes = {
+Auth.propTypes = {
   className: PropTypes.string,
   style: PropTypes.object,
 
@@ -217,4 +217,4 @@ Index.propTypes = {
   goToUrl: PropTypes.func,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withMobileDialog()(Index));
+export default connect(mapStateToProps, mapDispatchToProps)(withMobileDialog()(Auth));
