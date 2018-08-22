@@ -6,6 +6,7 @@ import { Translate } from "react-redux-i18n";
 import Calendar from "../Calendar";
 import TimeRangePicker from "../TimeRangePicker";
 import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
 
 const SelectHours = (props) => {
   if(!props.times || !props.times.period || !props.times.period.start || !props.times.period.end) {
@@ -17,8 +18,24 @@ const SelectHours = (props) => {
       <h3><Translate value="event.selectHoursDescription" /></h3>
 
       <div className="selectHoursContent">
+        <div className="timeRangePicker">
+          <TimeRangePicker
+            times={props.times}
+            onTimesUpdated={props.onTimesUpdated.bind(this)}
+            style={{
+              display: "inline-block",
+              position: "relative",
+              textAlign: "center",
+              width: "368px"
+            }}
+          />
+        </div>
+
         <div className="calendar">
           <div style={{display: "inline-block", width: "355px", textAlign: "center"}}>
+            <Typography variant="headline" component="h3">
+              <Translate value="event.selectedDays" />
+            </Typography>
             <Calendar
               selectedDays={props.selectedDays}
               allowedDays={props.allowedDays}
@@ -39,13 +56,6 @@ const SelectHours = (props) => {
               <Translate value="common.selectAll" />
             </Button>
           </div>
-        </div>
-
-        <div className="timeRangePicker">
-          <TimeRangePicker
-            times={props.times}
-            onTimesUpdated={props.onTimesUpdated.bind(this)}
-          />
         </div>
       </div>
     </div>

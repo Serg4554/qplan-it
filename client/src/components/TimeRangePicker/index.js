@@ -179,7 +179,7 @@ class TimeRangePicker extends React.Component {
     const cancelledByHours = this.isDayCancelledByHours();
 
     return (
-      <Paper style={{width: "368px", textAlign: "center", position: "relative"}}>
+      <Paper style={this.props.style}>
         <div style={{padding: "16px"}}>
           <Typography variant="headline" component="h3">
             <Translate value="event.schedule" />
@@ -246,6 +246,7 @@ TimeRangePicker.propTypes = {
   times: PropTypes.object,
   onTimesUpdated: PropTypes.func.isRequired,
   preciseByDefault: PropTypes.bool,
+  style: PropTypes.object
 };
 
 export default TimeRangePicker;

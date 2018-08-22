@@ -100,21 +100,21 @@
     display: table;
     border-spacing: 48px 0;
     width: 100%;
-  }
-
-  .selectHoursContent .calendar {
-    display: table-cell;
-    vertical-align: top;
-    text-align: right;
-    width: 355px;
+    margin-top: 45px;
   }
 
   .selectHoursContent .timeRangePicker {
     display: table-cell;
     vertical-align: top;
+    text-align: right;
+    width: 368px;
+  }
+
+  .selectHoursContent .calendar {
+    display: table-cell;
+    vertical-align: top;
     text-align: left;
-    width: 350px;
-    padding-top: 24px;
+    width: 355px;
   }
 }
 
@@ -151,13 +151,15 @@
   }
 
   .selectHoursContent .timeRangePicker {
+    width: 368px;
     margin: 0 auto;
-    width: 400px;
+    padding-top: 24px;
   }
 
   .selectHoursContent .calendar {
+    width: 355px;
     margin: 0 auto;
-    text-align: center;
+    padding-top: 32px;
   }
 }
 
