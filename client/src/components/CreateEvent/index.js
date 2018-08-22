@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { push } from "connected-react-router";
-import * as EventOperations from '../state/ducks/event/operations';
+import * as EventOperations from '../../state/ducks/event/operations';
 import moment from "moment";
 
 import { I18n, Translate } from "react-redux-i18n";
@@ -17,9 +17,9 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import Dialog from "@material-ui/core/Dialog";
-import SelectDays from "./Event/SelectDays"
-import SelectHours from "./Event/SelectHours"
-import ExtraOptions from "./Event/ExtraOptions"
+import SelectDays from "./SelectDays"
+import SelectHours from "./SelectHours"
+import ExtraOptions from "./ExtraOptions"
 
 
 const defaultPeriod = () => {
