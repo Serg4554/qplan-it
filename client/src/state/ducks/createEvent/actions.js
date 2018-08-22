@@ -22,8 +22,31 @@ export const setDays = (days) => ({
   payload: { days }
 });
 
-
 export const updateDays = (days) => ({
   type: types.UPDATE_DAYS,
   payload: { days }
+});
+
+export const updatePassword = (password) => ({
+  type: types.UPDATE_PASSWORD,
+  payload: { password }
+});
+
+export const updateExpirationDate = (expirationDate) => ({
+  type: types.UPDATE_EXPIRATION_DATE,
+  payload: { expirationDate }
+});
+
+export const updateExpirationDateEnabled = (expirationDateEnabled) => ({
+  type: types.UPDATE_EXPIRATION_DATE_ENABLED,
+  payload: { expirationDateEnabled }
+});
+
+export const resetDaysConfig = (days) => ({
+  type: types.RESET_DAYS_CONFIG,
+  payload: { days }
+});
+
+export const resetExtraConfig = () => ({
+  type: types.RESET_EXTRA_CONFIG
 });

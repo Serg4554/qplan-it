@@ -22,22 +22,14 @@ import SelectHours from "./SelectHours"
 import ExtraOptions from "./ExtraOptions"
 
 
-const defaultPeriod = () => {
-  const DEFAULT_START_HOUR = 8;
-  const DEFAULT_END_HOUR = 22;
-
-  return {
-    start: moment().startOf('day').hours(DEFAULT_START_HOUR).toDate(),
-    end: moment().startOf('day').hours(DEFAULT_END_HOUR).toDate()
-  };
-};
-
 const mapStateToProps = state => {
-  /** @namespace state.passwordRecovery */
   return {
     step: state.createEvent.step || 0,
     title: state.createEvent.title,
     days: state.createEvent.days || [],
+    password: state.createEvent.password || "",
+    expirationDateEnabled: state.createEvent.expirationDateEnabled || false,
+    expirationDate: state.createEvent.expirationDate,
     router: state.router,
   }
 };
@@ -48,6 +40,11 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   previousStep: CreateEventOperations.previousStep,
   setDays: CreateEventOperations.setDays,
   updateDays: CreateEventOperations.updateDays,
+  resetDaysConfig: CreateEventOperations.resetDaysConfig,
+  resetExtraConfig: CreateEventOperations.resetExtraConfig,
+  updatePassword: CreateEventOperations.updatePassword,
+  updateExpirationDate: CreateEventOperations.updateExpirationDate,
+  updateExpirationDateEnabled: CreateEventOperations.updateExpirationDateEnabled,
   goToUrl: url => {
     return push(url)
   }
@@ -61,6 +58,7 @@ class CreateEvent extends React.Component {
       selectedDates: this.props.days.map(d => d.date),
       possibleSelectedDates: null,
       preciseTimeSelection: false,
+      selectExpirationDateOpen: false,
       dialogs: {
         back: false,
         resetTime: false,
@@ -159,19 +157,14 @@ class CreateEvent extends React.Component {
       switch(openedDialogKey) {
         case "back":
           this.dialog.title = I18n.t("event.areYouSure");
-          this.dialog.message = I18n.t("event.hoursConfigLostAlert");
+          this.dialog.message = I18n.t("event.configLostAlert");
           this.dialog.onClose = () => {
             dialogs.back = false;
             this.setState({ dialogs });
           };
           this.dialog.onConfirm = () => {
-            const period = defaultPeriod();
-            let days = this.props.days.map(d => ({...d}));
-            days.forEach(day => {
-              day.period = period;
-              day.blockedPeriods = [];
-            });
-            this.props.updateDays(days);
+            this.props.resetDaysConfig(this.props.days);
+            this.props.resetExtraConfig();
             this.props.previousStep();
             dialogs.back = false;
             this.setState({ dialogs });
@@ -186,13 +179,7 @@ class CreateEvent extends React.Component {
             this.setState({ dialogs });
           };
           this.dialog.onConfirm = () => {
-            const period = defaultPeriod();
-            let days = this.getSelectedDays(this.state.possibleSelectedDates).map(d => ({...d}));
-            days.forEach(day => {
-              day.period = period;
-              day.blockedPeriods = [];
-            });
-            this.props.updateDays(days);
+            this.props.resetDaysConfig(this.getSelectedDays(this.state.possibleSelectedDates));
             dialogs.resetTime = false;
             this.setState({selectedDates: this.state.possibleSelectedDates, possibleSelectedDates: null, dialogs});
           };
@@ -242,11 +229,7 @@ class CreateEvent extends React.Component {
           <SelectDays
             selectedDates={this.props.days.map(d => d.date)}
             onSelectedDatesUpdated={selectedDates => {
-              this.props.setDays(selectedDates.map(date => ({
-                date,
-                period: defaultPeriod(),
-                blockedPeriods: []
-              })));
+              this.props.setDays(selectedDates.map(date => ({ date })));
               this.setState({ selectedDates });
             }}
           />
@@ -268,9 +251,7 @@ class CreateEvent extends React.Component {
         );
       case 2:
         return (
-          <ExtraOptions
-
-          />
+          <ExtraOptions {...this.props} />
         );
       default:
         break;
@@ -283,7 +264,7 @@ class CreateEvent extends React.Component {
     return (
       <div>
         <div style={{textAlign: "center"}}>
-          <Stepper activeStep={this.props.step}>
+          <Stepper activeStep={this.props.step} style={{padding: "0"}}>
             <Step>
               <StepLabel key={0}><Translate value="event.selectDays" /></StepLabel>
             </Step>
@@ -350,12 +331,21 @@ CreateEvent.propTypes = {
   step: PropTypes.number,
   title: PropTypes.string,
   days: PropTypes.arrayOf(PropTypes.object),
+  password: PropTypes.string,
+  expirationDateEnabled: PropTypes.bool,
+  expirationDate: PropTypes.instanceOf(Date),
   router: PropTypes.object,
 
   cancel: PropTypes.func,
   nextStep: PropTypes.func,
   previousStep: PropTypes.func,
   setDays: PropTypes.func,
+  updateDays: PropTypes.func,
+  resetDaysConfig: PropTypes.func,
+  resetExtraConfig: PropTypes.func,
+  updatePassword: PropTypes.func,
+  updateExpirationDate: PropTypes.func,
+  updateExpirationDateEnabled: PropTypes.func,
   goToUrl: PropTypes.func
 };
 

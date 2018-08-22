@@ -26,13 +26,13 @@ const SelectHours = (props) => {
               display: "inline-block",
               position: "relative",
               textAlign: "center",
-              width: "368px"
+              width: "100%"
             }}
           />
         </div>
 
         <div className="calendar">
-          <div style={{display: "inline-block", width: "355px", textAlign: "center"}}>
+          <div style={{display: "inline-block", textAlign: "center"}}>
             <Typography variant="headline" component="h3">
               <Translate value="event.selectedDays" />
             </Typography>
@@ -51,7 +51,7 @@ const SelectHours = (props) => {
               variant="contained"
               onClick={() => props.onSelectedDaysUpdated(props.allowedDays)}
               disabled={props.selectedDays.length === props.allowedDays.length}
-              style={{marginTop: "4px"}}
+              style={{marginTop: "16px"}}
             >
               <Translate value="common.selectAll" />
             </Button>

@@ -180,11 +180,11 @@ class TimeRangePicker extends React.Component {
 
     return (
       <Paper style={this.props.style}>
-        <div style={{padding: "16px"}}>
+        <div style={{padding: "16px", paddingBottom: "0"}}>
           <Typography variant="headline" component="h3">
             <Translate value="event.schedule" />
           </Typography>
-          <div style={{width: "153px", display: "inline-block", textAlign: "left", marginTop: "8px"}}>
+          <div style={{display: "inline-block", textAlign: "left", marginTop: "8px"}}>
             <span style={{fontWeight: "bold"}}><Translate value="event.start" /></span>
             <TimeInput
               mode='12h'
@@ -196,13 +196,13 @@ class TimeRangePicker extends React.Component {
                   blockedPeriods: getEvents(_start, end, this.props.times.blockedPeriods)
                 });
               }}
-              style={{width: "90px", marginLeft: "5px"}}
+              style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
               minutesStep={5}
               cancelOnClose={false}
               inputClasses={{input: "text-align-center"}}
             />
           </div>
-          <div style={{width: "153px", display: "inline-block", textAlign: "right"}}>
+          <div style={{display: "inline-block", textAlign: "right", marginLeft: "16px"}}>
             <span style={{fontWeight: "bold"}}><Translate value="event.end" /></span>
             <TimeInput
               mode='12h'
@@ -214,25 +214,26 @@ class TimeRangePicker extends React.Component {
                   blockedPeriods: getEvents(start, _end, this.props.times.blockedPeriods)
                 });
               }}
-              style={{width: "90px", marginLeft: "5px"}}
+              style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
               minutesStep={5}
               cancelOnClose={false}
               inputClasses={{input: "text-align-center"}}
             />
           </div>
-        </div>
 
-        <FormControlLabel
-          control={
-            <Checkbox
-              color="primary"
-              checked={this.state.showBlockedPeriods && !cancelledByHours}
-              onChange={() => this.setState({ showBlockedPeriods: !this.state.showBlockedPeriods })}
-              disabled={cancelledByHours || this.isEndTimeBeforeStartTime()}
-            />
-          }
-          label={<Translate value="event.showSelectionOfHoursNotAvailable" />}
-        />
+          <FormControlLabel
+            control={
+              <Checkbox
+                color="primary"
+                checked={this.state.showBlockedPeriods && !cancelledByHours}
+                onChange={() => this.setState({ showBlockedPeriods: !this.state.showBlockedPeriods })}
+                disabled={cancelledByHours || this.isEndTimeBeforeStartTime()}
+              />
+            }
+            label={<Translate value="event.showSelectionOfHoursNotAvailable" />}
+            style={{textAlign: "left"}}
+          />
+        </div>
 
         { this.renderWarnings() }
         { this.renderEventsBuilder() }

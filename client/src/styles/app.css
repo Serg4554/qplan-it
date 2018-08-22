@@ -73,6 +73,10 @@
   text-align: center;
 }
 
+.rdrMonth {
+  padding: 0;
+}
+
 @media screen and (min-width: 901px) {
   .headerTitleLarge {
     font-size: 110px;
@@ -97,24 +101,22 @@
   }
 
   .selectHoursContent {
-    display: table;
-    border-spacing: 48px 0;
     width: 100%;
     margin-top: 45px;
+    text-align: center;
   }
 
   .selectHoursContent .timeRangePicker {
-    display: table-cell;
+    display: inline-block;
     vertical-align: top;
-    text-align: right;
-    width: 368px;
+    width: 340px;
+    margin-right: 24px;
   }
 
   .selectHoursContent .calendar {
-    display: table-cell;
+    display: inline-block;
     vertical-align: top;
-    text-align: left;
-    width: 355px;
+    width: 330px;
   }
 }
 
@@ -151,13 +153,13 @@
   }
 
   .selectHoursContent .timeRangePicker {
-    width: 368px;
+    width: 340px;
     margin: 0 auto;
     padding-top: 24px;
   }
 
   .selectHoursContent .calendar {
-    width: 355px;
+    width: 330px;
     margin: 0 auto;
     padding-top: 32px;
   }
