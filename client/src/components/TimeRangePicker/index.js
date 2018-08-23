@@ -41,10 +41,10 @@ class TimeRangePicker extends React.Component {
         open={this.state.eventToRemove != null}
         onClose={() => this.setState({ eventToRemove: null })}
       >
-        <DialogTitle><Translate value="event.releaseBlockedHours"/></DialogTitle>
+        <DialogTitle><Translate value="createEvent.releaseBlockedHours"/></DialogTitle>
         <DialogContent>
           <DialogContentText>
-            <Translate value="event.releaseBlockedHoursMessage"/>
+            <Translate value="createEvent.releaseBlockedHoursMessage"/>
           </DialogContentText>
         </DialogContent>
         <DialogActions>
@@ -96,7 +96,7 @@ class TimeRangePicker extends React.Component {
               });
             }}
             onRemoveEvent={eventToRemove => this.setState({ eventToRemove })}
-            eventsTitle={I18n.t("event.unavailable")}
+            eventsTitle={I18n.t("createEvent.unavailable")}
             maxHeight={400}
             timeFormat={"h:mm a"}
             style={{
@@ -105,7 +105,7 @@ class TimeRangePicker extends React.Component {
               borderBottomRightRadius: "4px"
             }}
           />
-          <Tooltip title={I18n.t("event.preciseSelection")} placement="right" disableFocusListener>
+          <Tooltip title={I18n.t("createEvent.preciseSelection")} placement="right" disableFocusListener>
             <Button
               variant="fab"
               mini
@@ -144,7 +144,7 @@ class TimeRangePicker extends React.Component {
         <div style={{textAlign: "center"}}>
           <Chip
             style={{marginBottom: "16px", background: "#D50000", color: "#fff"}}
-            label={<Translate value="event.endTimeBeforeStartTime" />}
+            label={<Translate value="createEvent.endTimeBeforeStartTime" />}
           />
         </div>
       );
@@ -153,7 +153,7 @@ class TimeRangePicker extends React.Component {
         <div style={{textAlign: "center"}}>
           <Chip
             style={{marginBottom: "16px", background: "#424242", color: "#fff"}}
-            label={<Translate value="event.dayCancelledByHours" />}
+            label={<Translate value="createEvent.dayCancelledByHours" />}
           />
         </div>
       );
@@ -162,7 +162,7 @@ class TimeRangePicker extends React.Component {
         <div style={{textAlign: "center"}}>
           <Chip
             style={{marginBottom: "16px", background: "#424242", color: "#fff"}}
-            label={<Translate value="event.dayCancelledByBlockedPeriods" />}
+            label={<Translate value="createEvent.dayCancelledByBlockedPeriods" />}
           />
         </div>
       );
@@ -182,10 +182,10 @@ class TimeRangePicker extends React.Component {
       <Paper style={this.props.style}>
         <div style={{padding: "16px", paddingBottom: "0"}}>
           <Typography variant="headline" component="h3">
-            <Translate value="event.schedule" />
+            <Translate value="createEvent.schedule" />
           </Typography>
           <div style={{display: "inline-block", textAlign: "left", marginTop: "8px"}}>
-            <span style={{fontWeight: "bold"}}><Translate value="event.start" /></span>
+            <span style={{fontWeight: "bold"}}><Translate value="createEvent.start" /></span>
             <TimeInput
               mode='12h'
               value={start}
@@ -203,7 +203,7 @@ class TimeRangePicker extends React.Component {
             />
           </div>
           <div style={{display: "inline-block", textAlign: "right", marginLeft: "16px"}}>
-            <span style={{fontWeight: "bold"}}><Translate value="event.end" /></span>
+            <span style={{fontWeight: "bold"}}><Translate value="createEvent.end" /></span>
             <TimeInput
               mode='12h'
               value={end}
@@ -230,7 +230,7 @@ class TimeRangePicker extends React.Component {
                 disabled={cancelledByHours || this.isEndTimeBeforeStartTime()}
               />
             }
-            label={<Translate value="event.showSelectionOfHoursNotAvailable" />}
+            label={<Translate value="createEvent.showSelectionOfHoursNotAvailable" />}
             style={{textAlign: "left"}}
           />
         </div>

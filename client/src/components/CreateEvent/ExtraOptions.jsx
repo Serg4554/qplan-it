@@ -61,10 +61,10 @@ const ExtraOptions = (props) => {
           <div className="loginVerificationContent">
             <div>
               <ul className={isMobile ? "loginBenefitsMobile" : "loginBenefits"}>
-                <li><Translate value="event.loginBenefits.benefit_1" /></li>
-                <li><Translate value="event.loginBenefits.benefit_2" /></li>
-                <li><Translate value="event.loginBenefits.benefit_3" /></li>
-                <li><Translate value="event.loginBenefits.benefit_4" /></li>
+                <li><Translate value="createEvent.loginBenefits.benefit_1" /></li>
+                <li><Translate value="createEvent.loginBenefits.benefit_2" /></li>
+                <li><Translate value="createEvent.loginBenefits.benefit_3" /></li>
+                <li><Translate value="createEvent.loginBenefits.benefit_4" /></li>
               </ul>
               <div style={{width: "100%", textAlign: "center"}}>
                 <Button
@@ -84,13 +84,13 @@ const ExtraOptions = (props) => {
 
   return (
     <div>
-      <h3><Translate value="event.extraOptionsDescription"/></h3>
+      <h3><Translate value="createEvent.extraOptionsDescription"/></h3>
 
       <Paper style={{maxWidth: "400px", margin: "0 auto", padding: "24px", position: "relative"}}>
         { loginVerification() }
         <div style={props.logged ? {} : {filter: "blur(4px)"}}>
           <TextField
-            placeholder={I18n.t("event.passwordToParticipate")}
+            placeholder={I18n.t("createEvent.passwordToParticipate")}
             type="password"
             margin="normal"
             fullWidth
@@ -109,9 +109,9 @@ const ExtraOptions = (props) => {
             color: "rgba(0, 0, 0, 0.54)",
             marginTop: "7px"
           }}>
-            <Translate value="event.usefulInformation" style={{fontWeight: "bold"}}/>
+            <Translate value="createEvent.usefulInformation" style={{fontWeight: "bold"}}/>
             &nbsp;
-            <Translate value="event.emptyPasswordMessage"/>
+            <Translate value="createEvent.emptyPasswordMessage"/>
           </div>
 
           <FormControlLabel
@@ -129,7 +129,7 @@ const ExtraOptions = (props) => {
                 }}
               />
             }
-            label={I18n.t("event.setDeadlineToParticipate")}
+            label={I18n.t("createEvent.setDeadlineToParticipate")}
             style={{marginTop: "24px"}}
           />
 

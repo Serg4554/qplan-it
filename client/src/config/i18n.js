@@ -52,7 +52,7 @@ export default {
         passwordSuccessfullyChanged: "The password has been successfully changed",
       },
     },
-    event: {
+    createEvent: {
       eventName: "Event name",
       create: "Create event",
       continue: "Continue event",
@@ -154,7 +154,7 @@ export default {
         passwordSuccessfullyChanged: "La contraseña se ha cambiado correctamente",
       },
     },
-    event: {
+    createEvent: {
       eventName: "Nombre del evento",
       create: "Crear evento",
       continue: "Continuar evento",

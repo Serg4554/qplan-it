@@ -163,8 +163,8 @@ class CreateEvent extends React.Component {
       let dialogs = this.state.dialogs;
       switch(openedDialogKey) {
         case "back":
-          this.dialog.title = I18n.t("event.areYouSure");
-          this.dialog.message = I18n.t("event.configLostAlert");
+          this.dialog.title = I18n.t("createEvent.areYouSure");
+          this.dialog.message = I18n.t("createEvent.configLostAlert");
           this.dialog.onClose = () => {
             dialogs.back = false;
             this.setState({ dialogs });
@@ -179,8 +179,8 @@ class CreateEvent extends React.Component {
           break;
 
         case "resetTime":
-          this.dialog.title = I18n.t("event.resetTimesAlert");
-          this.dialog.message = I18n.t("event.resetTimesAlertMessage");
+          this.dialog.title = I18n.t("createEvent.resetTimesAlert");
+          this.dialog.message = I18n.t("createEvent.resetTimesAlertMessage");
           this.dialog.onClose = () => {
             dialogs.resetTime = false;
             this.setState({ dialogs });
@@ -193,8 +193,8 @@ class CreateEvent extends React.Component {
           break;
 
         case "invalidDays":
-          this.dialog.title = I18n.t("event.cancelInvalidDaysAlert");
-          this.dialog.message = I18n.t("event.cancelInvalidDaysMessage");
+          this.dialog.title = I18n.t("createEvent.cancelInvalidDaysAlert");
+          this.dialog.message = I18n.t("createEvent.cancelInvalidDaysMessage");
           this.dialog.onClose = () => {
             dialogs.invalidDays = false;
             this.setState({ dialogs });
@@ -214,8 +214,8 @@ class CreateEvent extends React.Component {
           break;
 
         case "allCancelled":
-          this.dialog.title = I18n.t("event.noDaysAvailable");
-          this.dialog.message = I18n.t("event.noDaysAvailableMessage");
+          this.dialog.title = I18n.t("createEvent.noDaysAvailable");
+          this.dialog.message = I18n.t("createEvent.noDaysAvailableMessage");
           this.dialog.onClose = () => {
             dialogs.allCancelled = false;
             this.setState({ dialogs });
@@ -271,14 +271,14 @@ class CreateEvent extends React.Component {
         <div style={{textAlign: "center"}}>
           <Stepper activeStep={this.props.step} style={{padding: "0"}}>
             <Step>
-              <StepLabel key={0}><Translate value="event.selectDays" /></StepLabel>
+              <StepLabel key={0}><Translate value="createEvent.selectDays" /></StepLabel>
             </Step>
             <Step>
-              <StepLabel key={1}><Translate value="event.selectHours" /></StepLabel>
+              <StepLabel key={1}><Translate value="createEvent.selectHours" /></StepLabel>
             </Step>
             <Step>
               <StepLabel optional={<Typography variant="caption"><Translate value="common.optional" /></Typography>}>
-                <Translate value="event.extraOptions" />
+                <Translate value="createEvent.extraOptions" />
               </StepLabel>
             </Step>
           </Stepper>

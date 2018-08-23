@@ -9,7 +9,7 @@ import Button from "@material-ui/core/Button";
 const SelectDays = (props) => {
   return (
     <div>
-      <h3><Translate value="event.selectDaysDescription" /></h3>
+      <h3><Translate value="createEvent.selectDaysDescription" /></h3>
       <Calendar
         selectedDays={props.selectedDates}
         onSelectedDaysUpdated={props.onSelectedDatesUpdated.bind(this)}
@@ -22,7 +22,7 @@ const SelectDays = (props) => {
         <h3 style={{display: "inline-block"}}>
           {props.selectedDates.length}
           &nbsp;
-          <Translate value={props.selectedDates.length === 1 ? "event.day" : "event.days"} />
+          <Translate value={props.selectedDates.length === 1 ? "createEvent.day" : "createEvent.days"} />
         </h3>
         <Button
           color="secondary"

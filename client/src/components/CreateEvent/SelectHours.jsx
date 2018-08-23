@@ -15,7 +15,7 @@ const SelectHours = (props) => {
 
   return (
     <div>
-      <h3><Translate value="event.selectHoursDescription" /></h3>
+      <h3><Translate value="createEvent.selectHoursDescription" /></h3>
 
       <div className="selectHoursContent">
         <div className="timeRangePicker">
@@ -34,7 +34,7 @@ const SelectHours = (props) => {
         <div className="calendar">
           <div style={{display: "inline-block", textAlign: "center"}}>
             <Typography variant="headline" component="h3">
-              <Translate value="event.selectedDays" />
+              <Translate value="createEvent.selectedDays" />
             </Typography>
             <Calendar
               selectedDays={props.selectedDays}

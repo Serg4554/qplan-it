@@ -59,7 +59,7 @@ class Home extends React.Component {
               autoFocus
               inputRef={obj => this.eventTitleInput = obj}
               id="event"
-              label={<Translate value="event.eventName" />}
+              label={<Translate value="createEvent.eventName" />}
               margin="normal"
               fullWidth={true}
               value={this.state.eventTitle}
@@ -70,7 +70,7 @@ class Home extends React.Component {
               }}
             />
             <Button type="submit" variant="contained" color="primary">
-              <Translate value={this.props.eventTitle ? "event.continue" : "event.create"} />
+              <Translate value={this.props.eventTitle ? "createEvent.continue" : "createEvent.create"} />
             </Button>
           </form>
           <img
