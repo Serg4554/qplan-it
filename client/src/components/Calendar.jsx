@@ -54,6 +54,8 @@ const Calendar = (props) => {
             lang = "zhCN";
           }
           break;
+        default:
+          lang = "";
       }
     }
 
