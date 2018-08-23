@@ -72,6 +72,10 @@ class CreateEvent extends React.Component {
 
     this.dialog = { opened: false };
 
+
+  }
+
+  componentDidMount() {
     window.onbeforeunload = () => "Changes will be lost";
   }
 

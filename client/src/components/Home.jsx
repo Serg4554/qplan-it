@@ -28,8 +28,18 @@ class Home extends React.Component {
 
     this.state = {
       eventTitle: props.eventTitle || ""
-    }
+    };
   };
+
+  componentDidMount() {
+    if(this.props.eventTitle) {
+      window.onbeforeunload = () => "Changes will be lost";
+    }
+  }
+
+  componentWillUnmount() {
+    window.onbeforeunload = null;
+  }
 
   handleCreateEvent() {
     if(this.state.eventTitle) {
