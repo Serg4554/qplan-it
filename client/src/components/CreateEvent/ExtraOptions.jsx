@@ -88,7 +88,7 @@ const ExtraOptions = (props) => {
 
       <Paper style={{maxWidth: "400px", margin: "0 auto", padding: "24px", position: "relative"}}>
         { loginVerification() }
-        <div style={props.logged ? {} : {filter: "blur(2px)"}}>
+        <div style={props.logged ? {} : {filter: "blur(4px)"}}>
           <TextField
             placeholder={I18n.t("event.passwordToParticipate")}
             type="password"
