@@ -3,6 +3,8 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 
 import DateRange from 'react-date-range/dist/components/DateRange';
+import detectBrowserLanguage from 'detect-browser-language'
+import * as locale from 'react-date-range/dist/locale';
 
 const Calendar = (props) => {
   let minDate = props.minDate;
@@ -22,6 +24,55 @@ const Calendar = (props) => {
       }
       min.add(1, 'd');
     }
+  }
+  
+  function getLocale() {
+    const rawLang = detectBrowserLanguage();
+    const langComponents = rawLang.split('-');
+    let lang = "";
+
+    if(langComponents[1]) {
+      switch(langComponents[0]) {
+        case "en":
+          if(langComponents[1] === "GB" || langComponents[1] === "US") {
+            lang = rawLang.replace('-', '');
+          } else {
+            lang = "enGB";
+          }
+          break;
+        case "fr":
+          if(langComponents[1] === "CH") {
+            lang = "frCH";
+          } else {
+            lang = "fr";
+          }
+          break;
+        case "zh":
+          if(langComponents[1] === "CN" || langComponents[1] === "TW") {
+            lang = rawLang.replace('-', '');
+          } else {
+            lang = "zhCN";
+          }
+          break;
+      }
+    }
+
+    if(lang === "") {
+      if(langComponents[0] === "en") {
+        lang = "enGB";
+      } else if(langComponents[0] === "zh") {
+        lang = "zhCN";
+      } else {
+        lang = langComponents[0];
+      }
+    }
+
+    let currentLocale = locale[lang];
+    if(!currentLocale) {
+      currentLocale = locale.enGB;
+    }
+
+    return currentLocale;
   }
 
   function splitRange(range) {
@@ -111,6 +162,7 @@ const Calendar = (props) => {
   return (
     <div style={props.style}>
       <DateRange
+        locale={getLocale()}
         shownDate={moment().startOf("day").toDate()}
         onChange={e => handleDateChange(e.select)}
         ranges={getCalendarRanges()}
