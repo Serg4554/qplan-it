@@ -42,12 +42,12 @@
     "_days": {
       "property": "days",
       "type": "embedsMany",
-      "model": "DaySelection"
+      "model": "Day"
     },
     "_definitive": {
       "property": "definitive",
       "type": "embedsOne",
-      "model": "DaySelection"
+      "model": "Day"
     },
     "owner": {
       "foreignKey": "ownerId",

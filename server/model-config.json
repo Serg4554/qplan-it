@@ -39,7 +39,7 @@
     "dataSource": "db",
     "public": false
   },
-  "DaySelection": {
+  "Day": {
     "dataSource": "db",
     "public": false
   },

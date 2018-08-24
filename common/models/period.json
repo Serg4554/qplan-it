@@ -5,21 +5,13 @@
   "idInjection": false,
   "properties": {
     "id": false,
-    "startHour": {
+    "start": {
+      "type": "Date",
+      "required": true
+    },
+    "duration": {
       "type": "Number",
       "required": false
-    },
-    "startMinute": {
-      "type": "Number",
-      "required": true
-    },
-    "endHour": {
-      "type": "Number",
-      "required": true
-    },
-    "endMinute": {
-      "type": "Number",
-      "required": true
     }
   },
   "relations": {},

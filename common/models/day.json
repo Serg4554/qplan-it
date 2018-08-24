@@ -1,14 +1,10 @@
 {
-  "name": "DaySelection",
+  "name": "Day",
   "base": "Model",
   "strict": true,
   "idInjection": false,
   "properties": {
-    "id": false,
-    "date": {
-      "type": "Date",
-      "required": true
-    }
+    "id": false
   },
   "relations": {
     "_period": {
