@@ -11,7 +11,7 @@ function includes(err, code, problem) {
 
 module.exports = () => (err, req, res, next) => {
   // Set error code
-  if(!err.code) {
+  if(!err.code && err.details) {
     switch(err.details.context) {
       case "user":
         if(includes(err, 'email', "uniqueness")) {
@@ -25,6 +25,9 @@ module.exports = () => (err, req, res, next) => {
       default:
         break;
     }
+  } else if(!err.code) {
+    err.statusCode = 500;
+    err.message = "Internal Server Error";
   }
 
   // Set error message and status code
