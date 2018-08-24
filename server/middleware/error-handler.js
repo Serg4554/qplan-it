@@ -25,15 +25,20 @@ module.exports = () => (err, req, res, next) => {
       default:
         break;
     }
-  } else if(!err.code) {
-    err.statusCode = 500;
-    err.message = "Internal Server Error";
   }
 
   // Set error message and status code
   if(_.includes(Object.keys(ErrorConst), err.code, 1)) {
     err.statusCode = ErrorConst[err.code].status;
     err.message = ErrorConst[err.code].message;
+  }
+
+  // Set internal server error if no status code is provided
+  if(!err.statusCode) {
+    err.statusCode = 500;
+    if(!err.message) {
+      err.message = "Internal Server Error";
+    }
   }
 
   res.status(err.statusCode).send({
