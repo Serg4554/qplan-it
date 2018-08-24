@@ -11,13 +11,13 @@ const Calendar = (props) => {
   let maxDate = props.maxDate;
   let disabledTimes = [];
 
-  if(props.allowedDays) {
-    minDate = new Date(Math.min.apply(null, props.allowedDays));
-    maxDate = new Date(Math.max.apply(null, props.allowedDays));
+  if(props.allowedDates) {
+    minDate = new Date(Math.min.apply(null, props.allowedDates));
+    maxDate = new Date(Math.max.apply(null, props.allowedDates));
 
     let min = moment(minDate).add(1, 'd');
     const max = moment(maxDate);
-    const allowedTimes = props.allowedDays.map(d => d.getTime());
+    const allowedTimes = props.allowedDates.map(d => d.getTime());
     while(min.isBefore(max)) {
       if(!allowedTimes.includes(min.toDate().getTime())) {
         disabledTimes.push(min.toDate().getTime());
@@ -108,33 +108,33 @@ const Calendar = (props) => {
   function handleDateChange(range) {
     let newDays = splitRange(range);
 
-    let selectedDays;
+    let selectedDates;
     if(!props.selectRange) {
-      selectedDays = newDays.length > 0 ? [newDays[0].startDate] : [];
-    } else if(!props.appendDays) {
-      selectedDays = newDays.map(d => d.startDate);
+      selectedDates = newDays.length > 0 ? [newDays[0].startDate] : [];
+    } else if(!props.appendDates) {
+      selectedDates = newDays.map(d => d.startDate);
     } else {
       let index;
-      selectedDays = props.selectedDays.slice();
+      selectedDates = props.selectedDates.slice();
       newDays.forEach(newDay => {
-        index = selectedDays.findIndex(day => day.getTime() === newDay.startDate.getTime());
+        index = selectedDates.findIndex(day => day.getTime() === newDay.startDate.getTime());
         if (newDays.length === 1 && index !== -1) {
-          selectedDays.splice(index, 1);
+          selectedDates.splice(index, 1);
         } else if (index === -1) {
-          selectedDays.push(newDay.startDate);
+          selectedDates.push(newDay.startDate);
         }
       });
     }
 
-    if(props.onSelectedDaysUpdated && (props.appendDays || selectedDays.length !== 0)) {
-      props.onSelectedDaysUpdated(selectedDays);
+    if(props.onSelectedDatesUpdated && (props.appendDates || selectedDates.length !== 0)) {
+      props.onSelectedDatesUpdated(selectedDates);
     }
   }
 
   function getCalendarRanges() {
-    const selectDate = props.selectedDays.length === 0 ?
+    const selectDate = props.selectedDates.length === 0 ?
       moment().startOf("day").toDate() :
-      props.selectedDays[props.selectedDays.length - 1];
+      props.selectedDates[props.selectedDates.length - 1];
 
     const selection = [{
       key: "select",
@@ -143,22 +143,22 @@ const Calendar = (props) => {
       color: props.secondaryColor
     }];
 
-    let selectedDays = props.selectedDays.map(selectedDay => ({
+    let selectedDates = props.selectedDates.map(selectedDay => ({
       startDate: selectedDay,
       endDate: selectedDay,
       color: props.primaryColor
     }));
 
-    if(props.allowedDays) {
-      selectedDays = props.allowedDays.map(allowedDay => ({
+    if(props.allowedDates) {
+      selectedDates = props.allowedDates.map(allowedDay => ({
         key: "allowed",
         startDate: allowedDay,
         endDate: allowedDay,
-        color: props.allowedDaysColor
-      })).concat(selectedDays);
+        color: props.allowedDatesColor
+      })).concat(selectedDates);
     }
 
-    return selection.concat(selectedDays);
+    return selection.concat(selectedDates);
   }
 
   return (
@@ -182,13 +182,13 @@ const Calendar = (props) => {
 
 Calendar.propTypes = {
   selectRange: PropTypes.bool,
-  appendDays: PropTypes.bool,
-  selectedDays: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
-  allowedDays: PropTypes.arrayOf(PropTypes.instanceOf(Date)),
-  onSelectedDaysUpdated: PropTypes.func,
+  appendDates: PropTypes.bool,
+  selectedDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
+  allowedDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)),
+  onSelectedDatesUpdated: PropTypes.func,
   primaryColor: PropTypes.string,
   secondaryColor: PropTypes.string,
-  allowedDaysColor: PropTypes.string,
+  allowedDatesColor: PropTypes.string,
   minDate: PropTypes.instanceOf(Date),
   maxDate: PropTypes.instanceOf(Date),
   style: PropTypes.object,

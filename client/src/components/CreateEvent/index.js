@@ -29,6 +29,7 @@ const mapStateToProps = state => {
     step: state.createEvent.step || 0,
     title: state.createEvent.title,
     days: state.createEvent.days || [],
+    selectedDates: state.createEvent.selectedDates || [],
     password: state.createEvent.password || "",
     expirationDateEnabled: state.createEvent.expirationDateEnabled || false,
     expirationDate: state.createEvent.expirationDate,
@@ -42,6 +43,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   previousStep: CreateEventOperations.previousStep,
   setDays: CreateEventOperations.setDays,
   updateDays: CreateEventOperations.updateDays,
+  setSelectedDates: CreateEventOperations.setSelectedDates,
   resetDaysConfig: CreateEventOperations.resetDaysConfig,
   resetExtraConfig: CreateEventOperations.resetExtraConfig,
   updatePassword: CreateEventOperations.updatePassword,
@@ -53,19 +55,24 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   }
 }, dispatch);
 
+function getPeriodTimeRange(period) {
+  return {
+    start: moment().hours(period.start.getHours()).minutes(period.start.getMinutes()).toDate(),
+    duration: period.duration
+  };
+}
+
 class CreateEvent extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      selectedDates: this.props.days.map(d => d.date),
       possibleSelectedDates: null,
       preciseTimeSelection: false,
       selectExpirationDateOpen: false,
       dialogs: {
         back: false,
         resetTime: false,
-        invalidDays: false,
         allCancelled: false
       }
     };
@@ -104,27 +111,19 @@ class CreateEvent extends React.Component {
         this.props.nextStep();
         break;
       case 1:
-        if(this.props.days.filter(d => moment(d.period.end).isBefore(moment(d.period.start))).length > 0) {
+        let cancelledDays = this.props.days.filter(day => {
+          const blockedPeriod = day.blockedPeriods.length === 1 ? day.blockedPeriods[0] : null;
+          return blockedPeriod &&
+            blockedPeriod.start.getTime() === day.period.start.getTime() &&
+            blockedPeriod.duration === day.period.duration;
+        });
+
+        if(cancelledDays.length === this.props.days.length) {
           let dialogs = this.state.dialogs;
-          dialogs.invalidDays = true;
+          dialogs.allCancelled = true;
           this.setState({ dialogs });
         } else {
-          let cancelledDays = this.props.days.filter(day => {
-            const blockedPeriod = day.blockedPeriods.length === 1 ? day.blockedPeriods[0] : null;
-            const allBlocked = blockedPeriod &&
-              blockedPeriod.start.getTime() === day.period.start.getTime() &&
-              blockedPeriod.end.getTime() === day.period.end.getTime();
-            const cancelled = moment(day.period.start).isSameOrAfter(moment(day.period.end));
-            return allBlocked || cancelled;
-          });
-
-          if(cancelledDays.length === this.props.days.length) {
-            let dialogs = this.state.dialogs;
-            dialogs.allCancelled = true;
-            this.setState({ dialogs });
-          } else {
-            this.props.nextStep();
-          }
+          this.props.nextStep();
         }
         break;
       default:
@@ -134,19 +133,19 @@ class CreateEvent extends React.Component {
 
   getSelectedDays(dates) {
     const times = dates.map(d => d.getTime());
-    return this.props.days.filter(day => times.includes(day.date.getTime()))
+    return this.props.days.filter(day => times.includes(day.period.start.getTime()))
   }
 
-  onSelectedDaysUpdated(selectedDates) {
+  onSelectedDatesUpdated(selectedDates) {
     const selectedDays = this.getSelectedDays(selectedDates);
     if(selectedDays.length > 0) {
-      const strPeriod = JSON.stringify(selectedDays[0].period);
+      const strPeriod = JSON.stringify(getPeriodTimeRange(selectedDays[0].period));
       const strBlockedPeriods = JSON.stringify(selectedDays[0].blockedPeriods);
 
       if(selectedDays.every(day =>
-        JSON.stringify(day.period) === strPeriod &&
+        JSON.stringify(getPeriodTimeRange(day.period)) === strPeriod &&
         JSON.stringify(day.blockedPeriods) === strBlockedPeriods)) {
-        this.setState({ selectedDates });
+        this.props.setSelectedDates(selectedDates);
       } else {
         let dialogs = this.state.dialogs;
         dialogs.resetTime = true;
@@ -188,28 +187,8 @@ class CreateEvent extends React.Component {
           this.dialog.onConfirm = () => {
             this.props.resetDaysConfig(this.getSelectedDays(this.state.possibleSelectedDates));
             dialogs.resetTime = false;
-            this.setState({selectedDates: this.state.possibleSelectedDates, possibleSelectedDates: null, dialogs});
-          };
-          break;
-
-        case "invalidDays":
-          this.dialog.title = I18n.t("createEvent.cancelInvalidDaysAlert");
-          this.dialog.message = I18n.t("createEvent.cancelInvalidDaysMessage");
-          this.dialog.onClose = () => {
-            dialogs.invalidDays = false;
-            this.setState({ dialogs });
-          };
-          this.dialog.onConfirm = () => {
-            let days = this.props.days
-              .filter(d => moment(d.period.end).isBefore(moment(d.period.start)))
-              .map(d => ({...d}));
-            days.forEach(day => {
-              day.period.end = day.period.start;
-            });
-            this.props.updateDays(days);
-            dialogs.invalidDays = false;
-            this.setState({ dialogs });
-            this.handleNextButton();
+            this.props.setSelectedDates(this.state.possibleSelectedDates);
+            this.setState({possibleSelectedDates: null, dialogs});
           };
           break;
 
@@ -234,23 +213,26 @@ class CreateEvent extends React.Component {
       case 0:
         return (
           <SelectDays
-            selectedDates={this.props.days.map(d => d.date)}
+            selectedDates={this.props.days.map(d => d.period.start)}
             onSelectedDatesUpdated={selectedDates => {
-              this.props.setDays(selectedDates.map(date => ({ date })));
-              this.setState({ selectedDates });
+              this.props.setDays(selectedDates.map(date => ({ period: {start: date} })));
+              this.props.setSelectedDates(selectedDates);
             }}
           />
         );
       case 1:
         return (
           <SelectHours
-            allowedDays={this.props.days.map(d => d.date)}
-            selectedDays={this.state.selectedDates}
-            onSelectedDaysUpdated={this.onSelectedDaysUpdated.bind(this)}
-            times={this.getSelectedDays(this.state.selectedDates)[0]}
-            onTimesUpdated={times => {
-              const { period, blockedPeriods } = times;
-              this.props.updateDays(this.state.selectedDates.map(date => ({ date, period, blockedPeriods })));
+            allowedDates={this.props.days.map(d => d.period.start)}
+            selectedDates={this.props.selectedDates}
+            onSelectedDatesUpdated={this.onSelectedDatesUpdated.bind(this)}
+            day={this.getSelectedDays(this.props.selectedDates)[0]}
+            onDayUpdated={day => {
+              const { period, blockedPeriods } = day;
+              this.props.updateDays(this.props.selectedDates.map(date => ({
+                period: { start: date, duration: period.duration },
+                blockedPeriods
+              })));
             }}
             precise={this.state.preciseTimeSelection}
             onPreciseChange={preciseTimeSelection => this.setState({ preciseTimeSelection })}
@@ -336,6 +318,7 @@ CreateEvent.propTypes = {
   step: PropTypes.number,
   title: PropTypes.string,
   days: PropTypes.arrayOf(PropTypes.object),
+  selectedDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)),
   password: PropTypes.string,
   expirationDateEnabled: PropTypes.bool,
   expirationDate: PropTypes.instanceOf(Date),
@@ -346,6 +329,7 @@ CreateEvent.propTypes = {
   previousStep: PropTypes.func,
   setDays: PropTypes.func,
   updateDays: PropTypes.func,
+  setSelectedDates: PropTypes.func,
   resetDaysConfig: PropTypes.func,
   resetExtraConfig: PropTypes.func,
   updatePassword: PropTypes.func,

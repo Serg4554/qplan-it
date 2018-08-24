@@ -12,6 +12,8 @@ const setDays = actions.setDays;
 
 const updateDays = actions.updateDays;
 
+const setSelectedDates = actions.setSelectedDates;
+
 const updatePassword = actions.updatePassword;
 
 const updateExpirationDate = actions.updateExpirationDate;
@@ -29,6 +31,7 @@ export {
   setTitle,
   setDays,
   updateDays,
+  setSelectedDates,
   updatePassword,
   updateExpirationDate,
   updateExpirationDateEnabled,

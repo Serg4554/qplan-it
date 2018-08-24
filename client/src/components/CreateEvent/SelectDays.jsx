@@ -11,9 +11,9 @@ const SelectDays = (props) => {
     <div>
       <h3><Translate value="createEvent.selectDaysDescription" /></h3>
       <Calendar
-        selectedDays={props.selectedDates}
-        onSelectedDaysUpdated={props.onSelectedDatesUpdated.bind(this)}
-        appendDays={true}
+        selectedDates={props.selectedDates}
+        onSelectedDatesUpdated={props.onSelectedDatesUpdated.bind(this)}
+        appendDates={true}
         selectRange={true}
         primaryColor={theme.palette.primary.main}
         secondaryColor={theme.palette.secondary.light}

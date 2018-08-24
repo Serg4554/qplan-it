@@ -1,15 +1,14 @@
 import * as types from "./types";
-import moment from "moment";
 
 /** State shape
  * {
  *  step: number,
  *  title: string,
  *  days: [{
- *    date: Date,
  *    period: Period,
  *    blockedPeriods: [Period]
  *  }],
+ *  selectedDates: [Date]
  *  password: string,
  *  expirationDateEnabled: bool,
  *  expirationDate: Date
@@ -19,14 +18,9 @@ import moment from "moment";
 /** Period shape
  * {
  *  start: Date,
- *  end: Date,
+ *  duration: number,
  * }
  */
-
-const defaultPeriod = {
-  start: moment().startOf('day').hours(8).toDate(),
-  end: moment().startOf('day').hours(22).toDate()
-};
 
 const reducer = (state = {}, action) => {
   let days;
@@ -56,7 +50,7 @@ const reducer = (state = {}, action) => {
     case types.SET_DAYS:
       days = action.payload.days.slice();
       days.forEach(day => {
-        if(!day.period) day.period = defaultPeriod;
+        if(!day.period.duration) day.period.duration = 0;
         if(!day.blockedPeriods) day.blockedPeriods = [];
       });
       return { ...state, days };
@@ -65,13 +59,19 @@ const reducer = (state = {}, action) => {
       const updatedDays = action.payload.days;
       days = state.days.slice();
       updatedDays.forEach(updatedDay => {
-        let index = days.findIndex(d => d.date.getTime() === updatedDay.date.getTime());
+        let index = days.findIndex(d => d.period.start.getTime() === updatedDay.period.start.getTime());
         if(index !== -1) {
-          days[index].period = updatedDay.period;
+          days[index].period.duration = updatedDay.period.duration || 0;
           days[index].blockedPeriods = updatedDay.blockedPeriods;
         }
       });
       return({ ...state, days });
+
+    case types.SET_SELECTED_DATES:
+      return {
+        ...state,
+        selectedDates: action.payload.selectedDates
+      };
 
     case types.UPDATE_PASSWORD:
       return {
@@ -93,10 +93,10 @@ const reducer = (state = {}, action) => {
 
     case types.RESET_DAYS_CONFIG:
       days = state.days.slice();
-      let resetDayTimes = action.payload.days.map(d => d.date.getTime());
+      let resetDayTimes = action.payload.days.map(d => d.period.start.getTime());
       days.forEach(day => {
-        if(resetDayTimes.includes(day.date.getTime())) {
-          day.period = defaultPeriod;
+        if(resetDayTimes.includes(day.period.start.getTime())) {
+          day.period.duration = 0;
           day.blockedPeriods = [];
         }
       });

@@ -9,7 +9,10 @@ import BigCalendar from "react-big-calendar";
 BigCalendar.setLocalizer(BigCalendar.momentLocalizer(moment));
 
 export const getEvents = (startTime, endTime, events) => {
-  let availableEvents = events.slice().map(e => ({...e}));
+  let availableEvents = events.slice().map(e => ({
+    start: getNeutralMoment(e.start).toDate(),
+    end: getNeutralMoment(e.end).toDate()
+  }));
 
   availableEvents = availableEvents.filter(e => moment(e.end).isAfter(moment(startTime)) &&
     moment(e.start).isBefore(moment(endTime)));
@@ -26,29 +29,33 @@ export const getEvents = (startTime, endTime, events) => {
   return availableEvents;
 };
 
+const getNeutralMoment = (date, hours = null, minutes = null) => {
+  const h = hours !== null ? hours : date.getHours();
+  const m = minutes !== null ? minutes : date.getMinutes();
+  return moment().hours(h).minutes(m);
+};
+
 const EventsBuilder = (props) => {
   let touchMoveLocked = false;
   let calendar = null;
-
-  function isValidProps() {
-    return moment(props.startTime).isBefore(moment(props.endTime));
-  }
 
   function getUnavailableEvents() {
     let events = [];
 
     if(props.startTime.getMinutes() !== 0) {
       events.push({
-        start: moment(props.startTime).minutes(0).toDate(),
-        end: props.startTime,
+        start: getNeutralMoment(props.startTime, null, 0).toDate(),
+        end: getNeutralMoment(props.startTime).toDate(),
         unavailable: true
       });
     }
 
     if(props.endTime.getMinutes() !== 0) {
       events.push({
-        start: props.endTime,
-        end: moment(props.endTime).add(1, 'h').minutes(0).toDate(),
+        start: getNeutralMoment(props.endTime).toDate(),
+        end: props.endTime.getHours() < 23 ?
+          getNeutralMoment(props.endTime, null, 0).add(1, 'h').toDate() :
+          moment().endOf('day').toDate(),
         unavailable: true
       });
     }
@@ -57,9 +64,9 @@ const EventsBuilder = (props) => {
   }
 
   function merge(events, newEvent) {
-    let mergedEvents = events.map(e => ({start: moment(e.start), end: moment(e.end)}));
-    let start = moment(newEvent.start);
-    let end = moment(newEvent.end);
+    let mergedEvents = events.map(e => ({start: getNeutralMoment(e.start), end: getNeutralMoment(e.end)}));
+    let start = getNeutralMoment(newEvent.start);
+    let end = getNeutralMoment(newEvent.end);
 
     let eventsToMerge = mergedEvents.filter(e => {
       return (e.end.isSameOrAfter(start) && end.isSameOrAfter(e.start)) ||
@@ -118,7 +125,7 @@ const EventsBuilder = (props) => {
 
   function getEventWrapper(data) {
     const start = moment(data.event.start);
-    const end = moment(data.event.end);
+    const end = moment(data.event.end).minutes(Math.ceil(data.event.end.getMinutes() / 5) * 5);
     const date = start.format(props.timeFormat) + " - " + end.format(props.timeFormat);
     const unavailableClassName = data.event.unavailable ? " rbc-event-unavailable" : "";
     const diff = end.diff(start) / 60000;
@@ -163,64 +170,58 @@ const EventsBuilder = (props) => {
     style
   } = props;
 
-  if (isValidProps()) {
-    return (
-      <div
+  return (
+    <div
+      ref={obj => calendar = obj}
+      style={Object.assign({
+        maxHeight: maxHeight ? maxHeight + "px" : "100%",
+        overflowY: maxHeight ? "scroll" : "auto",
+        width: "100%",
+      }, style)}
+    >
+      <BigCalendar
         ref={obj => calendar = obj}
-        style={Object.assign({
-          maxHeight: maxHeight ? maxHeight + "px" : "100%",
-          overflowY: maxHeight ? "scroll" : "auto",
-          width: "100%",
-        }, style)}
-      >
-        <BigCalendar
-          ref={obj => calendar = obj}
-          selectable
-          events={getEvents(startTime, endTime, events)
-            .map(e => ({...e, title: eventsTitle || ""}))
-            .concat(getUnavailableEvents())}
-          defaultView={BigCalendar.Views.DAY}
-          views={['day']}
-          toolbar={false}
-          scrollToTime={new Date()}
-          defaultDate={new Date()}
-          onSelectEvent={event => {
-            if (onRemoveEvent) {
-              onRemoveEvent(event)
-            }
-          }}
-          onSelectSlot={addEvent}
-          showMultiDayTimes={false}
-          min={moment(startTime).minutes(0).toDate()}
-          max={endTime.getMinutes() > 0 ?
-            moment(props.endTime).add(1, 'h').minutes(0).toDate() :
-            props.endTime}
-          formats={{
-            dayFormat: (date) =>
-              moment(date).format('MM/DD'),
-            timeGutterFormat: (date) =>
-              moment(date).format(timeFormat.toString()),
-            selectRangeFormat: ({start, end}) =>
-              moment(start).format(timeFormat.toString()) + " - " + moment(end).format(timeFormat.toString())
-          }}
-          onSelecting={() => {
-            if (isMobile && !touchMoveLocked) {
-              calendar.style.overflowY = maxHeight ? "hidden" : "auto";
-              document.body.style.overflowY = "hidden";
-              touchMoveLocked = true;
-            }
-          }}
-          step={precise ? 5 : 30}
-          timeslots={precise ? 12 : 2}
-          components={{eventWrapper: getEventWrapper, dayWrapper: getDayWrapper}}
-        />
-      </div>
-    );
-  } else {
-    return <div/>;
-  }
-
-
+        selectable
+        events={getEvents(startTime, endTime, events)
+          .map(e => ({...e, title: eventsTitle || ""}))
+          .concat(getUnavailableEvents())}
+        defaultView={BigCalendar.Views.DAY}
+        views={['day']}
+        toolbar={false}
+        defaultDate={new Date()}
+        onSelectEvent={event => {
+          if (onRemoveEvent) {
+            onRemoveEvent(event)
+          }
+        }}
+        onSelectSlot={addEvent}
+        showMultiDayTimes={false}
+        min={startTime}
+        max={endTime.getHours() < 23 && endTime.getMinutes() > 0 ?
+          getNeutralMoment(props.endTime, null, 0).add(1, 'h').toDate() :
+          moment().endOf('day').toDate()}
+        formats={{
+          dayFormat: (date) =>
+            moment(date).format('MM/DD'),
+          timeGutterFormat: (date) =>
+            moment(date).format(timeFormat.toString()),
+          selectRangeFormat: ({start, end}) =>
+            moment(start).format(timeFormat.toString()) + " - " +
+            moment(end).minutes(Math.ceil(end.getMinutes() / 5) * 5).format(timeFormat.toString())
+        }}
+        onSelecting={() => {
+          if (isMobile && !touchMoveLocked) {
+            calendar.style.overflowY = maxHeight ? "hidden" : "auto";
+            document.body.style.overflowY = "hidden";
+            touchMoveLocked = true;
+          }
+        }}
+        step={precise ? 5 : 30}
+        timeslots={precise ? 12 : 2}
+        components={{eventWrapper: getEventWrapper, dayWrapper: getDayWrapper}}
+      />
+    </div>
+  );
 };
 
 EventsBuilder.propTypes = {

@@ -36,17 +36,17 @@ const ExtraOptions = (props) => {
     } else {
       return(
         <Calendar
-          selectedDays={props.expirationDate ? [props.expirationDate] : [defaultDate]}
-          onSelectedDaysUpdated={dates => {
+          selectedDates={props.expirationDate ? [props.expirationDate] : [defaultDate]}
+          onSelectedDatesUpdated={dates => {
             if(props.logged) {
               props.updateExpirationDate(dates[0]);
             }
           }}
-          appendDays={false}
+          appendDates={false}
           selectRange={false}
           primaryColor={theme.palette.primary.main}
           secondaryColor={theme.palette.secondary.light}
-          allowedDaysColor={theme.palette.secondary.clear}
+          allowedDatesColor={theme.palette.secondary.clear}
           minDate={defaultDate}
           maxDate={props.expirationDateEnabled ? undefined : new Date()}
         />

@@ -4,6 +4,7 @@ export const PREVIOUS_STEP = 'createEvent/PREVIOUS_STEP';
 export const SET_TITLE = 'createEvent/SET_TITLE';
 export const SET_DAYS = 'createEvent/SET_DAYS';
 export const UPDATE_DAYS = 'createEvent/UPDATE_DAYS';
+export const SET_SELECTED_DATES = 'createEvent/SET_SELECTED_DATES';
 export const UPDATE_PASSWORD = 'createEvent/UPDATE_PASSWORD';
 export const UPDATE_EXPIRATION_DATE = 'createEvent/UPDATE_EXPIRATION_DATE';
 export const UPDATE_EXPIRATION_DATE_ENABLED = 'createEvent/UPDATE_EXPIRATION_DATE_ENABLED';

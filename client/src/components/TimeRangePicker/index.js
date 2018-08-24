@@ -34,7 +34,7 @@ class TimeRangePicker extends React.Component {
   }
 
   removeEventDialog() {
-    const period = this.props.times.period;
+    const period = this.props.day.period;
 
     return (
       <Dialog
@@ -56,10 +56,10 @@ class TimeRangePicker extends React.Component {
           </Button>
           <Button
             onClick={() => {
-              let events = this.props.times.blockedPeriods.slice();
+              let events = this.props.day.blockedPeriods.slice();
               events.splice(events.findIndex(e => e.start.getTime() === this.state.eventToRemove.start.getTime()), 1);
               this.setState({ eventToRemove: null });
-              this.props.onTimesUpdated({ period, blockedPeriods: getEvents(period.start, period.end, events) });
+              this.props.onDayUpdated({ period, blockedPeriods: events });
             }}
             color="primary"
             autoFocus
@@ -77,25 +77,63 @@ class TimeRangePicker extends React.Component {
       <GpsNotFixed style={{fontSize: "15pt"}} />;
   }
 
-  renderEventsBuilder() {
-    const start = this.props.times.period.start;
-    const end = this.props.times.period.end;
+  encodePeriods(blockedPeriods) {
+    let events = [];
 
-    if(this.state.showBlockedPeriods && moment(start).isBefore(moment(end))) {
+    let dayStart, periodStart, diff, start, end;
+    blockedPeriods.forEach(blockedPeriod => {
+      dayStart = moment(this.props.day.period.start);
+      periodStart = moment(dayStart).hours(blockedPeriod.start.getHours()).minutes(blockedPeriod.start.getMinutes());
+      diff = Math.floor(periodStart.diff(dayStart) / 60000);
+
+      start = moment(dayStart).startOf('day').add(diff, 'm').toDate();
+      end = moment(dayStart).startOf('day').add(blockedPeriod.duration + diff, 'm').toDate();
+      events.push({
+        start,
+        end: end.getHours() === 0 && end.getMinutes() === 0 ? moment(dayStart).endOf('day').toDate() : end
+      });
+    });
+
+    return events;
+  }
+
+  decodePeriods(events) {
+    let blockedPeriods = [];
+
+    let dayStart, eventStart, diff, start, duration;
+    events.forEach(event => {
+      dayStart = moment(this.props.day.period.start);
+      eventStart = moment(dayStart).hours(event.start.getHours()).minutes(event.start.getMinutes());
+      diff = moment(dayStart).hours(event.end.getHours()).minutes(event.end.getMinutes()).diff(eventStart) / 60000;
+
+      start = dayStart.add(Math.floor(eventStart.diff(dayStart) / 60000), 'm').toDate();
+      duration = Math.ceil(diff / 5) * 5;
+      blockedPeriods.push({ start, duration });
+    });
+
+    return blockedPeriods;
+  }
+
+  renderEventsBuilder() {
+    const duration = this.props.day.period.duration === 0 ? 1440 : this.props.day.period.duration;
+    const start = moment().startOf('day').toDate();
+    const end = moment().startOf('day').add(duration, 'm').toDate();
+
+    if(this.state.showBlockedPeriods) {
       return (
         <div>
           <EventsBuilder
             startTime={start}
             endTime={end}
             precise={this.state.precise}
-            events={this.props.times.blockedPeriods}
+            events={this.encodePeriods(this.props.day.blockedPeriods)}
             onEventsUpdated={events => {
-              this.props.onTimesUpdated({
-                period: {start, end},
-                blockedPeriods: getEvents(start, end, events)
+              this.props.onDayUpdated({
+                period: this.props.day.period,
+                blockedPeriods: this.decodePeriods(getEvents(start, end, events))
               });
             }}
-            onRemoveEvent={eventToRemove => this.setState({ eventToRemove })}
+            onRemoveEvent={event => this.setState({ eventToRemove: this.decodePeriods([event])[0] })}
             eventsTitle={I18n.t("createEvent.unavailable")}
             maxHeight={400}
             timeFormat={"h:mm a"}
@@ -122,33 +160,20 @@ class TimeRangePicker extends React.Component {
     }
   }
 
-  isEndTimeBeforeStartTime() {
-    return moment(this.props.times.period.start).isAfter(moment(this.props.times.period.end));
-  }
-
   isDayCancelledByHours() {
-    return moment(this.props.times.period.start).isSame(moment(this.props.times.period.end));
+    return moment(this.props.day.period.start).isSame(moment(this.props.day.period.end));
   }
 
   isDayCancelledByBlockedPeriods() {
-    const start = moment(this.props.times.period.start);
-    const end = moment(this.props.times.period.end);
-    const blockedPeriod = this.props.times.blockedPeriods.length === 1 ? this.props.times.blockedPeriods[0] : null;
+    const start = moment(this.props.day.period.start);
+    const end = moment(this.props.day.period.end);
+    const blockedPeriod = this.props.day.blockedPeriods.length === 1 ? this.props.day.blockedPeriods[0] : null;
 
     return blockedPeriod && start.isSame(moment(blockedPeriod.start)) && end.isSame(moment(blockedPeriod.end));
   }
 
   renderWarnings() {
-    if(this.isEndTimeBeforeStartTime()) {
-      return (
-        <div style={{textAlign: "center"}}>
-          <Chip
-            style={{marginBottom: "16px", background: "#D50000", color: "#fff"}}
-            label={<Translate value="createEvent.endTimeBeforeStartTime" />}
-          />
-        </div>
-      );
-    } else if(this.isDayCancelledByHours()) {
+    if(this.isDayCancelledByHours()) {
       return (
         <div style={{textAlign: "center"}}>
           <Chip
@@ -170,12 +195,12 @@ class TimeRangePicker extends React.Component {
   }
 
   render() {
-    if(!this.props.times.period || !this.props.times.blockedPeriods) {
+    if(!this.props.day.period || !this.props.day.blockedPeriods) {
       return <div />;
     }
 
-    const start = this.props.times.period.start;
-    const end = this.props.times.period.end;
+    const start = this.props.day.period.start;
+    const end = this.props.day.period.end;
     const cancelledByHours = this.isDayCancelledByHours();
 
     return (
@@ -191,9 +216,9 @@ class TimeRangePicker extends React.Component {
               value={start}
               onChange={time => {
                 const _start = moment(start).startOf('day').hours(time.getHours()).minutes(time.getMinutes()).toDate();
-                this.props.onTimesUpdated({
+                this.props.onDayUpdated({
                   period: {start: _start, end},
-                  blockedPeriods: getEvents(_start, end, this.props.times.blockedPeriods)
+                  blockedPeriods: getEvents(_start, end, this.props.day.blockedPeriods)
                 });
               }}
               style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
@@ -209,9 +234,9 @@ class TimeRangePicker extends React.Component {
               value={end}
               onChange={time => {
                 const _end = moment(end).startOf('day').hours(time.getHours()).minutes(time.getMinutes()).toDate();
-                this.props.onTimesUpdated({
+                this.props.onDayUpdated({
                   period: {start, end: _end},
-                  blockedPeriods: getEvents(start, _end, this.props.times.blockedPeriods)
+                  blockedPeriods: getEvents(start, _end, this.props.day.blockedPeriods)
                 });
               }}
               style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
@@ -227,7 +252,7 @@ class TimeRangePicker extends React.Component {
                 color="primary"
                 checked={this.state.showBlockedPeriods && !cancelledByHours}
                 onChange={() => this.setState({ showBlockedPeriods: !this.state.showBlockedPeriods })}
-                disabled={cancelledByHours || this.isEndTimeBeforeStartTime()}
+                disabled={cancelledByHours}
               />
             }
             label={<Translate value="createEvent.showSelectionOfHoursNotAvailable" />}
@@ -244,8 +269,8 @@ class TimeRangePicker extends React.Component {
 }
 
 TimeRangePicker.propTypes = {
-  times: PropTypes.object,
-  onTimesUpdated: PropTypes.func.isRequired,
+  day: PropTypes.object,
+  onDayUpdated: PropTypes.func.isRequired,
   preciseByDefault: PropTypes.bool,
   style: PropTypes.object
 };

@@ -27,6 +27,11 @@ export const updateDays = (days) => ({
   payload: { days }
 });
 
+export const setSelectedDates = (selectedDates) => ({
+  type: types.SET_SELECTED_DATES,
+  payload: { selectedDates }
+});
+
 export const updatePassword = (password) => ({
   type: types.UPDATE_PASSWORD,
   payload: { password }
