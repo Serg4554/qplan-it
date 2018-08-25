@@ -141,34 +141,24 @@ class TimeRangePicker extends React.Component {
     }
   }
 
-  isDayCancelledByHours() {
-    return moment(this.props.day.period.start).isSame(moment(this.props.day.period.end));
-  }
-
-  isDayCancelledByBlockedPeriods() {
-    const start = moment(this.props.day.period.start);
-    const end = moment(this.props.day.period.end);
+  isDayCancelled() {
     const blockedPeriod = this.props.day.blockedPeriods.length === 1 ? this.props.day.blockedPeriods[0] : null;
+    if(!blockedPeriod) return;
 
-    return blockedPeriod && start.isSame(moment(blockedPeriod.start)) && end.isSame(moment(blockedPeriod.end));
+    const start = moment(blockedPeriod.start)
+      .hours(this.props.day.period.start.getHours())
+      .minutes(this.props.day.period.start.getMinutes());
+    return start.isSameOrAfter(moment(blockedPeriod.start)) &&
+      (this.props.day.period.duration || 1440) <= blockedPeriod.duration;
   }
 
   renderWarnings() {
-    if(this.isDayCancelledByHours()) {
+    if(this.isDayCancelled()) {
       return (
         <div style={{textAlign: "center"}}>
           <Chip
             style={{marginBottom: "16px", background: "#424242", color: "#fff"}}
-            label={<Translate value="createEvent.dayCancelledByHours" />}
-          />
-        </div>
-      );
-    } else if(this.isDayCancelledByBlockedPeriods()) {
-      return (
-        <div style={{textAlign: "center"}}>
-          <Chip
-            style={{marginBottom: "16px", background: "#424242", color: "#fff"}}
-            label={<Translate value="createEvent.dayCancelledByBlockedPeriods" />}
+            label={<Translate value="createEvent.dayCancelled" />}
           />
         </div>
       );
@@ -182,7 +172,6 @@ class TimeRangePicker extends React.Component {
 
     const { start, duration } = this.props.day.period;
     const end = !duration ? moment().startOf('day').toDate() : moment(start).add(duration, 'm').toDate();
-    const cancelledByHours = this.isDayCancelledByHours();
 
     return (
       <Paper style={this.props.style}>
@@ -227,9 +216,8 @@ class TimeRangePicker extends React.Component {
             control={
               <Checkbox
                 color="primary"
-                checked={this.state.showBlockedPeriods && !cancelledByHours}
+                checked={this.state.showBlockedPeriods}
                 onChange={() => this.setState({ showBlockedPeriods: !this.state.showBlockedPeriods })}
-                disabled={cancelledByHours}
               />
             }
             label={<Translate value="createEvent.showSelectionOfHoursNotAvailable" />}
