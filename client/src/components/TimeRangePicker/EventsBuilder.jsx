@@ -187,6 +187,7 @@ const EventsBuilder = (props) => {
         onSelectEvent={event => { if(props.onRemovePeriod) props.onRemovePeriod(toPeriods([event])[0]) }}
         onSelectSlot={addEvent}
         showMultiDayTimes={false}
+        longPressThreshold={150}
         min={dayStart.toDate()}
         max={
           dayEnd.minutes() === 0 ? moment(dayEnd).minutes(0).toDate() :
