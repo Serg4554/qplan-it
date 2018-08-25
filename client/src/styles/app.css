@@ -107,6 +107,16 @@
   font-size: 10pt;
 }
 
+.dayCancelledAvatar {
+  color: white !important;
+  background-color: #B71C1C !important;
+}
+
+.timeWarningAvatar {
+  color: white !important;
+  background-color: #FFA000 !important;
+}
+
 @media screen and (min-width: 901px) {
   .headerTitleLarge {
     font-size: 110px;

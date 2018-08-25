@@ -19,6 +19,8 @@ import Dialog from "@material-ui/core/Dialog";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Chip from "@material-ui/core/Chip";
+import Avatar from "@material-ui/core/Avatar";
+import InfoIcon from '@material-ui/icons/Info';
 
 
 class TimeRangePicker extends React.Component {
@@ -143,7 +145,8 @@ class TimeRangePicker extends React.Component {
 
   isDayCancelled() {
     const blockedPeriod = this.props.day.blockedPeriods.length === 1 ? this.props.day.blockedPeriods[0] : null;
-    if(!blockedPeriod) return;
+    if(!blockedPeriod)
+      return false;
 
     const start = moment(blockedPeriod.start)
       .hours(this.props.day.period.start.getHours())
@@ -152,13 +155,38 @@ class TimeRangePicker extends React.Component {
       (this.props.day.period.duration || 1440) <= blockedPeriod.duration;
   }
 
+  endsNextDay() {
+    const duration = this.props.day.period.duration || 1440;
+    const start = moment(this.props.day.period.start);
+    const end = moment(start).add(duration, 'm');
+    if(end.isSame(moment(end).startOf('day'))) {
+      end.subtract(1, 's');
+    }
+    start.startOf('day');
+    end.startOf('day');
+    return end.isAfter(start)
+  }
+
   renderWarnings() {
     if(this.isDayCancelled()) {
       return (
         <div style={{textAlign: "center"}}>
           <Chip
-            style={{marginBottom: "16px", background: "#424242", color: "#fff"}}
+            style={{marginBottom: "16px", background: "#D32F2F", color: "#fff"}}
+            classes={{avatar: "dayCancelledAvatar"}}
+            avatar={<Avatar><InfoIcon /></Avatar>}
             label={<Translate value="createEvent.dayCancelled" />}
+          />
+        </div>
+      );
+    } else if(this.endsNextDay()) {
+      return (
+        <div style={{textAlign: "center"}}>
+          <Chip
+            style={{marginBottom: "16px", background: "#FFC107", color: "#000"}}
+            classes={{avatar: "timeWarningAvatar"}}
+            avatar={<Avatar><InfoIcon /></Avatar>}
+            label={<Translate value="createEvent.endsNextDay" />}
           />
         </div>
       );
@@ -171,7 +199,7 @@ class TimeRangePicker extends React.Component {
     }
 
     const { start, duration } = this.props.day.period;
-    const end = !duration ? moment().startOf('day').toDate() : moment(start).add(duration, 'm').toDate();
+    const end = !duration ? start : moment(start).add(duration, 'm').toDate();
 
     return (
       <Paper style={this.props.style}>
@@ -201,8 +229,8 @@ class TimeRangePicker extends React.Component {
               mode='12h'
               value={end}
               onChange={time => {
-                const diff = moment(end).hours(time.getHours()).minutes(time.getMinutes()).diff(moment(end))/60000;
-                const period = { start, duration: duration + diff };
+                const diff = moment(end).hours(time.getHours()).minutes(time.getMinutes()).diff(moment(end)) / 60000;
+                const period = { start, duration: (((duration + diff) % 1440) + 1440) % 1440 };
                 this.props.onDayUpdated({ period, blockedPeriods: this.getFixedBlockedPeriods(period) });
               }}
               style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
