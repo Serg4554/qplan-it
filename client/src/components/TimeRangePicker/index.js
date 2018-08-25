@@ -43,7 +43,7 @@ class TimeRangePicker extends React.Component {
         blocked.start = periodStart.toDate();
         blocked.duration = blocked.duration - periodStart.diff(blockedStart) / 60000;
       }
-      excess = (blockedStart.diff(periodStart) / 60000) + blocked.duration - period.duration;
+      excess = (blockedStart.diff(periodStart) / 60000) + blocked.duration - (period.duration || 1440);
       if(blocked.duration > 0 && excess > 0) {
         blocked.duration = blocked.duration - excess;
       }
