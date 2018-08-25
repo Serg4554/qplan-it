@@ -132,8 +132,8 @@ class CreateEvent extends React.Component {
   }
 
   getSelectedDays(dates) {
-    const times = dates.map(d => d.getTime());
-    return this.props.days.filter(day => times.includes(day.period.start.getTime()))
+    const times = dates.map(d => moment(d).startOf('day').toDate().getTime());
+    return this.props.days.filter(day => times.includes(moment(day.period.start).startOf('day').toDate().getTime()))
   }
 
   onSelectedDatesUpdated(selectedDates) {
@@ -230,7 +230,10 @@ class CreateEvent extends React.Component {
             onDayUpdated={day => {
               const { period, blockedPeriods } = day;
               this.props.updateDays(this.props.selectedDates.map(date => ({
-                period: { start: date, duration: period.duration },
+                period: {
+                  start: moment(date).hours(period.start.getHours()).minutes(period.start.getMinutes()).toDate(),
+                  duration: period.duration
+                },
                 blockedPeriods
               })));
             }}

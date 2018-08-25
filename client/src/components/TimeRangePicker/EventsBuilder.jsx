@@ -8,54 +8,61 @@ import BigCalendar from "react-big-calendar";
 
 BigCalendar.setLocalizer(BigCalendar.momentLocalizer(moment));
 
-export const getEvents = (startTime, endTime, events) => {
-  let availableEvents = events.slice().map(e => ({
-    start: getNeutralMoment(e.start).toDate(),
-    end: getNeutralMoment(e.end).toDate()
-  }));
-
-  availableEvents = availableEvents.filter(e => moment(e.end).isAfter(moment(startTime)) &&
-    moment(e.start).isBefore(moment(endTime)));
-
-  availableEvents.forEach(event => {
-    if(moment(event.start).isBefore(moment(startTime))) {
-      event.start = startTime;
-    }
-    if(moment(event.end).isAfter(moment(endTime))) {
-      event.end = endTime;
-    }
-  });
-
-  return availableEvents;
-};
-
-const getNeutralMoment = (date, hours = null, minutes = null) => {
-  const h = hours !== null ? hours : date.getHours();
-  const m = minutes !== null ? minutes : date.getMinutes();
-  return moment().hours(h).minutes(m);
-};
+function getNeutralMoment(date, hours = null, minutes = null) {
+  const h = hours !== null ? hours : (date instanceof Date ? date.getHours() : date.hours()) ;
+  const m = minutes !== null ? minutes : (date instanceof Date ? date.getMinutes() : date.minutes());
+  return moment().startOf('day').hours(h).minutes(m);
+}
 
 const EventsBuilder = (props) => {
+  const dayStart = moment().startOf('day');
+  const dayEnd = getNeutralMoment(moment(dayStart).add(Math.ceil(props.duration / 5) * 5, 'm'));
+  if(dayEnd.isSame(dayStart)) {
+    dayEnd.endOf('day');
+  }
+  const offset = Math.ceil(Math.floor(getNeutralMoment(props.start).diff(dayStart) / 60000) / 5) * 5;
+
   let touchMoveLocked = false;
   let calendar = null;
 
-  function getUnavailableEvents() {
+  function toEvents(periods) {
     let events = [];
 
-    if(props.startTime.getMinutes() !== 0) {
+    let start, end;
+    periods.forEach(period => {
+      start = getNeutralMoment(period.start).subtract(offset, 'm');
+      end = moment(start).add(Math.ceil(period.duration / 5) * 5, 'm');
+      end = moment(start).hours(end.hours()).minutes(end.minutes());
       events.push({
-        start: getNeutralMoment(props.startTime, null, 0).toDate(),
-        end: getNeutralMoment(props.startTime).toDate(),
-        unavailable: true
+        start: start.toDate(),
+        end: end.isSame(dayStart) ? moment().endOf('day').toDate() : end.toDate()
       });
-    }
+    });
 
-    if(props.endTime.getMinutes() !== 0) {
+    return events;
+  }
+
+  function toPeriods(events) {
+    let periods = [];
+
+    events.forEach(event => {
+      periods.push({
+        start: getNeutralMoment(event.start).add(offset, 'm').toDate(),
+        duration: Math.ceil(getNeutralMoment(event.end).diff(getNeutralMoment(event.start)) / 60000 / 5) * 5
+      });
+    });
+
+    return periods;
+  }
+
+  function getDisabledEvents() {
+    let events = [];
+
+    const end = moment().endOf('day');
+    if(dayEnd.minutes() !== 0 && !dayEnd.isSame(end)) {
       events.push({
-        start: getNeutralMoment(props.endTime).toDate(),
-        end: props.endTime.getHours() < 23 ?
-          getNeutralMoment(props.endTime, null, 0).add(1, 'h').toDate() :
-          moment().endOf('day').toDate(),
+        start: dayEnd.toDate(),
+        end: end.toDate(),
         unavailable: true
       });
     }
@@ -84,16 +91,15 @@ const EventsBuilder = (props) => {
       mergedEvents.push({ start, end });
     }
 
-    mergedEvents = mergedEvents.map(e => ({
+    return mergedEvents.map(e => ({
       start: e.start.toDate(),
       end: e.end.toDate()
     }));
-    return mergedEvents;
   }
 
   function addEvent({ start, end }) {
-    let startDate = moment(start).seconds(0).milliseconds(0);
-    let endDate = moment(end).seconds(0).milliseconds(0);
+    let startEvent = moment(start).seconds(0).milliseconds(0);
+    let endEvent = moment(end).seconds(0).milliseconds(0);
 
     if(isMobile && touchMoveLocked) {
       calendar.style.overflowY = props.maxHeight ? "scroll" : "auto";
@@ -101,31 +107,34 @@ const EventsBuilder = (props) => {
       touchMoveLocked = false;
     }
 
-    if(startDate.isSameOrAfter(moment(props.endTime))) {
+    if(startEvent.isSameOrAfter(dayEnd)) {
       return;
     }
 
-    getUnavailableEvents().forEach(event => {
-      const unStart = moment(event.start);
-      const unEnd = moment(event.end);
-      if(startDate.isSame(unStart) || startDate.isBetween(unStart, unEnd)) {
-        startDate = unEnd;
+    getDisabledEvents().forEach(event => {
+      const disabledStart = moment(event.start);
+      const disabledEnd = moment(event.end);
+      if(startEvent.isSame(disabledStart) || startEvent.isBetween(disabledStart, disabledEnd)) {
+        startEvent = disabledEnd;
       }
-      if(endDate.isSame(unEnd) || endDate.isBetween(unStart, unEnd)) {
-        endDate = startDate.isBefore(unStart) ? unStart : unEnd;
+      if(endEvent.isSame(disabledEnd) || endEvent.isBetween(disabledStart, disabledEnd)) {
+        endEvent = startEvent.isBefore(disabledStart) ? disabledStart : disabledEnd;
       }
     });
 
-    if(startDate.isSame(endDate)) {
+    if(startEvent.isSame(endEvent)) {
       return;
     }
 
-    props.onEventsUpdated(merge(props.events, { start: startDate.toDate(), end: endDate.toDate() }));
+    const events = merge(toEvents(props.periods), { start: startEvent.toDate(), end: endEvent.toDate() });
+    props.onPeriodsUpdated(toPeriods(events));
   }
 
   function getEventWrapper(data) {
-    const start = moment(data.event.start);
-    const end = moment(data.event.end).minutes(Math.ceil(data.event.end.getMinutes() / 5) * 5);
+    const start = moment(data.event.start).add(offset, 'm');
+    const end = moment(data.event.end).add(offset, 'm');
+    end.minutes(Math.ceil(end.minutes() / 5) * 5);
+
     const date = start.format(props.timeFormat) + " - " + end.format(props.timeFormat);
     const unavailableClassName = data.event.unavailable ? " rbc-event-unavailable" : "";
     const diff = end.diff(start) / 60000;
@@ -158,66 +167,51 @@ const EventsBuilder = (props) => {
     );
   }
 
-  const {
-    startTime,
-    endTime,
-    precise,
-    events,
-    onRemoveEvent,
-    eventsTitle,
-    maxHeight,
-    timeFormat,
-    style
-  } = props;
-
   return (
     <div
       ref={obj => calendar = obj}
       style={Object.assign({
-        maxHeight: maxHeight ? maxHeight + "px" : "100%",
-        overflowY: maxHeight ? "scroll" : "auto",
+        maxHeight: props.maxHeight ? props.maxHeight + "px" : "100%",
+        overflowY: props.maxHeight ? "scroll" : "auto",
         width: "100%",
-      }, style)}
+      }, props.style)}
     >
       <BigCalendar
         ref={obj => calendar = obj}
         selectable
-        events={getEvents(startTime, endTime, events)
-          .map(e => ({...e, title: eventsTitle || ""}))
-          .concat(getUnavailableEvents())}
+        events={toEvents(props.periods).map(e => ({...e, title: props.eventsTitle || ""})).concat(getDisabledEvents())}
         defaultView={BigCalendar.Views.DAY}
         views={['day']}
         toolbar={false}
         defaultDate={new Date()}
-        onSelectEvent={event => {
-          if (onRemoveEvent) {
-            onRemoveEvent(event)
-          }
-        }}
+        onSelectEvent={event => { if(props.onRemovePeriod) props.onRemovePeriod(toPeriods([event])[0]) }}
         onSelectSlot={addEvent}
         showMultiDayTimes={false}
-        min={startTime}
-        max={endTime.getHours() < 23 && endTime.getMinutes() > 0 ?
-          getNeutralMoment(props.endTime, null, 0).add(1, 'h').toDate() :
-          moment().endOf('day').toDate()}
+        min={dayStart.toDate()}
+        max={
+          dayEnd.minutes() === 0 ? moment(dayEnd).minutes(0).toDate() :
+            (dayEnd.isBefore(moment().hours(23).minutes(0)) ?
+              moment(dayEnd).minutes(0).add(1, 'h').toDate() :
+              moment().endOf('day').toDate())}
         formats={{
-          dayFormat: (date) =>
-            moment(date).format('MM/DD'),
           timeGutterFormat: (date) =>
-            moment(date).format(timeFormat.toString()),
-          selectRangeFormat: ({start, end}) =>
-            moment(start).format(timeFormat.toString()) + " - " +
-            moment(end).minutes(Math.ceil(end.getMinutes() / 5) * 5).format(timeFormat.toString())
+            moment(date).add(offset, 'm').format(props.timeFormat),
+          selectRangeFormat: ({start, end}) => {
+            const _start = moment(start).add(offset, 'm');
+            const _end = moment(end).add(offset, 'm');
+            _end.minutes(Math.ceil(_end.minutes() / 5) * 5);
+            return _start.format(props.timeFormat) + " - " + _end.format(props.timeFormat);
+          }
         }}
         onSelecting={() => {
           if (isMobile && !touchMoveLocked) {
-            calendar.style.overflowY = maxHeight ? "hidden" : "auto";
+            calendar.style.overflowY = props.maxHeight ? "hidden" : "auto";
             document.body.style.overflowY = "hidden";
             touchMoveLocked = true;
           }
         }}
-        step={precise ? 5 : 30}
-        timeslots={precise ? 12 : 2}
+        step={props.precise ? 5 : 30}
+        timeslots={props.precise ? 12 : 2}
         components={{eventWrapper: getEventWrapper, dayWrapper: getDayWrapper}}
       />
     </div>
@@ -225,12 +219,12 @@ const EventsBuilder = (props) => {
 };
 
 EventsBuilder.propTypes = {
-  startTime: PropTypes.instanceOf(Date),
-  endTime: PropTypes.instanceOf(Date),
+  start: PropTypes.instanceOf(Date).isRequired,
+  duration: PropTypes.number.isRequired,
+  periods: PropTypes.arrayOf(PropTypes.object).isRequired,
   precise: PropTypes.bool,
-  events: PropTypes.arrayOf(PropTypes.object).isRequired,
-  onEventsUpdated: PropTypes.func.isRequired,
-  onRemoveEvent: PropTypes.func,
+  onPeriodsUpdated: PropTypes.func.isRequired,
+  onRemovePeriod: PropTypes.func,
   eventsTitle: PropTypes.string,
   maxHeight: PropTypes.number,
   timeFormat: PropTypes.string,

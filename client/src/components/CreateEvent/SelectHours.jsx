@@ -57,6 +57,8 @@ const SelectHours = (props) => {
         </div>
       </div>
     );
+  } else {
+    return <div />;
   }
 };
 

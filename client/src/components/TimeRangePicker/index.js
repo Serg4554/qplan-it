@@ -11,7 +11,6 @@ import GpsNotFixed from "../../../node_modules/@material-ui/icons/GpsNotFixed";
 import GpsFixedIcon from "../../../node_modules/@material-ui/icons/GpsFixed";
 import Paper from "@material-ui/core/Paper";
 import EventsBuilder from "./EventsBuilder";
-import { getEvents } from "./EventsBuilder";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
@@ -27,10 +26,30 @@ class TimeRangePicker extends React.Component {
     super(props);
 
     this.state = {
-      eventToRemove: null,
+      periodToRemove: null,
       precise: !!props.preciseByDefault,
       showBlockedPeriods: false
     }
+  }
+
+  getFixedBlockedPeriods(period) {
+    const blockedPeriods = this.props.day.blockedPeriods.map(p => ({...p}));
+    const periodStart = moment(period.start);
+
+    let blockedStart, excess;
+    blockedPeriods.forEach(blocked => {
+      blockedStart = moment(periodStart).hours(blocked.start.getHours()).minutes(blocked.start.getMinutes());
+      if(blockedStart.isBefore(periodStart)) {
+        blocked.start = periodStart.toDate();
+        blocked.duration = blocked.duration - periodStart.diff(blockedStart) / 60000;
+      }
+      excess = (blockedStart.diff(periodStart) / 60000) + blocked.duration - period.duration;
+      if(blocked.duration > 0 && excess > 0) {
+        blocked.duration = blocked.duration - excess;
+      }
+    });
+
+    return blockedPeriods.filter(blocked => blocked.duration > 0);
   }
 
   removeEventDialog() {
@@ -38,8 +57,8 @@ class TimeRangePicker extends React.Component {
 
     return (
       <Dialog
-        open={this.state.eventToRemove != null}
-        onClose={() => this.setState({ eventToRemove: null })}
+        open={this.state.periodToRemove != null}
+        onClose={() => this.setState({ periodToRemove: null })}
       >
         <DialogTitle><Translate value="createEvent.releaseBlockedHours"/></DialogTitle>
         <DialogContent>
@@ -49,17 +68,20 @@ class TimeRangePicker extends React.Component {
         </DialogContent>
         <DialogActions>
           <Button
-            onClick={() => this.setState({ eventToRemove: null })}
+            onClick={() => this.setState({ periodToRemove: null })}
             color="secondary"
           >
             <Translate value="common.no"/>
           </Button>
           <Button
             onClick={() => {
-              let events = this.props.day.blockedPeriods.slice();
-              events.splice(events.findIndex(e => e.start.getTime() === this.state.eventToRemove.start.getTime()), 1);
-              this.setState({ eventToRemove: null });
-              this.props.onDayUpdated({ period, blockedPeriods: events });
+              let periods = this.props.day.blockedPeriods.slice();
+              const index = periods.findIndex(p => p.start.getTime() === this.state.periodToRemove.start.getTime());
+              if(index !== -1) {
+                periods.splice(index, 1);
+                this.setState({ periodToRemove: null });
+                this.props.onDayUpdated({ period, blockedPeriods: periods });
+              }
             }}
             color="primary"
             autoFocus
@@ -77,63 +99,22 @@ class TimeRangePicker extends React.Component {
       <GpsNotFixed style={{fontSize: "15pt"}} />;
   }
 
-  encodePeriods(blockedPeriods) {
-    let events = [];
-
-    let dayStart, periodStart, diff, start, end;
-    blockedPeriods.forEach(blockedPeriod => {
-      dayStart = moment(this.props.day.period.start);
-      periodStart = moment(dayStart).hours(blockedPeriod.start.getHours()).minutes(blockedPeriod.start.getMinutes());
-      diff = Math.floor(periodStart.diff(dayStart) / 60000);
-
-      start = moment(dayStart).startOf('day').add(diff, 'm').toDate();
-      end = moment(dayStart).startOf('day').add(blockedPeriod.duration + diff, 'm').toDate();
-      events.push({
-        start,
-        end: end.getHours() === 0 && end.getMinutes() === 0 ? moment(dayStart).endOf('day').toDate() : end
-      });
-    });
-
-    return events;
-  }
-
-  decodePeriods(events) {
-    let blockedPeriods = [];
-
-    let dayStart, eventStart, diff, start, duration;
-    events.forEach(event => {
-      dayStart = moment(this.props.day.period.start);
-      eventStart = moment(dayStart).hours(event.start.getHours()).minutes(event.start.getMinutes());
-      diff = moment(dayStart).hours(event.end.getHours()).minutes(event.end.getMinutes()).diff(eventStart) / 60000;
-
-      start = dayStart.add(Math.floor(eventStart.diff(dayStart) / 60000), 'm').toDate();
-      duration = Math.ceil(diff / 5) * 5;
-      blockedPeriods.push({ start, duration });
-    });
-
-    return blockedPeriods;
-  }
-
   renderEventsBuilder() {
-    const duration = this.props.day.period.duration === 0 ? 1440 : this.props.day.period.duration;
-    const start = moment().startOf('day').toDate();
-    const end = moment().startOf('day').add(duration, 'm').toDate();
-
     if(this.state.showBlockedPeriods) {
       return (
         <div>
           <EventsBuilder
-            startTime={start}
-            endTime={end}
+            start={this.props.day.period.start}
+            duration={this.props.day.period.duration}
             precise={this.state.precise}
-            events={this.encodePeriods(this.props.day.blockedPeriods)}
-            onEventsUpdated={events => {
+            periods={this.props.day.blockedPeriods}
+            onPeriodsUpdated={periods => {
               this.props.onDayUpdated({
                 period: this.props.day.period,
-                blockedPeriods: this.decodePeriods(getEvents(start, end, events))
+                blockedPeriods: periods
               });
             }}
-            onRemoveEvent={event => this.setState({ eventToRemove: this.decodePeriods([event])[0] })}
+            onRemovePeriod={period => this.setState({ periodToRemove: period })}
             eventsTitle={I18n.t("createEvent.unavailable")}
             maxHeight={400}
             timeFormat={"h:mm a"}
@@ -199,8 +180,8 @@ class TimeRangePicker extends React.Component {
       return <div />;
     }
 
-    const start = this.props.day.period.start;
-    const end = this.props.day.period.end;
+    const { start, duration } = this.props.day.period;
+    const end = !duration ? moment().startOf('day').toDate() : moment(start).add(duration, 'm').toDate();
     const cancelledByHours = this.isDayCancelledByHours();
 
     return (
@@ -215,11 +196,9 @@ class TimeRangePicker extends React.Component {
               mode='12h'
               value={start}
               onChange={time => {
-                const _start = moment(start).startOf('day').hours(time.getHours()).minutes(time.getMinutes()).toDate();
-                this.props.onDayUpdated({
-                  period: {start: _start, end},
-                  blockedPeriods: getEvents(_start, end, this.props.day.blockedPeriods)
-                });
+                const diff = moment(start).hours(time.getHours()).minutes(time.getMinutes()).diff(moment(start))/60000;
+                const period = { start: time, duration: (((duration - diff) % 1440) + 1440) % 1440 };
+                this.props.onDayUpdated({ period, blockedPeriods: this.getFixedBlockedPeriods(period) });
               }}
               style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
               minutesStep={5}
@@ -233,11 +212,9 @@ class TimeRangePicker extends React.Component {
               mode='12h'
               value={end}
               onChange={time => {
-                const _end = moment(end).startOf('day').hours(time.getHours()).minutes(time.getMinutes()).toDate();
-                this.props.onDayUpdated({
-                  period: {start, end: _end},
-                  blockedPeriods: getEvents(start, _end, this.props.day.blockedPeriods)
-                });
+                const diff = moment(end).hours(time.getHours()).minutes(time.getMinutes()).diff(moment(end))/60000;
+                const period = { start, duration: duration + diff };
+                this.props.onDayUpdated({ period, blockedPeriods: this.getFixedBlockedPeriods(period) });
               }}
               style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
               minutesStep={5}

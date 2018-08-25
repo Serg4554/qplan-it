@@ -1,4 +1,5 @@
 import * as types from "./types";
+import moment from "moment"
 
 /** State shape
  * {
@@ -59,8 +60,11 @@ const reducer = (state = {}, action) => {
       const updatedDays = action.payload.days;
       days = state.days.slice();
       updatedDays.forEach(updatedDay => {
-        let index = days.findIndex(d => d.period.start.getTime() === updatedDay.period.start.getTime());
+        let index = days.findIndex(d =>
+          moment(d.period.start).startOf('day').isSame(moment(updatedDay.period.start).startOf('day'))
+        );
         if(index !== -1) {
+          days[index].period.start = updatedDay.period.start;
           days[index].period.duration = updatedDay.period.duration || 0;
           days[index].blockedPeriods = updatedDay.blockedPeriods;
         }
