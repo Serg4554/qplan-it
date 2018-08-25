@@ -113,9 +113,12 @@ class CreateEvent extends React.Component {
       case 1:
         let cancelledDays = this.props.days.filter(day => {
           const blockedPeriod = day.blockedPeriods.length === 1 ? day.blockedPeriods[0] : null;
-          return blockedPeriod &&
-            blockedPeriod.start.getTime() === day.period.start.getTime() &&
-            blockedPeriod.duration === day.period.duration;
+          if(!blockedPeriod) return false;
+          const start = moment(blockedPeriod.start)
+            .hours(day.period.start.getHours())
+            .minutes(day.period.start.getMinutes());
+          return start.isSameOrAfter(moment(blockedPeriod.start)) &&
+            (day.period.duration || 1440) <= blockedPeriod.duration;
         });
 
         if(cancelledDays.length === this.props.days.length) {
