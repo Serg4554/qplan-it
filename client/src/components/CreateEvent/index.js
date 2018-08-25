@@ -57,7 +57,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 function getPeriodTimeRange(period) {
   return {
-    start: moment().hours(period.start.getHours()).minutes(period.start.getMinutes()).toDate(),
+    start: moment().startOf('day').hours(period.start.getHours()).minutes(period.start.getMinutes()).toDate(),
     duration: period.duration
   };
 }

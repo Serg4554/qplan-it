@@ -17,7 +17,7 @@ const Calendar = (props) => {
 
     let min = moment(minDate).add(1, 'd');
     const max = moment(maxDate);
-    const allowedTimes = props.allowedDates.map(d => d.getTime());
+    const allowedTimes = props.allowedDates.map(d => moment(d).startOf('day').toDate().getTime());
     while(min.isBefore(max)) {
       if(!allowedTimes.includes(min.toDate().getTime())) {
         disabledTimes.push(min.toDate().getTime());

@@ -100,6 +100,7 @@ const reducer = (state = {}, action) => {
       let resetDayTimes = action.payload.days.map(d => d.period.start.getTime());
       days.forEach(day => {
         if(resetDayTimes.includes(day.period.start.getTime())) {
+          day.period.start = moment(day.period.start).startOf('day').toDate();
           day.period.duration = 0;
           day.blockedPeriods = [];
         }
