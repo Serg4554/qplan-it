@@ -21,6 +21,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Chip from "@material-ui/core/Chip";
 import Avatar from "@material-ui/core/Avatar";
 import InfoIcon from '@material-ui/icons/Info';
+import ArrowRightAltIcon from '@material-ui/icons/ArrowRightAlt';
 
 
 class TimeRangePicker extends React.Component {
@@ -55,7 +56,7 @@ class TimeRangePicker extends React.Component {
   }
 
   removeEventDialog() {
-    const period = this.props.day.period;
+    const day = this.props.day;
 
     return (
       <Dialog
@@ -77,12 +78,12 @@ class TimeRangePicker extends React.Component {
           </Button>
           <Button
             onClick={() => {
-              let periods = this.props.day.blockedPeriods.slice();
+              let periods = day.blockedPeriods.slice();
               const index = periods.findIndex(p => p.start.getTime() === this.state.periodToRemove.start.getTime());
               if(index !== -1) {
                 periods.splice(index, 1);
                 this.setState({ periodToRemove: null });
-                this.props.onDayUpdated({ period, blockedPeriods: periods });
+                this.props.onDayUpdated({ complete: day.complete, period: day.period, blockedPeriods: periods });
               }
             }}
             color="primary"
@@ -112,6 +113,7 @@ class TimeRangePicker extends React.Component {
             periods={this.props.day.blockedPeriods}
             onPeriodsUpdated={periods => {
               this.props.onDayUpdated({
+                complete: this.props.day.complete,
                 period: this.props.day.period,
                 blockedPeriods: periods
               });
@@ -207,8 +209,26 @@ class TimeRangePicker extends React.Component {
           <Typography variant="headline" component="h3">
             <Translate value="createEvent.schedule" />
           </Typography>
-          <div style={{display: "inline-block", textAlign: "left", marginTop: "8px"}}>
-            <span style={{fontWeight: "bold"}}><Translate value="createEvent.start" /></span>
+
+          <FormControlLabel
+            control={
+              <Checkbox
+                color="primary"
+                checked={!this.props.day.complete}
+                onChange={() => this.props.onDayUpdated({
+                  complete: !this.props.day.complete,
+                  period: {
+                    start: moment(this.props.day.period.start).startOf('day').toDate(),
+                    duration: 0
+                  },
+                  blockedPeriods: this.props.day.blockedPeriods
+                })}
+              />
+            }
+            label={<Translate value="createEvent.selectStartEndTime" />}
+            style={{textAlign: "left", width: "100%", marginBottom: "-8px"}}
+          />
+          <div style={{display: "inline-block", textAlign: "left"}}>
             <TimeInput
               mode='12h'
               value={start}
@@ -221,10 +241,13 @@ class TimeRangePicker extends React.Component {
               minutesStep={5}
               cancelOnClose={false}
               inputClasses={{input: "text-align-center"}}
+              disabled={this.props.day.complete}
             />
           </div>
-          <div style={{display: "inline-block", textAlign: "right", marginLeft: "16px"}}>
-            <span style={{fontWeight: "bold"}}><Translate value="createEvent.end" /></span>
+          <div style={{display: "inline-block", textAlign: "center", verticalAlign: "middle"}}>
+            <ArrowRightAltIcon color={this.props.day.complete ? "disabled" : undefined} />
+          </div>
+          <div style={{display: "inline-block", textAlign: "right"}}>
             <TimeInput
               mode='12h'
               value={end}
@@ -237,6 +260,7 @@ class TimeRangePicker extends React.Component {
               minutesStep={5}
               cancelOnClose={false}
               inputClasses={{input: "text-align-center"}}
+              disabled={this.props.day.complete}
             />
           </div>
 
@@ -249,7 +273,7 @@ class TimeRangePicker extends React.Component {
               />
             }
             label={<Translate value="createEvent.showSelectionOfHoursNotAvailable" />}
-            style={{textAlign: "left"}}
+            style={{textAlign: "left", width: "100%", marginTop: "8px"}}
           />
         </div>
 

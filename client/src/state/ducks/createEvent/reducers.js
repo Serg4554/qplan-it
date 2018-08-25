@@ -6,6 +6,7 @@ import moment from "moment"
  *  step: number,
  *  title: string,
  *  days: [{
+ *    complete: bool,
  *    period: Period,
  *    blockedPeriods: [Period]
  *  }],
@@ -51,8 +52,9 @@ const reducer = (state = {}, action) => {
     case types.SET_DAYS:
       days = action.payload.days.slice();
       days.forEach(day => {
-        if(!day.period.duration) day.period.duration = 0;
-        if(!day.blockedPeriods) day.blockedPeriods = [];
+        if(typeof day.complete === "undefined") day.complete = true;
+        if(typeof day.period.duration === "undefined") day.period.duration = 0;
+        if(typeof day.blockedPeriods === "undefined") day.blockedPeriods = [];
       });
       return { ...state, days };
 
@@ -64,6 +66,7 @@ const reducer = (state = {}, action) => {
           moment(d.period.start).startOf('day').isSame(moment(updatedDay.period.start).startOf('day'))
         );
         if(index !== -1) {
+          days[index].complete = updatedDay.complete || false;
           days[index].period.start = updatedDay.period.start;
           days[index].period.duration = updatedDay.period.duration || 0;
           days[index].blockedPeriods = updatedDay.blockedPeriods;
@@ -100,6 +103,7 @@ const reducer = (state = {}, action) => {
       let resetDayTimes = action.payload.days.map(d => d.period.start.getTime());
       days.forEach(day => {
         if(resetDayTimes.includes(day.period.start.getTime())) {
+          day.complete = true;
           day.period.start = moment(day.period.start).startOf('day').toDate();
           day.period.duration = 0;
           day.blockedPeriods = [];

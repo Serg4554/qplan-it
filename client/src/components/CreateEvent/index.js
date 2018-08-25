@@ -142,10 +142,12 @@ class CreateEvent extends React.Component {
   onSelectedDatesUpdated(selectedDates) {
     const selectedDays = this.getSelectedDays(selectedDates);
     if(selectedDays.length > 0) {
+      const complete = selectedDays[0].complete;
       const strPeriod = JSON.stringify(getPeriodTimeRange(selectedDays[0].period));
       const strBlockedPeriods = JSON.stringify(selectedDays[0].blockedPeriods);
 
       if(selectedDays.every(day =>
+        day.complete === complete &&
         JSON.stringify(getPeriodTimeRange(day.period)) === strPeriod &&
         JSON.stringify(day.blockedPeriods) === strBlockedPeriods)) {
         this.props.setSelectedDates(selectedDates);
@@ -231,8 +233,9 @@ class CreateEvent extends React.Component {
             onSelectedDatesUpdated={this.onSelectedDatesUpdated.bind(this)}
             day={this.getSelectedDays(this.props.selectedDates)[0]}
             onDayUpdated={day => {
-              const { period, blockedPeriods } = day;
+              const { complete, period, blockedPeriods } = day;
               this.props.updateDays(this.props.selectedDates.map(date => ({
+                complete,
                 period: {
                   start: moment(date).hours(period.start.getHours()).minutes(period.start.getMinutes()).toDate(),
                   duration: period.duration
