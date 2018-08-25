@@ -165,7 +165,9 @@ const Calendar = (props) => {
     <div style={props.style}>
       <DateRange
         locale={getLocale()}
-        shownDate={moment().startOf("day").toDate()}
+        shownDate={props.selectedDates.length > 0 ?
+          props.selectedDates[props.selectedDates.length - 1] :
+          moment().startOf("day").toDate()}
         onChange={e => handleDateChange(e.select)}
         ranges={getCalendarRanges()}
         direction='horizontal'
