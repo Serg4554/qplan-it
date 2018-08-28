@@ -4,19 +4,19 @@
   "strict": true,
   "idInjection": false,
   "properties": {
-    "id": false
-  },
-  "relations": {
-    "_period": {
-      "type": "embedsOne",
-      "model": "Period",
-      "property": "period"
+    "id": false,
+    "period": {
+      "type": "Period",
+      "required": true
     },
-    "_blockedPeriods": {
-      "type": "embedsMany",
-      "model": "Period",
-      "property": "blockedPeriods"
+    "blockedPeriods": {
+      "type": ["Period"],
+      "required": false
     }
+  },
+  "relations": {},
+  "options": {
+    "forceId": false
   },
   "acls": [],
   "methods": {}

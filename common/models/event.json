@@ -16,22 +16,26 @@
       "type": "String",
       "required": true
     },
+    "days": {
+      "type": ["Day"],
+      "required": true
+    },
+    "definitive": {
+      "type": "Period",
+      "required": false
+    },
     "password": {
       "type": "String",
       "required": false
     },
-    "creationDate": {
+    "creation": {
       "type": "Date",
       "required": true,
       "default": "$now"
     },
-    "expirationDate": {
+    "expiration": {
       "type": "Date",
       "required": false
-    },
-    "timezone": {
-      "type": "Number",
-      "required": true
     },
     "claimToken": {
       "type": "String",
@@ -39,16 +43,6 @@
     }
   },
   "relations": {
-    "_days": {
-      "property": "days",
-      "type": "embedsMany",
-      "model": "Day"
-    },
-    "_definitive": {
-      "property": "definitive",
-      "type": "embedsOne",
-      "model": "Day"
-    },
     "owner": {
       "foreignKey": "ownerId",
       "type": "belongsTo",

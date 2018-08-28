@@ -5,33 +5,50 @@ let hashids = require('hashids');
 let bcrypt = require('bcrypt');
 let randtoken = require('rand-token');
 let moment = require('moment');
+const ErrorConst = require('../../server/middleware/error-const');
 
 function ensureValidDays(days) {
-  let startDate, endDate, startBlockedDate, minutesToEnd;
+  let startDate, endDate, dayTime, dayTimes = [];
+
+  if(!days || days.length === 0) {
+    throw ErrorConst.Error(ErrorConst.DAYS_REQUIRED);
+  }
 
   days.forEach(day => {
-    if(!day.period || !day.period.start || isNaN(day.period.start.getTime())) return;
+    if(!day.period || !day.period.start || isNaN(day.period.start.getTime())) {
+      throw ErrorConst.Error(ErrorConst.PERIOD_REQUIRED);
+    }
 
     startDate = moment(day.period.start);
-    if(!day.period.duration || day.period.duration <= 0) {
-      day.period.duration = Math.floor(moment(day.period.start).endOf('day').diff(startDate) / 60000);
-    } else if(day.period.duration > 1439) {
-      day.period.duration = 1439;
+    dayTime = moment(startDate).startOf('day').toDate().getTime();
+
+    if(!dayTimes.includes(dayTime)) {
+      dayTimes.push(dayTime);
+    } else {
+      throw ErrorConst.Error(ErrorConst.DAYS_NOT_UNIQUE);
     }
-    endDate = moment(day.period.start).add(day.period.duration, 'm');
+
+    if(!day.period.duration || day.period.duration <= 0) {
+      day.period.duration = Math.floor(moment(startDate).endOf('day').diff(startDate) / 60000) + 1;
+    } else if(day.period.duration > 1440) {
+      day.period.duration = 1440;
+    }
+    endDate = moment(startDate).add(day.period.duration, 'm');
+    if(day.period.duration === 1440 && endDate.hours() === 0 && endDate.minutes() === 0) {
+      endDate = moment(startDate).endOf('day');
+    }
 
     if(day.blockedPeriods) {
-      day.blockedPeriods.forEach(blockedPeriod => {
-        if(!blockedPeriod.start || isNaN(blockedPeriod.start.getTime())) return;
+      day.blockedPeriods.forEach(period => {
+        if(!period.start || isNaN(period.start.getTime())) {
+          throw ErrorConst.Error(ErrorConst.PERIOD_REQUIRED);
+        }
 
-        startBlockedDate = moment(day.period.start)
-          .hours(blockedPeriod.start.getHours())
-          .minutes(blockedPeriod.start.getMinutes());
-        minutesToEnd = Math.floor(endDate.diff(startBlockedDate) / 60000) % 1440;
-        if(!blockedPeriod.duration || blockedPeriod.duration <= 0) {
-          blockedPeriod.duration = minutesToEnd;
-        } else if(blockedPeriod.duration > minutesToEnd) {
-          blockedPeriod.duration = minutesToEnd;
+        let bpStart = moment(startDate).hours(period.start.getHours()).minutes(period.start.getMinutes());
+        let minutesToEnd = Math.floor(endDate.diff(bpStart) / 60000) % 1440;
+
+        if(!period.duration || period.duration <= 0 || period.duration > minutesToEnd) {
+          period.duration = minutesToEnd;
         }
       });
     }
@@ -39,11 +56,7 @@ function ensureValidDays(days) {
 }
 
 function handleCreate(ctx) {
-  if(ctx.instance.days && ctx.instance.days.length !== 0) {
-    ensureValidDays(ctx.instance.days);
-  } else {
-    return;
-  }
+  ensureValidDays(ctx.instance.days);
 
   let userId = null;
   if(ctx.options.accessToken) {
@@ -61,11 +74,7 @@ function handleCreate(ctx) {
 function handleUpdate(ctx) {
   return ctx.Model.findById(ctx.instance.id)
     .then(event => {
-      if(ctx.instance.days && ctx.instance.days.length !== 0) {
-        ensureValidDays(ctx.instance.days);
-      } else {
-        return;
-      }
+      ensureValidDays(ctx.instance.days);
 
       ctx.instance.id = event.id;
       ctx.instance.ownerId = event.ownerId;
@@ -79,9 +88,7 @@ function handleUpdate(ctx) {
 function handlePatch(ctx) {
   return ctx.Model.findById(ctx.currentInstance.id)
     .then(event => {
-      if(ctx.data.days && ctx.data.days.length !== 0) {
-        ensureValidDays(ctx.data.days);
-      }
+      ensureValidDays(ctx.data.days);
 
       ctx.data.id = event.id;
       ctx.data.ownerId = event.ownerId;
