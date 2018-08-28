@@ -75,10 +75,8 @@ const EventsBuilder = (props) => {
     let start = getNeutralMoment(newEvent.start);
     let end = getNeutralMoment(newEvent.end);
 
-    let eventsToMerge = mergedEvents.filter(e => {
-      return (e.end.isSameOrAfter(start) && end.isSameOrAfter(e.start)) ||
-        (e.start.isSameOrBefore(end) && start.isSameOrBefore(e.end))
-    });
+    let eventsToMerge = mergedEvents.filter(e => (e.end.isSameOrAfter(start) && end.isSameOrAfter(e.start)) ||
+      (e.start.isSameOrBefore(end) && start.isSameOrBefore(e.end)));
 
     if(eventsToMerge.length > 0) {
       eventsToMerge.forEach(eventToMerge => {
