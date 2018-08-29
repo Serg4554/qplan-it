@@ -4,6 +4,7 @@
   "port": 3001,
   "visibleCaptchaSecret": "6LeQOWkUAAAAAIcDjzif6mNBp5WYWQeIxenbRmzd",
   "invisibleCaptchaSecret": "6LeeJm0UAAAAAAXVruktHm_JoR8Rjp71gGImWIGD",
+  "eventIdLength": 6,
   "remoting": {
     "context": false,
     "rest": {

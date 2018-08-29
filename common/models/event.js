@@ -6,6 +6,7 @@ const bcrypt = require('bcrypt');
 const randtoken = require('rand-token');
 const moment = require('moment');
 const ErrorConst = require('../../server/middleware/error-const');
+const editJsonFile = require("edit-json-file");
 const config = require('../../server/config.json');
 const superagentPromise = require('superagent-promise');
 const _superagent = require('superagent');
@@ -59,7 +60,26 @@ function ensureValidDays(days) {
   });
 }
 
-function handleCreate(ctx) {
+async function generateUniqueId(ctx) {
+  let uniqueId, unique = false, count = 0;
+
+  while(!unique) {
+    if(count === 5) {
+      config.eventIdLength = config.eventIdLength + 1;
+      let file = editJsonFile(`${__dirname}/../../server/config.json`, {});
+      file.set("eventIdLength", config.eventIdLength);
+      file.save();
+      count = 0;
+    }
+    uniqueId = new hashids(shortid.generate(), config.eventIdLength).encode(1);
+    await ctx.Model.findById(uniqueId).then(event => unique = !event);
+    count++;
+  }
+
+  return uniqueId;
+}
+
+async function handleCreate(ctx) {
   ensureValidDays(ctx.instance.days);
 
   let userId = null;
@@ -67,12 +87,15 @@ function handleCreate(ctx) {
     userId = ctx.options.accessToken.userId;
   }
 
-  ctx.instance.id = new hashids(shortid.generate(), 6).encode(1);
-  ctx.instance.ownerId = userId;
-  ctx.instance.claimToken = userId ? null : randtoken.generate(64);
-  if(ctx.instance.password) {
-    ctx.instance.password = bcrypt.hashSync(ctx.instance.password, bcrypt.genSaltSync());
-  }
+  await generateUniqueId(ctx)
+    .then(id => {
+      ctx.instance.id = id;
+      ctx.instance.ownerId = userId;
+      ctx.instance.claimToken = userId ? null : randtoken.generate(64);
+      if(ctx.instance.password) {
+        ctx.instance.password = bcrypt.hashSync(ctx.instance.password, bcrypt.genSaltSync());
+      }
+    });
 }
 
 function handleUpdate(ctx) {
