@@ -1,11 +1,15 @@
 'use strict';
 
-let shortid = require('shortid');
-let hashids = require('hashids');
-let bcrypt = require('bcrypt');
-let randtoken = require('rand-token');
-let moment = require('moment');
+const shortid = require('shortid');
+const hashids = require('hashids');
+const bcrypt = require('bcrypt');
+const randtoken = require('rand-token');
+const moment = require('moment');
 const ErrorConst = require('../../server/middleware/error-const');
+const config = require('../../server/config.json');
+const superagentPromise = require('superagent-promise');
+const _superagent = require('superagent');
+const agent = superagentPromise(_superagent, Promise);
 
 function ensureValidDays(days) {
   let startDate, endDate, dayTime, dayTimes = [];
@@ -101,6 +105,17 @@ function handlePatch(ctx) {
 
 module.exports = function(model) {
   model.validatesPresenceOf("days");
+
+  model.beforeRemote('create', async function (ctx) {
+    let captchaData = `secret=${config.invisibleCaptchaSecret}&response=${ctx.req.body.captchaToken}`;
+    await agent.post('https://www.google.com/recaptcha/api/siteverify', captchaData)
+      .then(res => {
+        if(!res.body.success) {
+          throw ErrorConst.Error(ErrorConst.INVALID_CAPTCHA);
+        }
+      });
+    delete ctx.req.body.captchaToken;
+  });
 
   // Apply checks and modifications before save
   model.observe('before save', async function(ctx) {

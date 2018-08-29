@@ -6,6 +6,7 @@ import { push } from "connected-react-router";
 import * as CreateEventOperations from '../../state/ducks/createEvent/operations';
 import * as AuthOperations from "../../state/ducks/auth/operations";
 import moment from "moment";
+import credentials from "../../config/credentials";
 
 import { I18n, Translate } from "react-redux-i18n";
 import Button from "@material-ui/core/Button";
@@ -22,6 +23,7 @@ import SelectDays from "./SelectDays"
 import SelectHours from "./SelectHours"
 import ExtraOptions from "./ExtraOptions"
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Recaptcha from "react-recaptcha";
 
 
 const mapStateToProps = state => {
@@ -74,6 +76,7 @@ class CreateEvent extends React.Component {
       possibleSelectedDates: null,
       preciseTimeSelection: false,
       selectExpirationDateOpen: false,
+      captchaToken: null,
       dialogs: {
         back: false,
         resetTime: false,
@@ -135,34 +138,38 @@ class CreateEvent extends React.Component {
         }
         break;
       case 2:
-        let days = this.props.days.map(d => ({...d}));
-        days.forEach(day => {
-          if(day.complete) {
-            day.period.start = moment(day.period.start).startOf('day').toDate();
-            delete day.period.duration;
-          }
-          delete day.complete;
-        });
-        let password = this.props.user && this.props.user.id ? this.props.password : undefined;
-        let expiration = this.props.user && this.props.user.id && this.props.expirationDateEnabled ?
-          this.props.expirationDate :
-          undefined;
-        let owner = this.props.user ? this.props.user.id : undefined;
-        this.props.create(this.props.title, days, password, expiration, owner)
-          .then(() => {
-            if(this.props.id) {
-              this.props.goToUrl("/" + this.props.id);
-              this.props.cancel();
-            } else {
-              let dialogs = this.state.dialogs;
-              dialogs.errorOccurred = true;
-              this.setState({ dialogs });
-            }
-          });
+        this.recaptchaInstance.execute();
         break;
       default:
         this.props.nextStep();
     }
+  }
+
+  handleCreateEvent() {
+    let days = this.props.days.map(d => ({...d}));
+    days.forEach(day => {
+      if(day.complete) {
+        day.period.start = moment(day.period.start).startOf('day').toDate();
+        delete day.period.duration;
+      }
+      delete day.complete;
+    });
+    let password = this.props.user && this.props.user.id ? this.props.password : undefined;
+    let expiration = this.props.user && this.props.user.id && this.props.expirationDateEnabled ?
+      this.props.expirationDate :
+      undefined;
+    let owner = this.props.user ? this.props.user.id : undefined;
+    this.props.create(this.props.title, days, password, expiration, owner, this.state.captchaToken)
+      .then(() => {
+        if(this.props.id) {
+          this.props.goToUrl("/" + this.props.id);
+          this.props.cancel();
+        } else {
+          let dialogs = this.state.dialogs;
+          dialogs.errorOccurred = true;
+          this.setState({ dialogs });
+        }
+      });
   }
 
   getSelectedDays(dates) {
@@ -367,6 +374,16 @@ class CreateEvent extends React.Component {
             </Button>
           </DialogActions>
         </Dialog>
+
+        <Recaptcha
+          ref={obj => this.recaptchaInstance = obj}
+          sitekey={credentials.invisibleCaptchaKey}
+          size="invisible"
+          verifyCallback={captchaToken => {
+            this.setState({ captchaToken }, () => this.handleCreateEvent());
+            this.recaptchaInstance.reset();
+          }}
+        />
       </div>
     );
   }

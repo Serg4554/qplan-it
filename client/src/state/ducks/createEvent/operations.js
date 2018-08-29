@@ -26,10 +26,10 @@ const resetDaysConfig = actions.resetDaysConfig;
 
 const resetExtraConfig = actions.resetExtraConfig;
 
-const create = (title, days, password, expiration, owner) => dispatch => {
+const create = (title, days, password, expiration, owner, captchaToken) => dispatch => {
   dispatch(actions.createReq());
 
-  return apiService.Event.create(title, days, password, expiration, owner)
+  return apiService.Event.create(title, days, password, expiration, owner, captchaToken)
     .then(res => {
       if(res.error) {
         return dispatch(actions.createFail())
