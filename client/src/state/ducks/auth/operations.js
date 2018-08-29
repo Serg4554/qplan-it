@@ -22,21 +22,18 @@ const login = (email, password) => dispatch => {
 
       return apiService.Auth.getUser(loginRes.userId)
         .then(userRes => {
-          window.localStorage.setItem('usr', JSON.stringify(userRes));
-          dispatch(session.setUser(userRes));
+          dispatch(session.setUser(userRes.error ? undefined : userRes));
           return dispatch(actions.loginSuccess());
         });
     });
 };
 
 const logout = () => dispatch => {
-  dispatch(session.unsetUser());
-
   return apiService.Auth.logout()
     .then(() => {
       apiService.setToken(null);
-      window.localStorage.setItem('usr', '');
       window.localStorage.setItem('jwt', '');
+      dispatch(session.unsetUser());
     });
 };
 

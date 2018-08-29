@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import connect from "react-redux/es/connect/connect";
 import { bindActionCreators } from "redux";
 import { open as openAuth } from "../state/ducks/auth/operations";
-import { retrieveUser } from "../state/ducks/session/operations"
+import { retrieveSession } from "../state/ducks/session/operations"
 import { push } from "connected-react-router";
 import { Route, Switch } from "react-router-dom";
 import { isMobile } from 'react-device-detect';
@@ -30,7 +30,7 @@ const mapStateToProps = state => {
 };
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  retrieveUser,
+  retrieveSession,
   openAuth,
   goToUrl: url => {
     return push(url)
@@ -39,7 +39,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 
 class App extends Component {
   componentWillMount() {
-    this.props.retrieveUser();
+    this.props.retrieveSession();
   }
 
   isLargeHeader() {

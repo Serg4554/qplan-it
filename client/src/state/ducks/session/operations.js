@@ -1,11 +1,49 @@
 import * as actions from "./actions"
 import apiService from "../../apiService";
 
-const setUser = actions.setUser;
+const setUser = (user) => dispatch => {
+  window.localStorage.setItem('usr', JSON.stringify(user));
+  return dispatch(actions.setUser(user));
+};
 
 const unsetUser = actions.unsetUser;
 
-const retrieveUser = () => dispatch => {
+const addClaimToken = (claimToken) => dispatch => {
+  let claimTokens = [];
+  try {
+    claimTokens = JSON.parse(window.localStorage.getItem('claimTokens'));
+  } catch(err) {}
+  if(!claimTokens || !(claimTokens instanceof Array)) {
+    claimTokens = [];
+  }
+
+  claimTokens.push(claimToken);
+  window.localStorage.setItem('claimTokens', JSON.stringify(claimTokens));
+
+  return dispatch(actions.addClaimToken(claimToken));
+};
+
+const removeClaimToken = (claimToken) => dispatch => {
+  let claimTokens = [];
+  try {
+    claimTokens = JSON.parse(window.localStorage.getItem('claimTokens'));
+  } catch(err) {}
+  if(!claimTokens || !(claimTokens instanceof Array)) {
+    claimTokens = [];
+  }
+
+  if(claimTokens.length !== 0) {
+    let index = claimTokens.findIndex(ct => ct.event === claimTokens.event);
+    if(index !== -1) {
+      claimTokens.splice(index, 1);
+    }
+  }
+  window.localStorage.setItem('claimTokens', JSON.stringify(claimTokens));
+
+  return dispatch(actions.removeClaimToken(claimToken));
+};
+
+const retrieveSession = () => dispatch => {
   const token = window.localStorage.getItem('jwt');
   let user;
   try {
@@ -29,10 +67,23 @@ const retrieveUser = () => dispatch => {
         }
       });
   }
+
+  let claimTokens = [];
+  try {
+    claimTokens = JSON.parse(window.localStorage.getItem('claimTokens'));
+  } catch(err) {}
+  if(!claimTokens || !(claimTokens instanceof Array)) {
+    claimTokens = [];
+  }
+  if(claimTokens.length !== 0) {
+    dispatch(actions.setClaimTokens(claimTokens));
+  }
 };
 
 export {
   setUser,
   unsetUser,
-  retrieveUser
+  addClaimToken,
+  removeClaimToken,
+  retrieveSession
 }
