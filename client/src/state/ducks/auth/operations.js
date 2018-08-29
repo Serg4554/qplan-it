@@ -39,19 +39,19 @@ const logout = () => dispatch => {
 
 const cleanError = actions.cleanError;
 
-const recoverPassword = (email) => dispatch => {
+const recoverPassword = (email, captchaToken) => dispatch => {
   dispatch(actions.passRecoveryReq());
 
-  return apiService.Auth.resetPassword(email)
+  return apiService.Auth.resetPassword(email, captchaToken)
     .then(res => {
       return dispatch(res.error ? actions.passRecoveryFail(res.error) : actions.passRecoverySuccess())
     });
 };
 
-const signUp = (name, surname, email, password) => dispatch => {
+const signUp = (name, surname, email, password, captchaToken) => dispatch => {
   dispatch(actions.signUpReq());
 
-  return apiService.Auth.signUp(name, surname, email, password)
+  return apiService.Auth.signUp(name, surname, email, password, captchaToken)
     .then(res => {
       return dispatch(res.error ? actions.signUpFail(res.error) : actions.signUpSuccess());
     });

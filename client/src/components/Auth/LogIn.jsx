@@ -10,31 +10,31 @@ import Button from "@material-ui/core/Button";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Chip from "@material-ui/core/Chip";
 
-function handleLogin(props) {
-  props.login(props.email, props.password)
-    .then(() => {
-      if(!props.open && props.router.location.pathname === "/login") {
-        props.goToUrl("/")
-      }
-    });
-}
-
-function loginStatusMessage(props) {
-  if(props.error) {
-    return (
-      <div style={{textAlign: "center"}}>
-        <Chip
-          style={{marginTop: "24px", background: "#D50000", color: "#fff"}}
-          label={<Translate value="auth.message.failLogin" />}
-        />
-      </div>
-    );
-  }
-}
-
 const LogIn = (props) => {
+  function handleLogin() {
+    props.login(props.email, props.password)
+      .then(() => {
+        if(!props.open && props.router.location.pathname === "/login") {
+          props.goToUrl("/")
+        }
+      });
+  }
+
+  function loginStatusMessage() {
+    if(props.error) {
+      return (
+        <div style={{textAlign: "center"}}>
+          <Chip
+            style={{marginTop: "24px", background: "#D50000", color: "#fff"}}
+            label={<Translate value="auth.message.failLogin" />}
+          />
+        </div>
+      );
+    }
+  }
+
   return (
-    <form onSubmit={e => { e.preventDefault(); handleLogin(props); }} noValidate>
+    <form onSubmit={e => { e.preventDefault(); handleLogin(); }} noValidate>
       <DialogContent style={{padding: "0 24px", textAlign: "center"}}>
         <TextField
           autoFocus
@@ -65,7 +65,7 @@ const LogIn = (props) => {
         />
       </DialogContent>
 
-      { loginStatusMessage(props) }
+      { loginStatusMessage() }
 
       <div style={{textAlign: "center", padding: "24px"}}>
         <a

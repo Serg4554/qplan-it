@@ -5,6 +5,11 @@ const passwordSchema = new passwordValidator();
 const TokenGenerator = require('uuid-token-generator');
 const token = new TokenGenerator(256, TokenGenerator.BASE62);
 const ErrorConst = require('../../server/middleware/error-const');
+const config = require('../../server/config.json');
+const superagentPromise = require('superagent-promise');
+const _superagent = require('superagent');
+const agent = superagentPromise(_superagent, Promise);
+
 
 passwordSchema
   .is().min(8)
@@ -14,6 +19,14 @@ passwordSchema
 
 module.exports = function(model) {
   model.beforeRemote('create', async function (ctx) {
+    let captchaData = `secret=${config.visibleCaptchaSecret}&response=${ctx.req.body.captchaToken}`;
+    await agent.post('https://www.google.com/recaptcha/api/siteverify', captchaData)
+      .then(res => {
+        if(!res.body.success) {
+          throw ErrorConst.Error(ErrorConst.INVALID_CAPTCHA);
+        }
+      });
+
     if(!passwordSchema.validate(ctx.req.body.password, {})) {
       throw ErrorConst.Error(ErrorConst.PASSWORD_TOO_WEAK);
     }
@@ -44,6 +57,16 @@ module.exports = function(model) {
     if(ctx.req.accessToken && ctx.req.accessToken.ttl === 900) {
       await model.app.models.AccessToken.deleteById(ctx.req.accessToken.id);
     }
+  });
+
+  model.beforeRemote('resetPassword', async function(ctx) {
+    let captchaData = `secret=${config.visibleCaptchaSecret}&response=${ctx.req.body.captchaToken}`;
+    await agent.post('https://www.google.com/recaptcha/api/siteverify', captchaData)
+      .then(res => {
+        if(!res.body.success) {
+          throw ErrorConst.Error(ErrorConst.INVALID_CAPTCHA);
+        }
+      });
   });
 
   model.observe('before save', async function(ctx) {

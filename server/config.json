@@ -2,6 +2,8 @@
   "restApiRoot": "/api",
   "host": "0.0.0.0",
   "port": 3001,
+  "visibleCaptchaSecret": "6LeQOWkUAAAAAIcDjzif6mNBp5WYWQeIxenbRmzd",
+  "invisibleCaptchaSecret": "6LeeJm0UAAAAAAXVruktHm_JoR8Rjp71gGImWIGD",
   "remoting": {
     "context": false,
     "rest": {

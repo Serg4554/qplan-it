@@ -55,8 +55,7 @@ const initialState = {
   password: "",
   confirmPassword: "",
   alertPasswordNotMatch: false,
-  captchaVerified: false,
-  showCaptchaAlert: false
+  captchaToken: null
 };
 
 class Auth extends React.Component {
@@ -103,7 +102,7 @@ class Auth extends React.Component {
           if(this.props.error) {
             this.props.cleanError();
           }
-          this.setState({ captchaVerified: false, showCaptchaAlert: false });
+          this.setState({ captchaToken: null });
         }}
       />
     );
@@ -118,12 +117,12 @@ class Auth extends React.Component {
         setPassword={password => this.setState({ password })}
         setConfirmPassword={confirmPassword => this.setState({ confirmPassword })}
         setAlertPasswordNotMatch={alertPasswordNotMatch => this.setState({ alertPasswordNotMatch })}
-        setCaptchaVerified={captchaVerified => {
-          if(captchaVerified && this.props.error) {
+        setCaptchaToken={captchaToken => {
+          if(captchaToken && this.props.error) {
             this.props.cleanError();
           }
           if(!this.props.signUpSuccess) {
-            this.setState({ captchaVerified, showCaptchaAlert: !captchaVerified });
+            this.setState({ captchaToken });
           }
         }}
       />
@@ -134,12 +133,12 @@ class Auth extends React.Component {
         {...this.state}
         {...this.props}
         setEmail={email => this.setState({ email })}
-        setCaptchaVerified={captchaVerified => {
-          if(captchaVerified && this.props.error) {
+        setCaptchaToken={captchaToken => {
+          if(captchaToken && this.props.error) {
             this.props.cleanError();
           }
           if(!this.props.recoveryPasswordSent) {
-            this.setState({ captchaVerified, showCaptchaAlert: !captchaVerified });
+            this.setState({ captchaToken });
           }
         }}
       />

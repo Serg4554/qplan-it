@@ -71,11 +71,11 @@ const Auth = {
   logout: () =>
     requests.post('/users/logout', {}),
 
-  resetPassword: (email) =>
-    requests.post('/users/reset', { email }),
+  resetPassword: (email, captchaToken) =>
+    requests.post('/users/reset', { email, captchaToken }),
 
-  signUp: (name, surname, email, password) =>
-    requests.post('/users', { name, surname, email, password, language: store.getState().i18n.locale }),
+  signUp: (name, surname, email, password, captchaToken) =>
+    requests.post('/users', { name, surname, email, password, language: store.getState().i18n.locale, captchaToken }),
 
   changeLostPassword: (newPassword, token) =>
     requests.post('/users/reset-password', { newPassword }, token)

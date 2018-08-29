@@ -7,6 +7,11 @@ module.exports = {
     return err;
   },
 
+  INVALID_CAPTCHA: {
+    code: "INVALID_CAPTCHA",
+    status: 422,
+    message: "Please, verify the captcha"
+  },
   PASSWORD_TOO_WEAK: {
     code: "PASSWORD_TOO_WEAK",
     status: 422,

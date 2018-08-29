@@ -12,60 +12,60 @@ import Recaptcha from "react-recaptcha";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 
-function forgotPasswordStatusMessage(props) {
-  let success = false;
-  let message = "";
+const ForgotPassword = (props) => {
+  let recaptchaInstance;
 
-  if(props.showCaptchaAlert) {
-    success = false;
-    message = "auth.message.verifyCaptcha";
-  } else if(props.error && props.error.code === "EMAIL_NOT_FOUND") {
-    success = false;
-    message = "auth.message.emailNotFound";
-  } else if(props.error && props.error.code === "RESET_FAILED_EMAIL_NOT_VERIFIED") {
-    success = false;
-    message = "auth.message.emailNotVerified";
-  } else if(props.error) {
-    success = false;
-    message = "auth.message.errorOccurred";
-  } else if(props.recoveryPasswordSent) {
-    success = true;
-    message = "auth.message.recoveryPasswordEmailSent";
-  }
+  function forgotPasswordStatusMessage() {
+    let success = false;
+    let message = "";
 
-  if(message) {
-    if(success) {
-      return (
-        <div style={{textAlign: "center"}}>
-          <Chip
-            style={{marginTop: "10px", background: "#43A047", color: "#fff"}}
-            label={<Translate value={message} />}
-          />
-        </div>
-      );
-    } else {
-      return (
-        <div style={{textAlign: "center"}}>
-          <Chip
-            style={{margin: "10px", background: "#D50000", color: "#fff"}}
-            label={<Translate value={message} />}
-          />
-        </div>
-      );
+    if(props.error && props.error.code === "INVALID_CAPTCHA") {
+      success = false;
+      message = "auth.message.verifyCaptcha";
+    } else if(props.error && props.error.code === "EMAIL_NOT_FOUND") {
+      success = false;
+      message = "auth.message.emailNotFound";
+    } else if(props.error && props.error.code === "RESET_FAILED_EMAIL_NOT_VERIFIED") {
+      success = false;
+      message = "auth.message.emailNotVerified";
+    } else if(props.error) {
+      success = false;
+      message = "auth.message.errorOccurred";
+    } else if(props.recoveryPasswordSent) {
+      success = true;
+      message = "auth.message.recoveryPasswordEmailSent";
+    }
+
+    if(message) {
+      if(success) {
+        return (
+          <div style={{textAlign: "center"}}>
+            <Chip
+              style={{marginTop: "10px", background: "#43A047", color: "#fff"}}
+              label={<Translate value={message} />}
+            />
+          </div>
+        );
+      } else {
+        return (
+          <div style={{textAlign: "center"}}>
+            <Chip
+              style={{margin: "10px", background: "#D50000", color: "#fff"}}
+              label={<Translate value={message} />}
+            />
+          </div>
+        );
+      }
     }
   }
-}
 
-const ForgotPassword = (props) => {
   return (
     <form
       onSubmit={e => {
         e.preventDefault();
-        if(!props.captchaVerified) {
-          props.setCaptchaVerified(false);
-        } else {
-          props.recoverPassword(props.email);
-        }
+        props.recoverPassword(props.email, props.captchaToken);
+        recaptchaInstance.reset();
+        props.setCaptchaToken(null);
       }}
       noValidate
     >
@@ -91,15 +91,16 @@ const ForgotPassword = (props) => {
 
         <div style={{textAlign: "center", marginTop: "8px", display: props.recoveryPasswordSent ? "none" : "inherit"}}>
           <Recaptcha
-            sitekey={credentials.recaptchaSiteKey}
-            verifyCallback={() => props.setCaptchaVerified(true)}
-            expiredCallback={() => props.setCaptchaVerified(false)}
+            ref={obj => recaptchaInstance = obj}
+            sitekey={credentials.visibleCaptchaKey}
+            verifyCallback={token => props.setCaptchaToken(token)}
+            expiredCallback={() => props.setCaptchaToken(null)}
             className="recaptcha"
           />
         </div>
       </DialogContent>
 
-      { forgotPasswordStatusMessage(props) }
+      { forgotPasswordStatusMessage() }
 
       <DialogActions>
         <Button
@@ -118,7 +119,7 @@ const ForgotPassword = (props) => {
 
 ForgotPassword.propTypes = {
   setEmail: PropTypes.func.isRequired,
-  setCaptchaVerified: PropTypes.func.isRequired
+  setCaptchaToken: PropTypes.func.isRequired
 };
 
 export default ForgotPassword;

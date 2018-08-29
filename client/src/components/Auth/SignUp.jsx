@@ -13,74 +13,74 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import Recaptcha from "react-recaptcha";
 
 
-function signUpStatusMessage(props) {
-  let success = false;
-  let message = "";
+const SignUp = (props) => {
+  let recaptchaInstance;
 
-  if(props.showCaptchaAlert) {
-    success = false;
-    message = "auth.message.verifyCaptcha";
-  } else if(props.alertPasswordNotMatch) {
-    success = false;
-    message = "auth.message.passwordsDoNotMatch";
-  } else if(props.error && props.error.code === "PASSWORD_TOO_WEAK") {
-    success = false;
-    message = "auth.message.weakPassword";
-  } else if(props.error && props.error.code === "INVALID_EMAIL") {
-    success = false;
-    message = "auth.message.invalidEmail";
-  } else if (props.error && props.error.code === "INVALID_NAME") {
-    success = false;
-    message = "auth.message.invalidName";
-  } else if(props.error && props.error.code === "USER_ALREADY_EXISTS") {
-    success = false;
-    message = "auth.message.userAlreadyExists";
-  } else if(props.error) {
-    success = false;
-    message = "auth.message.errorOccurred";
-  } else if(props.signUpSuccess) {
-    success = true;
-    message = "auth.message.signUpSuccessCheckEmail";
-  }
+  function signUpStatusMessage() {
+    let success = false;
+    let message = "";
 
-  if(message) {
-    if(success) {
-      return (
-        <div style={{textAlign: "center"}}>
-          <Chip
-            style={{margin: "10px", background: "#43A047", color: "#fff"}}
-            label={<Translate value={message} />}
-          />
-        </div>
-      );
-    } else {
-      return (
-        <div style={{textAlign: "center"}}>
-          <Chip
-            style={{margin: "10px", background: "#D50000", color: "#fff"}}
-            label={<Translate value={message} />}
-          />
-        </div>
-      );
+    if(props.alertPasswordNotMatch) {
+      success = false;
+      message = "auth.message.passwordsDoNotMatch";
+    } else if(props.error && props.error.code === "INVALID_CAPTCHA") {
+      success = false;
+      message = "auth.message.verifyCaptcha";
+    } else if(props.error && props.error.code === "PASSWORD_TOO_WEAK") {
+      success = false;
+      message = "auth.message.weakPassword";
+    } else if(props.error && props.error.code === "INVALID_EMAIL") {
+      success = false;
+      message = "auth.message.invalidEmail";
+    } else if (props.error && props.error.code === "INVALID_NAME") {
+      success = false;
+      message = "auth.message.invalidName";
+    } else if(props.error && props.error.code === "USER_ALREADY_EXISTS") {
+      success = false;
+      message = "auth.message.userAlreadyExists";
+    } else if(props.error) {
+      success = false;
+      message = "auth.message.errorOccurred";
+    } else if(props.signUpSuccess) {
+      success = true;
+      message = "auth.message.signUpSuccessCheckEmail";
+    }
+
+    if(message) {
+      if(success) {
+        return (
+          <div style={{textAlign: "center"}}>
+            <Chip
+              style={{margin: "10px", background: "#43A047", color: "#fff"}}
+              label={<Translate value={message} />}
+            />
+          </div>
+        );
+      } else {
+        return (
+          <div style={{textAlign: "center"}}>
+            <Chip
+              style={{margin: "10px", background: "#D50000", color: "#fff"}}
+              label={<Translate value={message} />}
+            />
+          </div>
+        );
+      }
     }
   }
-}
 
-const SignUp = (props) => {
   return (
     <form
       onSubmit={e => {
         e.preventDefault();
 
-        if(!props.captchaVerified) {
-          props.setCaptchaVerified(false);
-        } else {
-          const passwordNotMatch = props.password !== props.confirmPassword;
-          props.setAlertPasswordNotMatch(passwordNotMatch);
+        const passwordNotMatch = props.password !== props.confirmPassword;
+        props.setAlertPasswordNotMatch(passwordNotMatch);
 
-          if(!passwordNotMatch) {
-            props.signUp(props.name, props.surname, props.email, props.password);
-          }
+        if(!passwordNotMatch) {
+          props.signUp(props.name, props.surname, props.email, props.password, props.captchaToken);
+          recaptchaInstance.reset();
+          props.setCaptchaToken(null);
         }
       }}
       noValidate
@@ -166,15 +166,16 @@ const SignUp = (props) => {
 
         <div style={{textAlign: "center", marginTop: "8px", display: props.signUpSuccess ? "none" : "inherit"}}>
           <Recaptcha
-            sitekey={credentials.recaptchaSiteKey}
-            verifyCallback={() => props.setCaptchaVerified(true)}
-            expiredCallback={() => props.setCaptchaVerified(false)}
+            ref={obj => recaptchaInstance = obj}
+            sitekey={credentials.visibleCaptchaKey}
+            verifyCallback={token => props.setCaptchaToken(token)}
+            expiredCallback={() => props.setCaptchaToken(null)}
             className="recaptcha"
           />
         </div>
       </DialogContent>
 
-      { signUpStatusMessage(props) }
+      { signUpStatusMessage() }
 
       <DialogActions>
         <Button
@@ -205,7 +206,7 @@ SignUp.propTypes = {
   setEmail: PropTypes.func.isRequired,
   setConfirmPassword: PropTypes.func.isRequired,
   setAlertPasswordNotMatch: PropTypes.func.isRequired,
-  setCaptchaVerified: PropTypes.func.isRequired
+  setCaptchaToken: PropTypes.func.isRequired
 };
 
 export default SignUp;
