@@ -159,7 +159,7 @@ class CreateEvent extends React.Component {
       this.props.expirationDate :
       undefined;
     let owner = this.props.user ? this.props.user.id : undefined;
-    this.props.create(this.props.title, days, password, expiration, owner, this.state.captchaToken)
+    return this.props.create(this.props.title, days, password, expiration, owner, this.state.captchaToken)
       .then(() => {
         if(this.props.id) {
           this.props.goToUrl("/" + this.props.id);
@@ -168,6 +168,7 @@ class CreateEvent extends React.Component {
           let dialogs = this.state.dialogs;
           dialogs.errorOccurred = true;
           this.setState({ dialogs });
+          this.recaptchaInstance.reset();
         }
       });
   }
@@ -381,7 +382,6 @@ class CreateEvent extends React.Component {
           size="invisible"
           verifyCallback={captchaToken => {
             this.setState({ captchaToken }, () => this.handleCreateEvent());
-            this.recaptchaInstance.reset();
           }}
         />
       </div>
