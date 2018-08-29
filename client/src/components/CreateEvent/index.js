@@ -143,9 +143,12 @@ class CreateEvent extends React.Component {
           }
           delete day.complete;
         });
-        let expiration = this.props.expirationDateEnabled ? this.props.expirationDate : undefined;
+        let password = this.props.user && this.props.user.id ? this.props.password : undefined;
+        let expiration = this.props.user && this.props.user.id && this.props.expirationDateEnabled ?
+          this.props.expirationDate :
+          undefined;
         let owner = this.props.user ? this.props.user.id : undefined;
-        this.props.create(this.props.title, days, this.props.password, expiration, owner)
+        this.props.create(this.props.title, days, password, expiration, owner)
           .then(() => {
             if(this.props.id) {
               this.props.goToUrl("/" + this.props.id);
