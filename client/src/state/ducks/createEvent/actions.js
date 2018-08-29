@@ -55,3 +55,16 @@ export const resetDaysConfig = (days) => ({
 export const resetExtraConfig = () => ({
   type: types.RESET_EXTRA_CONFIG
 });
+
+export const createReq = () => ({
+  type: types.CREATE_REQ
+});
+
+export const createSuccess = (id) => ({
+  type: types.CREATE_SUCCESS,
+  payload: { id }
+});
+
+export const createFail = () => ({
+  type: types.CREATE_FAIL
+});

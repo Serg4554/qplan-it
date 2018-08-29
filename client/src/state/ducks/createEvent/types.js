@@ -10,3 +10,6 @@ export const UPDATE_EXPIRATION_DATE = 'createEvent/UPDATE_EXPIRATION_DATE';
 export const UPDATE_EXPIRATION_DATE_ENABLED = 'createEvent/UPDATE_EXPIRATION_DATE_ENABLED';
 export const RESET_DAYS_CONFIG = 'createEvent/RESET_DAY_CONFIG';
 export const RESET_EXTRA_CONFIG = 'createEvent/RESET_EXTRA_CONFIG';
+export const CREATE_REQ = 'createEvent/CREATE_REQ';
+export const CREATE_SUCCESS = 'createEvent/CREATE_SUCCESS';
+export const CREATE_FAIL = 'createEvent/CREATE_FAIL';

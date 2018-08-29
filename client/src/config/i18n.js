@@ -91,7 +91,9 @@ export default {
         benefit_2: "Set a password to participate",
         benefit_3: "Select a deadline to participate",
         benefit_4: "Choose a definitive date and notify everyone"
-      }
+      },
+      errorOccurred: "Something went wrong 😞",
+      errorOccurredMessage: "An unexpected error occurred, so the event could not be created. If the problem persists, please, contact us"
     },
   },
 
@@ -189,7 +191,9 @@ export default {
         benefit_2: "Establece una contraseña para poder participar",
         benefit_3: "Selecciona una fecha límite para participar",
         benefit_4: "Elige una fecha definitiva y notifica a todos"
-      }
+      },
+      errorOccurred: "Algo ha ido mal 😞",
+      errorOccurredMessage: "Se ha producido un error inesperado, por lo que no ha podido crearse el evento. Si el problema persiste, por favor, contacte con nosotros"
     },
   },
 };

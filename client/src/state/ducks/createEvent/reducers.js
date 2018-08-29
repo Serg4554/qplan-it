@@ -3,6 +3,8 @@ import moment from "moment"
 
 /** State shape
  * {
+ *  loading: bool,
+ *  id: string,
  *  step: number,
  *  title: string,
  *  days: [{
@@ -117,6 +119,26 @@ const reducer = (state = {}, action) => {
         password: "",
         expirationDateEnabled: false,
         expirationDate: undefined,
+      };
+
+    case types.CREATE_REQ:
+      return {
+        ...state,
+        loading: true
+      };
+
+    case types.CREATE_FAIL:
+      return {
+        ...state,
+        loading: false,
+        id: undefined
+      };
+
+    case types.CREATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        id: action.payload.id
       };
 
     default:

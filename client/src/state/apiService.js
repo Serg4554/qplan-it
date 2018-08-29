@@ -86,6 +86,9 @@ const Auth = {
 const Event = {
   get: id =>
     requests.get(`/events/${id}`),
+
+  create: (title, days, password, expiration, owner) =>
+    requests.post('/events', { title, days, password, expiration, owner }),
 };
 
 

@@ -21,11 +21,14 @@ import Dialog from "@material-ui/core/Dialog";
 import SelectDays from "./SelectDays"
 import SelectHours from "./SelectHours"
 import ExtraOptions from "./ExtraOptions"
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 
 const mapStateToProps = state => {
   return {
     user: state.session.user,
+    loading: state.createEvent.loading,
+    id: state.createEvent.id,
     step: state.createEvent.step || 0,
     title: state.createEvent.title,
     days: state.createEvent.days || [],
@@ -49,6 +52,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   updatePassword: CreateEventOperations.updatePassword,
   updateExpirationDate: CreateEventOperations.updateExpirationDate,
   updateExpirationDateEnabled: CreateEventOperations.updateExpirationDateEnabled,
+  create: CreateEventOperations.create,
   openLogin: AuthOperations.open,
   goToUrl: url => {
     return push(url)
@@ -73,7 +77,8 @@ class CreateEvent extends React.Component {
       dialogs: {
         back: false,
         resetTime: false,
-        allCancelled: false
+        allCancelled: false,
+        errorOccurred: false
       }
     };
 
@@ -128,6 +133,29 @@ class CreateEvent extends React.Component {
         } else {
           this.props.nextStep();
         }
+        break;
+      case 2:
+        let days = this.props.days.map(d => ({...d}));
+        days.forEach(day => {
+          if(day.complete) {
+            day.period.start = moment(day.period.start).startOf('day').toDate();
+            delete day.period.duration;
+          }
+          delete day.complete;
+        });
+        let expiration = this.props.expirationDateEnabled ? this.props.expirationDate : undefined;
+        let owner = this.props.user ? this.props.user.id : undefined;
+        this.props.create(this.props.title, days, this.props.password, expiration, owner)
+          .then(() => {
+            if(this.props.id) {
+              this.props.goToUrl("/" + this.props.id);
+              this.props.cancel();
+            } else {
+              let dialogs = this.state.dialogs;
+              dialogs.errorOccurred = true;
+              this.setState({ dialogs });
+            }
+          });
         break;
       default:
         this.props.nextStep();
@@ -207,6 +235,16 @@ class CreateEvent extends React.Component {
           this.dialog.onConfirm = undefined;
           break;
 
+        case "errorOccurred":
+          this.dialog.title = I18n.t("createEvent.errorOccurred");
+          this.dialog.message = I18n.t("createEvent.errorOccurredMessage");
+          this.dialog.onClose = () => {
+            dialogs.errorOccurred = false;
+            this.setState({ dialogs });
+          };
+          this.dialog.onConfirm = undefined;
+          break;
+
         default:
           break;
       }
@@ -277,17 +315,25 @@ class CreateEvent extends React.Component {
           { this.renderContent() }
 
           <div style={{textAlign: "right", marginTop: "20px", width: "100%"}}>
-            <Button variant="contained" color="secondary" onClick={() => this.handleBackButton()}>
-              <Translate value="common.back" />
-            </Button>
             <Button
               variant="contained"
-              color="primary"
-              onClick={() => this.handleNextButton()} style={{marginLeft: "10px"}}
-              disabled={this.props.days.length === 0}
+              color="secondary"
+              onClick={() => this.handleBackButton()}
+              disabled={this.props.loading}
             >
-              <Translate value={this.props.step < 2 ? "common.next" : "common.finish"} />
+              <Translate value="common.back" />
             </Button>
+            <div style={{position: 'relative', display: 'inline'}}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => this.handleNextButton()} style={{marginLeft: "10px"}}
+                disabled={this.props.days.length === 0 || this.props.loading}
+              >
+                <Translate value={this.props.step < 2 ? "common.next" : "common.finish"} />
+              </Button>
+              {this.props.loading && <CircularProgress className="buttonLoading" size={24} />}
+            </div>
           </div>
         </div>
 
@@ -324,6 +370,9 @@ class CreateEvent extends React.Component {
 }
 
 CreateEvent.propTypes = {
+  user: PropTypes.object,
+  loading: PropTypes.bool,
+  id: PropTypes.string,
   step: PropTypes.number,
   title: PropTypes.string,
   days: PropTypes.arrayOf(PropTypes.object),
@@ -344,6 +393,7 @@ CreateEvent.propTypes = {
   updatePassword: PropTypes.func,
   updateExpirationDate: PropTypes.func,
   updateExpirationDateEnabled: PropTypes.func,
+  create: PropTypes.func,
   goToUrl: PropTypes.func
 };
 
