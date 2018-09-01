@@ -11,123 +11,190 @@ const config = require('../../server/config.json');
 const superagentPromise = require('superagent-promise');
 const _superagent = require('superagent');
 const agent = superagentPromise(_superagent, Promise);
+const TokenGenerator = require('uuid-token-generator');
+const token = new TokenGenerator(256, TokenGenerator.BASE62);
 
-function ensureValidDays(days) {
-  let startDate, endDate, dayTime, dayTimes = [];
 
-  if(!days || days.length === 0) {
-    throw ErrorConst.Error(ErrorConst.DAYS_REQUIRED);
-  }
-
-  days.forEach(day => {
-    if(!day.period || !day.period.start || isNaN(day.period.start.getTime())) {
-      throw ErrorConst.Error(ErrorConst.PERIOD_REQUIRED);
-    }
-
-    startDate = moment(day.period.start);
-    dayTime = moment(startDate).startOf('day').toDate().getTime();
-
-    if(!dayTimes.includes(dayTime)) {
-      dayTimes.push(dayTime);
-    } else {
-      throw ErrorConst.Error(ErrorConst.DAYS_NOT_UNIQUE);
-    }
-
-    if(!day.period.duration || day.period.duration <= 0) {
-      day.period.duration = Math.floor(moment(startDate).endOf('day').diff(startDate) / 60000) + 1;
-    } else if(day.period.duration > 1440) {
-      day.period.duration = 1440;
-    }
-    endDate = moment(startDate).add(day.period.duration, 'm');
-    if(day.period.duration === 1440 && endDate.hours() === 0 && endDate.minutes() === 0) {
-      endDate = moment(startDate).endOf('day');
-    }
-
-    if(day.blockedPeriods) {
-      day.blockedPeriods.forEach(period => {
-        if(!period.start || isNaN(period.start.getTime())) {
-          throw ErrorConst.Error(ErrorConst.PERIOD_REQUIRED);
-        }
-
-        let bpStart = moment(startDate).hours(period.start.getHours()).minutes(period.start.getMinutes());
-        let minutesToEnd = Math.floor(endDate.diff(bpStart) / 60000) % 1440;
-
-        if(!period.duration || period.duration <= 0 || period.duration > minutesToEnd) {
-          period.duration = minutesToEnd;
-        }
-      });
-    }
-  });
-}
-
-async function generateUniqueId(ctx) {
-  let uniqueId, unique = false, count = 0;
-
-  while(!unique) {
-    if(count === 5) {
-      config.eventIdLength = config.eventIdLength + 1;
-      let file = editJsonFile(`${__dirname}/../../server/config.json`, {});
-      file.set("eventIdLength", config.eventIdLength);
-      file.save();
-      count = 0;
-    }
-    uniqueId = new hashids(shortid.generate(), config.eventIdLength).encode(1);
-    await ctx.Model.findById(uniqueId).then(event => unique = !event);
-    count++;
-  }
-
-  return uniqueId;
-}
-
-async function handleCreate(ctx) {
-  ensureValidDays(ctx.instance.days);
-
-  let userId = null;
-  if(ctx.options.accessToken) {
-    userId = ctx.options.accessToken.userId;
-  }
-
-  await generateUniqueId(ctx)
-    .then(id => {
-      ctx.instance.id = id;
-      ctx.instance.ownerId = userId;
-      ctx.instance.claimToken = userId ? null : randtoken.generate(64);
-      if(ctx.instance.password) {
-        ctx.instance.password = bcrypt.hashSync(ctx.instance.password, bcrypt.genSaltSync());
-      }
-    });
-}
-
-function handleUpdate(ctx) {
-  return ctx.Model.findById(ctx.instance.id)
-    .then(event => {
-      ensureValidDays(ctx.instance.days);
-
-      ctx.instance.id = event.id;
-      ctx.instance.ownerId = event.ownerId;
-      ctx.instance.claimToken = event.claimToken;
-      if(ctx.instance.password) {
-        ctx.instance.password = bcrypt.hashSync(ctx.instance.password, bcrypt.genSaltSync());
-      }
-    });
-}
-
-function handlePatch(ctx) {
-  return ctx.Model.findById(ctx.currentInstance.id)
-    .then(event => {
-      ensureValidDays(ctx.data.days);
-
-      ctx.data.id = event.id;
-      ctx.data.ownerId = event.ownerId;
-      ctx.data.claimToken = event.claimToken;
-      if(ctx.data.password) {
-        ctx.data.password = bcrypt.hashSync(ctx.data.password, bcrypt.genSaltSync());
-      }
-    });
-}
-
+/** @namespace model.participation */
 module.exports = function(model) {
   model.validatesPresenceOf("days");
+
+  async function generateUniqueId() {
+    let uniqueId, unique = false, count = 0;
+
+    while(!unique) {
+      if(count === 5) {
+        config.eventIdLength = config.eventIdLength + 1;
+        let file = editJsonFile(`${__dirname}/../../server/config.json`, {});
+        file.set("eventIdLength", config.eventIdLength);
+        file.save();
+        count = 0;
+      }
+      uniqueId = new hashids(shortid.generate(), config.eventIdLength).encode(1);
+      await model.findById(uniqueId).then(event => unique = !event);
+      count++;
+    }
+
+    return uniqueId;
+  }
+
+  async function handleCreate(ctx) {
+    ensureValidDays(ctx.instance.days);
+
+    let userId = null;
+    if(ctx.options.accessToken) {
+      userId = ctx.options.accessToken.userId;
+    }
+
+    await generateUniqueId()
+      .then(id => {
+        ctx.instance.id = id;
+        ctx.instance.ownerId = userId;
+        ctx.instance.claimToken = userId ? null : randtoken.generate(64);
+        if(ctx.instance.password) {
+          ctx.instance.password = bcrypt.hashSync(ctx.instance.password, bcrypt.genSaltSync());
+        }
+      });
+  }
+
+  function handleUpdate(ctx) {
+    return ctx.Model.findById(ctx.instance.id)
+      .then(event => {
+        ensureValidDays(ctx.instance.days);
+
+        ctx.instance.id = event.id;
+        ctx.instance.ownerId = event.ownerId;
+        ctx.instance.claimToken = event.claimToken;
+        if(ctx.instance.password) {
+          ctx.instance.password = bcrypt.hashSync(ctx.instance.password, bcrypt.genSaltSync());
+        }
+      });
+  }
+
+  function handlePatch(ctx) {
+    return ctx.Model.findById(ctx.currentInstance.id)
+      .then(event => {
+        ensureValidDays(ctx.data.days);
+
+        ctx.data.id = event.id;
+        ctx.data.ownerId = event.ownerId;
+        ctx.data.claimToken = event.claimToken;
+        if(ctx.data.password) {
+          ctx.data.password = bcrypt.hashSync(ctx.data.password, bcrypt.genSaltSync());
+        }
+      });
+  }
+
+  function ensureValidDays(days) {
+    let startDate, endDate, dayTime, dayTimes = [];
+
+    if(!days || days.length === 0) {
+      throw ErrorConst.Error(ErrorConst.DAYS_REQUIRED);
+    }
+
+    days.forEach(day => {
+      if(!day.period || !day.period.start || isNaN(day.period.start.getTime())) {
+        throw ErrorConst.Error(ErrorConst.PERIOD_REQUIRED);
+      }
+
+      startDate = moment(day.period.start);
+      dayTime = moment(startDate).startOf('day').toDate().getTime();
+
+      if(!dayTimes.includes(dayTime)) {
+        dayTimes.push(dayTime);
+      } else {
+        throw ErrorConst.Error(ErrorConst.DAYS_NOT_UNIQUE);
+      }
+
+      if(!day.period.duration || day.period.duration <= 0) {
+        day.period.duration = Math.floor(moment(startDate).endOf('day').diff(startDate) / 60000) + 1;
+      } else if(day.period.duration > 1440) {
+        day.period.duration = 1440;
+      }
+      endDate = moment(startDate).add(day.period.duration, 'm');
+      if(day.period.duration === 1440 && endDate.hours() === 0 && endDate.minutes() === 0) {
+        endDate = moment(startDate).endOf('day');
+      }
+
+      if(day.blockedPeriods) {
+        day.blockedPeriods.forEach(period => {
+          if(!period.start || isNaN(period.start.getTime())) {
+            throw ErrorConst.Error(ErrorConst.PERIOD_REQUIRED);
+          }
+
+          let bpStart = moment(startDate).hours(period.start.getHours()).minutes(period.start.getMinutes());
+          let minutesToEnd = Math.floor(endDate.diff(bpStart) / 60000) % 1440;
+
+          if(!period.duration || period.duration <= 0 || period.duration > minutesToEnd) {
+            period.duration = minutesToEnd;
+          }
+        });
+      }
+    });
+  }
+
+  function ensureValidSelections(days, selections) {
+    if(!selections || !(selections instanceof Array) || selections.length === 0) {
+      throw ErrorConst.Error(ErrorConst.EMPTY_SELECTIONS);
+    }
+
+    let dayTimes = (days || []).map(day => moment(day.period.start).startOf('day').toDate().getTime());
+    selections.forEach((selection, i) => {
+      if(!selection.period || !selection.period.start) {
+        throw ErrorConst.Error(ErrorConst.INVALID_SELECTION);
+      }
+      let index = dayTimes.indexOf(moment(selection.period.start).startOf('day').toDate().getTime());
+      if(index === -1) {
+        throw ErrorConst.Error(ErrorConst.INVALID_SELECTION_PERIOD);
+      }
+      let evStart = moment(days[index].period.start);
+      let evEnd = moment(evStart).add(days[index].period.duration, 'm');
+      let start = moment(selection.period.start);
+      if(start.isSameOrAfter(evEnd)) {
+        throw ErrorConst.Error(ErrorConst.INVALID_SELECTION_PERIOD);
+      }
+      if(selection.period.duration && selection.period.duration <= 0) {
+        delete selection.period.duration;
+      } else {
+        let end = moment(start).add(selection.period.duration, 'm');
+        if(end.isAfter(evEnd)) {
+          throw ErrorConst.Error(ErrorConst.INVALID_SELECTION_PERIOD);
+        }
+      }
+
+      selection.id = i + 1;
+    });
+  }
+
+  async function ensureValidParticipation(eventId, participation, validatePass) {
+    if(!eventId) {
+      throw ErrorConst.Error(ErrorConst.INVALID_EVENT_ID);
+    }
+
+    let event = {};
+    await model.findById(eventId)
+      .then(doc => {
+        event = doc;
+        if(!event) {
+          throw ErrorConst.Error(ErrorConst.INVALID_EVENT_ID);
+        }
+        if(event.expiration && moment().isSameOrAfter(moment(event.expiration).startOf('day'))) {
+          throw ErrorConst.Error(ErrorConst.EVENT_PARTICIPATION_EXPIRED);
+        }
+
+        if(validatePass && event.password && !bcrypt.compareSync(participation.password || "", event.password)) {
+          throw ErrorConst.Error(ErrorConst.INVALID_EVENT_PASSWORD);
+        }
+      })
+      .catch(err => {
+        if(!err.code) {
+          throw ErrorConst.Error(ErrorConst.INVALID_EVENT_ID)
+        }
+        throw err;
+      });
+
+    return event;
+  }
 
   model.beforeRemote('create', async function (ctx) {
     let captchaData = `secret=${config.invisibleCaptchaSecret}&response=${ctx.req.body.captchaToken}`;
@@ -158,46 +225,206 @@ module.exports = function(model) {
     }
   });
 
+
   // Logic for claiming an event
   model.remoteMethod('claim', {
       description: 'Allows an user to claims an event using the claimToken',
       accepts: [
-        {arg: 'id', type: 'String', required: true, description: 'Model id'},
+        {arg: 'id', type: 'string', required: true, description: 'Model id'},
         {arg: 'userId', type: 'any', http: ctx => ctx.req.accessToken ? ctx.req.accessToken.userId : null},
-        {arg: 'claimToken', type: 'String', required: true, http: {source: 'form'}, description: 'Claim token'},
+        {arg: 'claimToken', type: 'string', required: true, http: {source: 'form'}, description: 'Claim token'},
       ],
       http: {verb: 'POST', path: '/:id/claim'}
     }
   );
-  model.claim = function(eventId, userId, claimToken, cb) {
+  model.claim = async function(eventId, userId, claimToken) {
     if(!userId) {
-      let error = new Error("You need to log in to claim an event");
-      error.statusCode = 400;
-      return cb(error);
+      throw ErrorConst.Error(ErrorConst.CLAIM_LOGIN_REQUIRED);
     }
     model.findById(eventId)
       .then(event => {
         if(!event) {
-          let error = new Error("Event not found");
-          error.statusCode = 400;
-          return cb(error);
+          throw ErrorConst.Error(ErrorConst.EVENT_NOT_FOUND);
         }
 
         if(!event.claimToken || event.ownerId) {
-          let error = new Error("The event already has an owner");
-          error.statusCode = 400;
-          return cb(error);
+          throw ErrorConst.Error(ErrorConst.EVENT_HAS_OWNER);
         }
 
         if(event.claimToken !== claimToken) {
-          let error = new Error("Invalid claim token");
-          error.statusCode = 400;
-          return cb(error);
+          throw ErrorConst.Error(ErrorConst.INVALID_CLAIM);
         }
 
         model.update({id: event.id}, {ownerId: userId, claimToken: null});
-
-        return cb();
       });
+  };
+
+
+  model.remoteMethod('participation_find', {
+    description: 'Gets the participations of the specified event.',
+    accepts: [
+      {arg: 'id', type: 'string', required: true, description: 'Model id'}
+    ],
+    returns: { arg: 'body', type: '[participation]', root: true },
+    http: {verb: 'GET', path: '/:id/participations'}
+  });
+  model.participation_find = async function(eventId) {
+    return await model.app.models.participation.find({ where: { eventId } })
+      .then(participations => {
+        return participations;
+      });
+  };
+
+
+  model.remoteMethod('participation_findById', {
+    description: 'Gets the specified participation in the event.',
+    accepts: [
+      {arg: 'id', type: 'string', required: true, description: 'Model id'},
+      {arg: 'part_id', type: 'string', required: true, description: 'Participation id'}
+    ],
+    returns: { arg: 'body', type: 'participation', root: true },
+    http: {verb: 'GET', path: '/:id/participations/:part_id'}
+  });
+  model.participation_findById = async function(eventId, partId) {
+    return await model.app.models.participation.findOne({ where: { id: partId, eventId } })
+      .then(participations => {
+        return participations;
+      });
+  };
+
+
+  model.remoteMethod('participation_create', {
+    description: 'Create a new participation for the event.',
+    accepts: [
+      {arg: 'id', type: 'string', required: true, description: 'Event id'},
+      {arg: 'data', type: 'participation', http: {source: 'body'}, description: 'Participation data'},
+      {arg: 'options', type: 'object', http: 'optionsFromRequest'},
+    ],
+    returns: { arg: 'body', type: 'participation', root: true },
+    http: {verb: 'POST', path: '/:id/participations'}
+  });
+  model.participation_create = async function(eventId, data, options) {
+    let event = await ensureValidParticipation(eventId, data, true);
+    ensureValidSelections(event.days, data.selections);
+
+    let participation = { eventId, selections: data.selections };
+
+    let validUser = false;
+    if(options.accessToken && options.accessToken.userId) {
+      await model.app.models.user.findById(options.accessToken.userId)
+        .then(user => {
+          if(user) {
+            validUser = true;
+            participation.name = user.name;
+            participation.surname = user.surname;
+            participation.ownerId = user.id;
+          }
+        })
+        .catch(() => {});
+    }
+    if(!validUser && !data.name) {
+      throw ErrorConst.Error(ErrorConst.PARTICIPATION_NAME_REQUIRED);
+    } else if(!validUser) {
+      participation.name = data.name;
+      participation.surname = data.surname;
+      participation.ownerId = null;
+    }
+
+    let lastParticipation = null;
+    if(participation.ownerId) {
+      await model.app.models.participation.findOne({where: { eventId: eventId, ownerId: participation.ownerId }})
+        .then(participation => { if(participation) lastParticipation = participation });
+    } else {
+      participation.participationToken = token.generate();
+    }
+
+    if(lastParticipation) {
+      return lastParticipation;
+    } else {
+      return await model.app.models.participation.create(participation)
+        .then(participation => {
+          if(participation.participationToken) {
+            participation._participationToken = participation.participationToken;
+          }
+          return participation;
+        });
+    }
+  };
+
+
+  model.remoteMethod('participation_selection_create', {
+    description: 'Create a selection for a participation.',
+    accepts: [
+      {arg: 'id', type: 'string', required: true, description: 'Event id'},
+      {arg: 'part_id', type: 'string', required: true, description: 'Participation id'},
+      {arg: 'data', type: 'selection', http: {source: 'body'}, description: 'Participation data'},
+      {arg: 'options', type: 'object', http: 'optionsFromRequest'},
+    ],
+    returns: { arg: 'body', type: 'selection', root: true },
+    http: {verb: 'POST', path: '/:id/participations/:part_id/selections'}
+  });
+  model.participation_selection_create = async function(eventId, partId, data, options) {
+    let event = await ensureValidParticipation(eventId, data, false);
+
+    let part = await model.app.models.participation.findById(partId)
+      .then(participation => {
+        if(!participation) {
+          throw ErrorConst.Error(ErrorConst.INVALID_PARTICIPATION_ID)
+        }
+        return participation;
+      });
+
+    if((!part.ownerId || !options.accessToken || part.ownerId !== options.accessToken.userId) &&
+      (!part.participationToken || !data.participationToken || part.participationToken !== data.participationToken)) {
+      throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
+    }
+
+    ensureValidSelections(event.days, [data]);
+    data.id = Math.max(...part.selections.map(s => s.id)) + 1;
+    part.selections.push(data);
+    return await model.app.models.participation.upsert(part)
+      .then(participation => participation.selections.find(selection => selection.id === data.id));
+  };
+
+
+  model.remoteMethod('participation_selection_deleteById', {
+    description: 'Deletes a selection in a participation.',
+    accepts: [
+      {arg: 'id', type: 'string', required: true, description: 'Event id'},
+      {arg: 'part_id', type: 'string', required: true, description: 'Participation id'},
+      {arg: 'select_id', type: 'string', required: true, description: 'Selection id'},
+      {arg: 'data', type: 'object', http: {source: 'body'}, description: 'Participation data'},
+      {arg: 'options', type: 'object', http: 'optionsFromRequest'},
+    ],
+    returns: { arg: 'body', type: 'object', root: true },
+    http: {verb: 'DELETE', path: '/:id/participations/:part_id/selections/:select_id'}
+  });
+  model.participation_selection_deleteById = async function(eventId, partId, selectId, data, options) {
+    await ensureValidParticipation(eventId, data, false);
+
+    let part = await model.app.models.participation.findById(partId)
+      .then(participation => {
+        if(!participation) {
+          throw ErrorConst.Error(ErrorConst.INVALID_PARTICIPATION_ID)
+        }
+        return participation;
+      });
+
+    if((!part.ownerId || !options.accessToken || part.ownerId !== options.accessToken.userId) &&
+      (!part.participationToken || !data.participationToken || part.participationToken !== data.participationToken)) {
+      throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
+    }
+
+    let index = part.selections.findIndex(selection => selection.id === Number(selectId));
+    if(index === -1) {
+      throw ErrorConst.Error(ErrorConst.INVALID_SELECTION_ID)
+    }
+
+    part.selections.splice(index, 1);
+    if(part.selections.length === 0) {
+      return await model.app.models.participation.deleteById(part.id);
+    } else {
+      return await model.app.models.participation.upsert(part).then(() => ({count: 1}));
+    }
   };
 };

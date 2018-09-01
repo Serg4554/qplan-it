@@ -1,0 +1,33 @@
+{
+  "name": "selection",
+  "base": "Model",
+  "strict": true,
+  "idInjection": false,
+  "properties": {
+    "id": {
+      "type": "Number",
+      "id": true
+    },
+    "comment": {
+      "type": "String",
+      "required": false
+    },
+    "timestamp": {
+      "type": "Date",
+      "required": true,
+      "default": "$now"
+    },
+    "period": {
+      "type": "period",
+      "required": true
+    },
+    "participationToken": {
+      "type": "String",
+      "required": false
+    }
+  },
+  "relations": {},
+  "hidden": ["participationToken"],
+  "acls": [],
+  "methods": {}
+}

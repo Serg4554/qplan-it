@@ -39,13 +39,23 @@
     "dataSource": "db",
     "public": false
   },
-  "Day": {
+  "day": {
     "dataSource": "db",
     "public": false
   },
-  "Period": {
+  "period": {
     "dataSource": "db",
     "public": false
+  },
+  "selection": {
+    "dataSource": "db",
+    "public": true,
+    "options": { "remoting": { "sharedMethods": { "*": false } } }
+  },
+  "participation": {
+    "dataSource": "db",
+    "public": true,
+    "options": { "remoting": { "sharedMethods": { "*": false } } }
   },
   "user": {
     "dataSource": "db",
@@ -79,12 +89,16 @@
         "sharedMethods": {
           "*": false,
           "create": true,
-          "exists": true,
           "findById": true,
           "deleteById": true,
           "replaceById": true,
           "prototype.patchAttributes": true,
-          "claim": true
+          "claim": true,
+          "participation_find": true,
+          "participation_findById": true,
+          "participation_create": true,
+          "participation_selection_create": true,
+          "participation_selection_deleteById": true
         }
       }
     }

@@ -1,0 +1,42 @@
+{
+  "name": "participation",
+  "plural": "participations",
+  "base": "PersistedModel",
+  "strict": true,
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "String",
+      "required": false
+    },
+    "surname": {
+      "type": "String",
+      "required": false
+    },
+    "password": {
+      "type": "String",
+      "required": false
+    },
+    "participationToken": {
+      "type": "String",
+      "required": false
+    },
+    "selections": {
+      "type": ["selection"],
+      "required": true
+    }
+  },
+  "relations": {
+    "owner": {
+      "foreignKey": "ownerId",
+      "type": "belongsTo",
+      "model": "user"
+    }
+  },
+  "hidden": ["participationToken", "password"],
+  "acls": [],
+  "methods": {}
+}

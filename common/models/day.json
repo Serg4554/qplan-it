@@ -1,16 +1,16 @@
 {
-  "name": "Day",
+  "name": "day",
   "base": "Model",
   "strict": true,
   "idInjection": false,
   "properties": {
     "id": false,
     "period": {
-      "type": "Period",
+      "type": "period",
       "required": true
     },
     "blockedPeriods": {
-      "type": ["Period"],
+      "type": ["period"],
       "required": false
     }
   },

@@ -24,6 +24,10 @@
     "timezone": {
       "type": "String",
       "required": false
+    },
+    "captchaToken": {
+      "type": "String",
+      "required": false
     }
   },
   "hidden": ["emailVerified"],

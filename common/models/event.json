@@ -17,11 +17,11 @@
       "required": true
     },
     "days": {
-      "type": ["Day"],
+      "type": ["day"],
       "required": true
     },
     "definitive": {
-      "type": "Period",
+      "type": "period",
       "required": false
     },
     "password": {
@@ -47,6 +47,11 @@
       "foreignKey": "ownerId",
       "type": "belongsTo",
       "model": "user"
+    },
+    "participations": {
+      "foreignKey": "eventId",
+      "type": "hasMany",
+      "model": "participation"
     }
   },
   "hidden": ["password", "claimToken"],
@@ -97,6 +102,36 @@
       "principalId": "$everyone",
       "permission": "ALLOW",
       "property": "claim"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "participation_find"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "participation_findById"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "participation_create"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "participation_selection_create"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "participation_selection_deleteById"
     }
   ],
   "methods": {}

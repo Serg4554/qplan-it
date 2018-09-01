@@ -26,6 +26,7 @@ module.exports = function(model) {
           throw ErrorConst.Error(ErrorConst.INVALID_CAPTCHA);
         }
       });
+    delete ctx.req.body.captchaToken;
 
     if(!passwordSchema.validate(ctx.req.body.password, {})) {
       throw ErrorConst.Error(ErrorConst.PASSWORD_TOO_WEAK);
