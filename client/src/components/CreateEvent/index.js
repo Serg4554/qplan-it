@@ -381,6 +381,7 @@ class CreateEvent extends React.Component {
           verifyCallback={captchaToken => {
             this.setState({ captchaToken }, () => this.handleCreateEvent());
           }}
+          badge="bottomleft"
         />
       </div>
     );
