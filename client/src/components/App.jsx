@@ -19,6 +19,7 @@ import PasswordRecovery from './PasswordRecovery'
 import AccountVerified from './AccountVerified'
 import CreateEvent from './CreateEvent'
 import Redirect from "react-router-dom/Redirect";
+import Event from "./Event";
 
 
 const mapStateToProps = state => {
@@ -95,9 +96,10 @@ class App extends Component {
           <Switch>
             <Route exact path="/" component={Home} />
             <Route exact path="/login" component={ () => this.renderLogin() } />
-            <Route exact path="/create" component={ () => this.renderCreate() } />
+            <Route exact path="/create_event" component={ () => this.renderCreate() } />
             <Route exact path="/password_recovery" component={PasswordRecovery} />
             <Route exact path="/account_verified" component={AccountVerified} />
+            <Route exact path="/:eventId" component={Event} />
           </Switch>
         </Paper>
       </div>

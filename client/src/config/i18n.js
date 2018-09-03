@@ -95,6 +95,14 @@ export default {
       errorOccurred: "Something went wrong 😞",
       errorOccurredMessage: "An unexpected error occurred, so the event could not be created. If the problem persists, please, contact us"
     },
+    event: {
+      notFound: "The event was not found",
+      notFoundMessage: "We could not find the event, please check the link is correct",
+      claim: "Claim",
+      claimYourEvent: "Claim your event",
+      youCanClaimEvent: "¡Hello %{name}! You can now claim your event",
+      youAreTheOwner: "You are the owner",
+    }
   },
 
 
@@ -195,5 +203,16 @@ export default {
       errorOccurred: "Algo ha ido mal 😞",
       errorOccurredMessage: "Se ha producido un error inesperado, por lo que no ha podido crearse el evento. Si el problema persiste, por favor, contacte con nosotros"
     },
+    event: {
+      notFound: "No se ha encontrado el evento",
+      notFoundMessage: "No hemos podido encontrar el evento, por favor compruebe que el enlace es correcto",
+      claim: "Reclamar",
+      claimYourEvent: "Reclama tu evento",
+      claimToModifyEvent: "Reclama tu evento para poder modificarlo más tarde y seleccionar una fecha definitiva.",
+      claimToNotLoseIt: "Si no lo haces ahora podrás perder el control del evento",
+      whomToAssignEvent: "No sabemos a quién asignar el evento >.<",
+      youCanClaimEvent: "¡Hola %{name}! Ya puedes reclamar tu evento",
+      youAreTheOwner: "Eres el propietario",
+    }
   },
 };

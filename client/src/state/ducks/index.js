@@ -3,3 +3,4 @@ export { default as auth } from "./auth";
 export { default as session } from "./session";
 export { default as passwordRecovery } from "./passwordRecovery";
 export { default as createEvent } from "./createEvent";
+export { default as event } from "./event";

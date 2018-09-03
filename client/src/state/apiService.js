@@ -89,6 +89,9 @@ const Event = {
 
   create: (title, days, password, expiration, owner, captchaToken) =>
     requests.post('/events', { title, days, password, expiration, owner, captchaToken }),
+
+  claim: (id, claimToken) =>
+    requests.post(`/events/${id}/claim`, { claimToken }),
 };
 
 

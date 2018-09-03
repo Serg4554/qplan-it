@@ -44,7 +44,7 @@ class Home extends React.Component {
   handleCreateEvent() {
     if(this.state.eventTitle) {
       this.props.setEventTitle(this.state.eventTitle);
-      this.props.goToUrl("/create")
+      this.props.goToUrl("/create_event")
     } else {
       this.eventTitleInput.focus();
     }

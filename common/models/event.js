@@ -234,6 +234,7 @@ module.exports = function(model) {
         {arg: 'userId', type: 'any', http: ctx => ctx.req.accessToken ? ctx.req.accessToken.userId : null},
         {arg: 'claimToken', type: 'string', required: true, http: {source: 'form'}, description: 'Claim token'},
       ],
+      returns: { arg: 'body', type: 'string', root: true },
       http: {verb: 'POST', path: '/:id/claim'}
     }
   );
@@ -241,7 +242,7 @@ module.exports = function(model) {
     if(!userId) {
       throw ErrorConst.Error(ErrorConst.CLAIM_LOGIN_REQUIRED);
     }
-    model.findById(eventId)
+    return model.findById(eventId)
       .then(event => {
         if(!event) {
           throw ErrorConst.Error(ErrorConst.EVENT_NOT_FOUND);
@@ -255,7 +256,8 @@ module.exports = function(model) {
           throw ErrorConst.Error(ErrorConst.INVALID_CLAIM);
         }
 
-        model.update({id: event.id}, {ownerId: userId, claimToken: null});
+        return model.update({id: event.id}, {ownerId: userId, claimToken: null})
+          .then(() => model.findById(event.id));
       });
   };
 
