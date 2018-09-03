@@ -82,7 +82,6 @@ class Auth extends React.Component {
   }
 
   close() {
-    console.log(initialState);
     this.setState(initialState);
     if(this.props.router.location.pathname === "/login") {
       this.props.goToUrl("/")
