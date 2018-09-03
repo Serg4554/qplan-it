@@ -36,26 +36,35 @@ const getError = (response) => {
   }
 };
 
+const dateFormat = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/;
+const reviver = (key, value) => {
+  if (typeof value === "string" && dateFormat.test(value)) {
+    return new Date(value);
+  }
+
+  return value;
+};
+
 const requests = {
   get: (url, _token) =>
     agent.get(`${API_URL}${url}`)
       .use(req => setToken(req, _token || token))
-      .then(res => res.body || { })
+      .then(res => JSON.parse(JSON.stringify(res.body || {}), reviver))
       .catch(err => getError(err.response || { error : {} })),
   post: (url, body, _token) =>
     agent.post(`${API_URL}${url}`, body)
       .use(req => setToken(req, _token || token))
-      .then(res => res.body || { })
+      .then(res => JSON.parse(JSON.stringify(res.body || {}), reviver))
       .catch(err => getError(err.response || { error : {} })),
   put: (url, body, _token) =>
     agent.put(`${API_URL}${url}`, body)
       .use(req => setToken(req, _token || token))
-      .then(res => res.body || { })
+      .then(res => JSON.parse(JSON.stringify(res.body || {}), reviver))
       .catch(err => getError(err.response || { error : {} })),
   del: (url, _token) =>
     agent.del(`${API_URL}${url}`)
       .use(req => setToken(req, _token || token))
-      .then(res => res.body || { })
+      .then(res => JSON.parse(JSON.stringify(res.body || {}), reviver))
       .catch(err => getError(err.response || { error : {} }))
 };
 
