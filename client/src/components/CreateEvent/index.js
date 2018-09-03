@@ -86,8 +86,6 @@ class CreateEvent extends React.Component {
     };
 
     this.dialog = { opened: false };
-
-
   }
 
   componentDidMount() {
