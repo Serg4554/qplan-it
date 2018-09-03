@@ -1,6 +1,6 @@
 import React  from "react";
 import PropTypes from 'prop-types';
-import { MODE_PASSWORD_RECOVERY, MODE_SIGN_UP } from "../../state/ducks/auth/types";
+import { MODE_PASSWORD_RECOVERY, MODE_SIGN_UP, LOGIN_SUCCESS } from "../../state/ducks/auth/types";
 
 import DialogContent from "@material-ui/core/DialogContent";
 import TextField from "@material-ui/core/TextField";
@@ -13,9 +13,9 @@ import Chip from "@material-ui/core/Chip";
 const LogIn = (props) => {
   function handleLogin() {
     props.login(props.email, props.password)
-      .then(() => {
-        if(!props.open && props.router.location.pathname === "/login") {
-          props.goToUrl("/")
+      .then(result => {
+        if(result.type === LOGIN_SUCCESS) {
+          props.onClose();
         }
       });
   }
