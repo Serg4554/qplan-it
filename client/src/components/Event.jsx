@@ -5,12 +5,14 @@ import { connect } from 'react-redux'
 import { push } from "connected-react-router";
 import * as EventOperations from '../state/ducks/event/operations';
 import * as AuthOperations from "../state/ducks/auth/operations";
+import copy from 'copy-to-clipboard';
 
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
+import IconButton from "@material-ui/core/IconButton";
 import {I18n, Translate} from "react-redux-i18n";
 import Dialog from "@material-ui/core/Dialog";
 import Stepper from "@material-ui/core/Stepper";
@@ -19,6 +21,9 @@ import StepLabel from "@material-ui/core/StepLabel";
 import StepContent from "@material-ui/core/StepContent";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import TextField from "@material-ui/core/TextField/TextField";
+import FileCopy from '@material-ui/icons/FileCopy';
+import Tooltip from "@material-ui/core/Tooltip/Tooltip";
 
 
 const mapStateToProps = state => {
@@ -74,6 +79,7 @@ class Event extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
+    this.shareInput.select();
     if(this.state.claimEventStep === 1 && this.props.user) {
       this.setState({ claimEventStep: 2 });
     }
@@ -133,6 +139,10 @@ class Event extends React.Component {
     }
   }
 
+  getShareUrl() {
+    return window.location.host + "/" + this.props.id;
+  }
+
   render() {
     this.updateDialogContent();
 
@@ -141,6 +151,30 @@ class Event extends React.Component {
         <div>
           <h1 style={{textAlign: "center", marginBottom: "5px"}}>{this.props.title}</h1>
           {this.renderClaimEvent()}
+          <div style={{textAlign: "center", marginTop: "14px"}}>
+            <TextField
+              inputRef={obj => this.shareInput = obj}
+              style={{display: "inline-block", maxWidth: "130px", margin: "0"}}
+              margin="normal"
+              fullWidth={true}
+              value={this.getShareUrl()}
+              onClick={() => this.shareInput.select()}
+              inputProps={{style: {textAlign: "center", paddingTop: "0px"}}}
+            />
+            <Tooltip
+              title={I18n.t("common.copy")}
+              placement="right"
+              PopperProps={{style: {marginLeft: "-10px"}}}
+              disableFocusListener
+            >
+              <IconButton color="secondary" style={{display: "inline-block"}} onClick={() => {
+                this.shareInput.select();
+                copy(this.getShareUrl());
+              }}>
+                <FileCopy/>
+              </IconButton>
+            </Tooltip>
+          </div>
         </div>
 
         <Dialog

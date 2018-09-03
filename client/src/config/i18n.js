@@ -16,6 +16,7 @@ export default {
       finish: "Finish",
       optional: "Optional",
       selectAll: "Select all",
+      copy: "Copy"
     },
     auth: {
       login: "Log in",
@@ -124,6 +125,7 @@ export default {
       finish: "Finalizar",
       optional: "Opcional",
       selectAll: "Seleccionar todo",
+      copy: "Copiar"
     },
     auth: {
       login: "Iniciar sesión",
