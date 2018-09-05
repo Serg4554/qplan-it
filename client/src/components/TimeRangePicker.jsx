@@ -118,7 +118,7 @@ class TimeRangePicker extends React.Component {
                 blockedPeriods: periods
               });
             }}
-            onRemovePeriod={period => this.setState({ periodToRemove: period })}
+            onSelectPeriod={period => this.setState({ periodToRemove: period })}
             eventsTitle={I18n.t("createEvent.unavailable")}
             maxHeight={400}
             timeFormat={"h:mm a"}

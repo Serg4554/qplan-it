@@ -182,7 +182,7 @@ const EventsBuilder = (props) => {
         views={['day']}
         toolbar={false}
         defaultDate={new Date()}
-        onSelectEvent={event => { if(props.onRemovePeriod) props.onRemovePeriod(toPeriods([event])[0]) }}
+        onSelectEvent={event => { if(props.onSelectPeriod) props.onSelectPeriod(toPeriods([event])[0]) }}
         onSelectSlot={addEvent}
         showMultiDayTimes={false}
         longPressThreshold={150}
@@ -223,7 +223,7 @@ EventsBuilder.propTypes = {
   periods: PropTypes.arrayOf(PropTypes.object).isRequired,
   precise: PropTypes.bool,
   onPeriodsUpdated: PropTypes.func.isRequired,
-  onRemovePeriod: PropTypes.func,
+  onSelectPeriod: PropTypes.func,
   eventsTitle: PropTypes.string,
   maxHeight: PropTypes.number,
   timeFormat: PropTypes.string,
