@@ -10,7 +10,7 @@ import Button from "@material-ui/core/Button";
 import GpsNotFixed from "../../node_modules/@material-ui/icons/GpsNotFixed";
 import GpsFixedIcon from "../../node_modules/@material-ui/icons/GpsFixed";
 import Paper from "@material-ui/core/Paper";
-import Index from "./EventsBuilder/index";
+import EventsBuilder from "./EventsBuilder";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
@@ -106,7 +106,7 @@ class TimeRangePicker extends React.Component {
     if(this.state.showBlockedPeriods) {
       return (
         <div>
-          <Index
+          <EventsBuilder
             start={this.props.day.period.start}
             duration={this.props.day.period.duration}
             precise={this.state.precise}
