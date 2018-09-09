@@ -117,6 +117,10 @@
   background-color: #FFA000 !important;
 }
 
+.eventCalendar .rbc-event-unavailable .rbc-event-label {
+  display: none;
+}
+
 @media screen and (min-width: 901px) {
   .headerTitleLarge {
     font-size: 110px;

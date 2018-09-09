@@ -94,7 +94,11 @@ export default {
         benefit_4: "Choose a definitive date and notify everyone"
       },
       errorOccurred: "Something went wrong 😞",
-      errorOccurredMessage: "An unexpected error occurred, so the event could not be created. If the problem persists, please, contact us"
+      errorOccurredMessage: "An unexpected error occurred, so the event could not be created. If the problem persists, please, contact us",
+      belongsPreviousDay: "Belongs to the previous day",
+      belongsNextDay: "Belongs to the next day",
+      dayOverlapped: "Overlaps with the previous day",
+      startsAtEndOfPreviousDay: "Starts at the end of previous day"
     },
     event: {
       notFound: "The event was not found",
@@ -203,7 +207,11 @@ export default {
         benefit_4: "Elige una fecha definitiva y notifica a todos"
       },
       errorOccurred: "Algo ha ido mal 😞",
-      errorOccurredMessage: "Se ha producido un error inesperado, por lo que no ha podido crearse el evento. Si el problema persiste, por favor, contacte con nosotros"
+      errorOccurredMessage: "Se ha producido un error inesperado, por lo que no ha podido crearse el evento. Si el problema persiste, por favor, contacte con nosotros",
+      belongsPreviousDay: "Pertenece al día anterior",
+      belongsNextDay: "Pertenece al día siguiente",
+      dayOverlapped: "Se solapa con el día anterior",
+      startsAtEndOfPreviousDay: "Comenzará al finalizar el día anterior"
     },
     event: {
       notFound: "No se ha encontrado el evento",

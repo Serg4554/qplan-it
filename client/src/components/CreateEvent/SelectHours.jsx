@@ -18,7 +18,10 @@ const SelectHours = (props) => {
           <div className="timeRangePicker">
             <TimeRangePicker
               day={props.day}
+              yesterday={props.yesterday}
+              tomorrow={props.tomorrow}
               onDayUpdated={props.onDayUpdated.bind(this)}
+              onTomorrowUpdated={props.onTomorrowUpdated.bind(this)}
               style={{
                 display: "inline-block",
                 position: "relative",
@@ -38,7 +41,7 @@ const SelectHours = (props) => {
                 allowedDates={props.allowedDates}
                 onSelectedDatesUpdated={props.onSelectedDatesUpdated.bind(this)}
                 appendDates={false}
-                selectRange={true}
+                selectRange={false}
                 primaryColor={theme.palette.primary.main}
                 secondaryColor={theme.palette.secondary.light}
                 allowedDatesColor={theme.palette.secondary.clear}
@@ -66,8 +69,11 @@ SelectHours.propTypes = {
   allowedDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
   selectedDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)).isRequired,
   onSelectedDatesUpdated: PropTypes.func.isRequired,
-  day: PropTypes.object,
+  day: PropTypes.object.isRequired,
+  yesterday: PropTypes.object,
+  tomorrow: PropTypes.object,
   onDayUpdated: PropTypes.func.isRequired,
+  onTomorrowUpdated: PropTypes.func.isRequired,
   precise: PropTypes.bool.isRequired,
   onPreciseChange: PropTypes.func.isRequired
 };

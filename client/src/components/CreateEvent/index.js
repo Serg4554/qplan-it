@@ -144,14 +144,39 @@ class CreateEvent extends React.Component {
   }
 
   handleCreateEvent() {
-    let days = this.props.days.map(d => ({...d}));
-    days.forEach(day => {
+    let sortedDays = this.props.days.map(d => ({...d})).sort((a, b) => a.period.start - b.period.start);
+    let days = [];
+
+    sortedDays.forEach((day, i) => {
       if(day.complete) {
         day.period.start = moment(day.period.start).startOf('day').toDate();
-        delete day.period.duration;
+        day.period.duration = 1440;
       }
       delete day.complete;
+      if(!day.period.duration) {
+        day.period.duration = 1440;
+      }
+
+      const lastDayEnd = i > 0 ?
+        moment(sortedDays[i - 1].period.start).add(sortedDays[i - 1].period.duration, 'm') :
+        undefined;
+      if(lastDayEnd && lastDayEnd.isAfter(moment(day.period.start))) {
+        const dayEnd = moment(day.period.start).add(day.period.duration, 'm');
+        day.period.start = lastDayEnd.toDate();
+        day.period.duration = Math.ceil(dayEnd.diff(day.period.start) / 60000 / 5) * 5;
+      }
+
+      if(day.period.duration > 0) {
+        if(day.blockedPeriods.length === 1 && (
+          moment(day.period.start).isBefore(day.blockedPeriods[0].start) ||
+          day.period.duration > day.blockedPeriods[0].duration)) {
+          days.push(day);
+        } else if(day.blockedPeriods.length !== 1) {
+          days.push(day);
+        }
+      }
     });
+
     let password = this.props.user && this.props.user.id ? this.props.password : undefined;
     let expiration = this.props.user && this.props.user.id && this.props.expirationDateEnabled ?
       this.props.expirationDate :
@@ -273,12 +298,20 @@ class CreateEvent extends React.Component {
           />
         );
       case 1:
+        console.log();
+        const selectedDay = this.getSelectedDays([new Date(Math.min.apply(null, this.props.selectedDates))])[0];
         return (
           <SelectHours
             allowedDates={this.props.days.map(d => d.period.start)}
             selectedDates={this.props.selectedDates}
             onSelectedDatesUpdated={this.onSelectedDatesUpdated.bind(this)}
-            day={this.getSelectedDays(this.props.selectedDates)[0]}
+            day={selectedDay}
+            yesterday={this.props.days.filter(d =>
+              moment(d.period.start).startOf('day')
+                .isSame(moment(selectedDay.period.start).startOf('day').subtract(1, 'd')))[0]}
+            tomorrow={this.props.days.filter(d =>
+              moment(d.period.start).startOf('day')
+                .isSame(moment(selectedDay.period.start).startOf('day').add(1, 'd')))[0]}
             onDayUpdated={day => {
               const { complete, period, blockedPeriods } = day;
               this.props.updateDays(this.props.selectedDates.map(date => ({
@@ -289,6 +322,9 @@ class CreateEvent extends React.Component {
                 },
                 blockedPeriods
               })));
+            }}
+            onTomorrowUpdated={day => {
+              this.props.updateDays([day]);
             }}
             precise={this.state.preciseTimeSelection}
             onPreciseChange={preciseTimeSelection => this.setState({ preciseTimeSelection })}

@@ -24,6 +24,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import TextField from "@material-ui/core/TextField/TextField";
 import FileCopy from '@material-ui/icons/FileCopy';
 import Tooltip from "@material-ui/core/Tooltip/Tooltip";
+import EventCalendar from "./EventCalendar";
 
 
 const mapStateToProps = state => {
@@ -175,6 +176,8 @@ class Event extends React.Component {
               </IconButton>
             </Tooltip>
           </div>
+
+          <EventCalendar />
         </div>
 
         <Dialog

@@ -20,7 +20,7 @@ import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
 import Chip from "@material-ui/core/Chip";
 import Avatar from "@material-ui/core/Avatar";
-import InfoIcon from '@material-ui/icons/Info';
+import WarningIcon from '@material-ui/icons/Warning';
 import ArrowRightAltIcon from '@material-ui/icons/ArrowRightAlt';
 
 
@@ -35,13 +35,13 @@ class TimeRangePicker extends React.Component {
     }
   }
 
-  getFixedBlockedPeriods(period) {
-    const blockedPeriods = this.props.day.blockedPeriods.map(p => ({...p}));
+  getFixedBlockedPeriods(period, blockedPeriods) {
+    const safeBlockedPeriods = blockedPeriods.map(p => ({...p}));
     const periodStart = moment(period.start);
 
     let blockedStart, excess;
-    blockedPeriods.forEach(blocked => {
-      blockedStart = moment(periodStart).hours(blocked.start.getHours()).minutes(blocked.start.getMinutes());
+    safeBlockedPeriods.forEach(blocked => {
+      blockedStart = moment(blocked.start);
       if(blockedStart.isBefore(periodStart)) {
         blocked.start = periodStart.toDate();
         blocked.duration = blocked.duration - periodStart.diff(blockedStart) / 60000;
@@ -52,7 +52,7 @@ class TimeRangePicker extends React.Component {
       }
     });
 
-    return blockedPeriods.filter(blocked => blocked.duration > 0);
+    return safeBlockedPeriods.filter(blocked => blocked.duration > 0);
   }
 
   removeEventDialog() {
@@ -78,12 +78,14 @@ class TimeRangePicker extends React.Component {
           </Button>
           <Button
             onClick={() => {
-              let periods = day.blockedPeriods.slice();
-              const index = periods.findIndex(p => p.start.getTime() === this.state.periodToRemove.start.getTime());
-              if(index !== -1) {
-                periods.splice(index, 1);
-                this.setState({ periodToRemove: null });
-                this.props.onDayUpdated({ complete: day.complete, period: day.period, blockedPeriods: periods });
+              if(this.state.periodToRemove) {
+                let periods = day.blockedPeriods.slice();
+                const index = periods.findIndex(p => p.start.getTime() === this.state.periodToRemove.start.getTime());
+                if(index !== -1) {
+                  periods.splice(index, 1);
+                  this.setState({ periodToRemove: null });
+                  this.props.onDayUpdated({ complete: day.complete, period: day.period, blockedPeriods: periods });
+                }
               }
             }}
             color="primary"
@@ -104,21 +106,51 @@ class TimeRangePicker extends React.Component {
 
   renderEventsBuilder() {
     if(this.state.showBlockedPeriods) {
+      let periods = this.props.day.blockedPeriods.map(p => ({...p}));
+      if(this.props.yesterday) {
+        const yestStart = moment(this.props.yesterday.period.start);
+        let yestEnd = moment(yestStart).add(this.props.yesterday.period.duration || 1440, 'm');
+        if(yestEnd.isSame(moment(this.props.day.period.start).startOf('day'))) {
+          yestEnd = yestStart.endOf('day');
+        }
+        if(yestEnd.isAfter(this.props.day.period.start)) {
+          let yestBlockedPeriods = this.props.yesterday.blockedPeriods.map(p => ({...p}));
+          yestBlockedPeriods = yestBlockedPeriods.filter(p => {
+            const blockedEnd = moment(p.start).add(p.duration, 'm');
+            return blockedEnd.isAfter(this.props.day.period.start);
+          });
+          yestBlockedPeriods.forEach(p => {
+            p.message = I18n.t("createEvent.belongsPreviousDay");
+            p.className = "rbc-event-warning";
+          });
+          periods = periods.concat(yestBlockedPeriods);
+          periods.push({
+            start: this.props.day.period.start,
+            duration: yestEnd.diff(this.props.day.period.start) / 60000,
+            className: "rbc-event-unavailable"
+          });
+        }
+      }
+
       return (
         <div>
           <EventsBuilder
             start={this.props.day.period.start}
             duration={this.props.day.period.duration}
             precise={this.state.precise}
-            periods={this.props.day.blockedPeriods}
+            periods={periods}
             onPeriodsUpdated={periods => {
               this.props.onDayUpdated({
                 complete: this.props.day.complete,
                 period: this.props.day.period,
-                blockedPeriods: periods
+                blockedPeriods: periods.filter(p => p.className !== "rbc-event-warning")
               });
             }}
-            onSelectPeriod={period => this.setState({ periodToRemove: period })}
+            onSelectPeriod={period => {
+              if(period.className !== "rbc-event-warning") {
+                this.setState({ periodToRemove: period });
+              }
+            }}
             eventsTitle={I18n.t("createEvent.unavailable")}
             maxHeight={400}
             timeFormat={"h:mm a"}
@@ -150,11 +182,16 @@ class TimeRangePicker extends React.Component {
     if(!blockedPeriod)
       return false;
 
-    const start = moment(blockedPeriod.start)
-      .hours(this.props.day.period.start.getHours())
-      .minutes(this.props.day.period.start.getMinutes());
-    return start.isSameOrAfter(moment(blockedPeriod.start)) &&
-      (this.props.day.period.duration || 1440) <= blockedPeriod.duration;
+    let realStart = moment(this.props.day.period.start);
+    if(this.props.yesterday) {
+      const yesterdayEnd = moment(this.props.yesterday.period.start).add(this.props.yesterday.period.duration, 'm');
+      if(realStart.isBefore(yesterdayEnd)) {
+        realStart = yesterdayEnd;
+      }
+    }
+    const end = moment(this.props.day.period.start).add(this.props.day.period.duration || 1440, 'm');
+    return realStart.isSameOrAfter(moment(blockedPeriod.start)) &&
+      (end.diff(realStart) / 60000) <= blockedPeriod.duration;
   }
 
   endsNextDay() {
@@ -169,29 +206,78 @@ class TimeRangePicker extends React.Component {
     return end.isAfter(start)
   }
 
+  isDayOverlapped() {
+    let overlapped = false;
+
+    if(this.props.yesterday) {
+      const yesterdayEnd = moment(this.props.yesterday.period.start)
+        .add(this.props.yesterday.period.duration || 1440, 'm');
+      const end = moment(this.props.day.period.start).add(this.props.day.period.duration || 1440, 'm');
+      overlapped = yesterdayEnd.isSameOrAfter(end);
+    }
+
+    return overlapped;
+  }
+
+  overlappedDayStart() {
+    let overlappedDayStart = "";
+
+    if(this.props.yesterday) {
+      const yesterdayEnd = moment(this.props.yesterday.period.start)
+        .add(this.props.yesterday.period.duration || 1440, 'm');
+      const start = moment(this.props.day.period.start);
+      overlappedDayStart = yesterdayEnd.isAfter(start) ? yesterdayEnd.format("h:mm a") : "";
+    }
+
+    return overlappedDayStart;
+  }
+
   renderWarnings() {
-    if(this.isDayCancelled()) {
+    if(this.isDayOverlapped()) {
       return (
         <div style={{textAlign: "center"}}>
           <Chip
             style={{marginBottom: "16px", background: "#D32F2F", color: "#fff"}}
             classes={{avatar: "dayCancelledAvatar"}}
-            avatar={<Avatar><InfoIcon /></Avatar>}
-            label={<Translate value="createEvent.dayCancelled" />}
+            avatar={<Avatar><WarningIcon /></Avatar>}
+            label={I18n.t("createEvent.dayOverlapped")}
           />
         </div>
       );
-    } else if(this.endsNextDay()) {
+    } else if(this.isDayCancelled()) {
       return (
         <div style={{textAlign: "center"}}>
           <Chip
-            style={{marginBottom: "16px", background: "#FFC107", color: "#000"}}
-            classes={{avatar: "timeWarningAvatar"}}
-            avatar={<Avatar><InfoIcon /></Avatar>}
-            label={<Translate value="createEvent.endsNextDay" />}
+            style={{marginBottom: "16px", background: "#D32F2F", color: "#fff"}}
+            classes={{avatar: "dayCancelledAvatar"}}
+            avatar={<Avatar><WarningIcon /></Avatar>}
+            label={I18n.t("createEvent.dayCancelled")}
           />
         </div>
       );
+    } else {
+      const endsNextDay = this.endsNextDay();
+      const overlappedDayStart = this.overlappedDayStart();
+      if(endsNextDay || overlappedDayStart) {
+        return (
+          <div style={{textAlign: "center"}}>
+            {overlappedDayStart &&
+            <Chip
+              style={{marginBottom: "16px", background: "#FFC107", color: "#000"}}
+              classes={{avatar: "timeWarningAvatar"}}
+              avatar={<Avatar><WarningIcon/></Avatar>}
+              label={I18n.t("createEvent.startsAtEndOfPreviousDay") + " (" + overlappedDayStart + ")"}
+            />}
+            {endsNextDay &&
+            <Chip
+              style={{marginBottom: "16px", background: "#FFC107", color: "#000"}}
+              classes={{avatar: "timeWarningAvatar"}}
+              avatar={<Avatar><WarningIcon/></Avatar>}
+              label={I18n.t("createEvent.endsNextDay")}
+            />}
+          </div>
+        );
+      }
     }
   }
 
@@ -235,7 +321,8 @@ class TimeRangePicker extends React.Component {
               onChange={time => {
                 const diff = moment(start).hours(time.getHours()).minutes(time.getMinutes()).diff(moment(start))/60000;
                 const period = { start: time, duration: (((duration - diff) % 1440) + 1440) % 1440 };
-                this.props.onDayUpdated({ period, blockedPeriods: this.getFixedBlockedPeriods(period) });
+                const blockedPeriods = this.getFixedBlockedPeriods(period, this.props.day.blockedPeriods);
+                this.props.onDayUpdated({ period, blockedPeriods });
               }}
               style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
               minutesStep={5}
@@ -254,7 +341,26 @@ class TimeRangePicker extends React.Component {
               onChange={time => {
                 const diff = moment(end).hours(time.getHours()).minutes(time.getMinutes()).diff(moment(end)) / 60000;
                 const period = { start, duration: (((duration + diff) % 1440) + 1440) % 1440 };
-                this.props.onDayUpdated({ period, blockedPeriods: this.getFixedBlockedPeriods(period) });
+                const blockedPeriods = this.getFixedBlockedPeriods(period, this.props.day.blockedPeriods);
+                this.props.onDayUpdated({ period, blockedPeriods });
+
+                if(this.props.tomorrow && this.props.onTomorrowUpdated) {
+                  const periodEnd = moment(period.start).add(period.duration || 1440, 'm');
+                  const tomorrowEnd = moment(this.props.tomorrow.period.start)
+                    .add(this.props.tomorrow.period.duration || 1440, 'm');
+                  const tomorrowPeriod = {};
+                  if(moment(this.props.tomorrow.period.start).isBefore(periodEnd)) {
+                    tomorrowPeriod.start = periodEnd.toDate();
+                    tomorrowPeriod.duration = tomorrowEnd.diff(periodEnd) / 60000;
+                  } else {
+                    tomorrowPeriod.start = this.props.tomorrow.period.start;
+                    tomorrowPeriod.duration = this.props.tomorrow.period.duration;
+                  }
+                  this.props.onTomorrowUpdated({
+                    period: this.props.tomorrow.period,
+                    blockedPeriods: this.getFixedBlockedPeriods(tomorrowPeriod, this.props.tomorrow.blockedPeriods)
+                  });
+                }
               }}
               style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
               minutesStep={5}
@@ -286,8 +392,11 @@ class TimeRangePicker extends React.Component {
 }
 
 TimeRangePicker.propTypes = {
-  day: PropTypes.object,
+  day: PropTypes.object.isRequired,
+  yesterday: PropTypes.object,
+  tomorrow: PropTypes.object,
   onDayUpdated: PropTypes.func.isRequired,
+  onTomorrowUpdated: PropTypes.func,
   preciseByDefault: PropTypes.bool,
   style: PropTypes.object
 };
