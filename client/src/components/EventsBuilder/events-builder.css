@@ -91,7 +91,7 @@
   position: absolute;
 }
 .rbc-event-unavailable {
-  background: #E0E0E0;
+  background: #eeeeee;
   cursor: default;
 }
 
