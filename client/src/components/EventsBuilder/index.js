@@ -53,10 +53,12 @@ const EventsBuilder = (props) => {
         start = getNeutralMoment(moment(period.start).subtract(offset, 'm'));
         end = moment(start).add(Math.ceil(period.duration / 5) * 5, 'm');
       }
-      end = moment(start).hours(end.hours()).minutes(end.minutes());
+      if(end.isAfter(moment(dayStart).endOf('day'))) {
+        end = moment(dayStart).endOf('day');
+      }
       events.push({
         start: start.toDate(),
-        end: end.isSame(dayStart) ? moment(dayStart).endOf('day').toDate() : end.toDate(),
+        end: end.toDate(),
         className: period.className,
         message:  period.message
       });
