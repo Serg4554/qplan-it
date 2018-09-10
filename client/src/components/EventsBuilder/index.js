@@ -50,7 +50,7 @@ const EventsBuilder = (props) => {
         start = dayStart;
         end = moment(period.start).add(Math.ceil(period.duration / 5) * 5, 'm');
       } else {
-        start = getNeutralMoment(moment(period.start).subtract(offset, 'm'));
+        start = moment(period.start).subtract(offset, 'm');
         end = moment(start).add(Math.ceil(period.duration / 5) * 5, 'm');
       }
       if(end.isAfter(moment(dayStart).endOf('day'))) {
