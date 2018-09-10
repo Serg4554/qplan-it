@@ -26,35 +26,14 @@ const EventCalendar = (props) => {
     }
   }
 
-  if(!props.days || props.days.length === 0) {
+  if(!props.calendarDays || props.calendarDays.length === 0) {
     return <div />;
   }
 
-  let days = props.days.sort((a, b) => a.period.start - b.period.start).slice(0, 7);
-  for(let i = days.length - 1; i >= 0 ; i--) {
-    const start = moment(days[i].period.start);
-    let end = moment(start).add(days[i].period.duration, 'm');
-    if(end.isSame(moment(start).startOf('day').add(1, 'd'))) {
-      end = moment(start).endOf('day')
-    }
-
-    const tomStart = days[i + 1] ? moment(days[i + 1].period.start).startOf('day') : moment(end).add(2, 'd');
-    if(end.isAfter(moment(start).endOf('day')) && end.isBefore(tomStart)) {
-      days.splice(i + 1, 0, {
-        period: {
-          start: moment(end).startOf('day').toDate(),
-          duration: end.diff(moment(end).startOf('day')) / 60000
-        },
-        blockedPeriods: []
-      });
-    }
-  }
-  days = days.slice(0, 7);
-
   const current = moment().startOf('day');
-  const minDate = new Date(Math.min.apply(null, days.map(day =>
+  const minDate = new Date(Math.min.apply(null, props.calendarDays.map(day =>
     moment(current).hours(day.period.start.getHours()).minutes(day.period.start.getMinutes()).toDate()).concat(
-    days.map(day => {
+    props.calendarDays.map(day => {
       let end = moment(day.period.start).add(day.period.duration, 'm');
       if(end.isAfter(moment(day.period.start).endOf('day'))) {
         return moment(current).startOf('day');
@@ -63,7 +42,7 @@ const EventCalendar = (props) => {
       }
     })
   )));
-  let maxDate = new Date(Math.max.apply(null, days.map(day => {
+  let maxDate = new Date(Math.max.apply(null, props.calendarDays.map(day => {
     const end = moment(current).hours(day.period.start.getHours()).minutes(day.period.start.getMinutes())
       .add(day.period.duration, 'm');
     const tomorrow = moment(current).add(1, 'd');
@@ -73,10 +52,10 @@ const EventCalendar = (props) => {
 
   return (
     <div
-      style={{margin: "14px auto 0 auto", maxWidth: "1000px", border: "1px solid #d8d8d8", borderRadius: "4px"}}
+      style={{border: "1px solid #d8d8d8", borderRadius: "4px"}}
       className="eventCalendar"
     >
-      {days.map(({period, blockedPeriods}, index) => {
+      {props.calendarDays.map(({period, blockedPeriods}, index) => {
         const calendarStart = moment(period.start).hours(minDate.getHours()).minutes(minDate.getMinutes()).toDate();
         if(moment(maxDate).isAfter(moment(minDate).endOf('day'))) {
           maxDate = moment(minDate).endOf('day').toDate();
@@ -87,7 +66,7 @@ const EventCalendar = (props) => {
         });
 
         // BlockedPeriods to adjust start and end hour in calendar
-        const yest = index > 0 ? days[index - 1] : undefined;
+        const yest = index > 0 ? props.calendarDays[index - 1] : undefined;
         const yestEnd = yest ? moment(yest.period.start).add(yest.period.duration, 'm') : calendarStart;
         const realStart = moment(yestEnd).isAfter(calendarStart) ? yestEnd.toDate() : calendarStart;
         let realDiff = moment(period.start).diff(realStart) / 60000;
@@ -110,10 +89,10 @@ const EventCalendar = (props) => {
 
         // BlockedPeriods from yesterday
         const lastDayEnd = index > 0 ?
-          moment(days[index - 1].period.start).add(days[index - 1].period.duration, 'm') :
+          moment(props.calendarDays[index - 1].period.start).add(props.calendarDays[index - 1].period.duration, 'm') :
           undefined;
         if(lastDayEnd && lastDayEnd.isAfter(calendarStart)) {
-          let yestBlockedPeriods = days[index - 1].blockedPeriods.map(p => ({...p}));
+          let yestBlockedPeriods = props.calendarDays[index - 1].blockedPeriods.map(p => ({...p}));
           yestBlockedPeriods = yestBlockedPeriods.filter(p => {
             const blockedEnd = moment(p.start).add(p.duration, 'm');
             return blockedEnd.isAfter(calendarStart);
@@ -125,8 +104,8 @@ const EventCalendar = (props) => {
         }
 
         const timeWidth = 57;
-        const offset = timeWidth / days.length;
-        const percentage = 100 / days.length;
+        const offset = timeWidth / props.calendarDays.length;
+        const percentage = 100 / props.calendarDays.length;
         return (
           <div
             key={index}
@@ -164,7 +143,7 @@ const EventCalendar = (props) => {
 };
 
 EventCalendar.propTypes = {
-  days: PropTypes.arrayOf(PropTypes.object)
+  calendarDays: PropTypes.arrayOf(PropTypes.object)
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(EventCalendar);

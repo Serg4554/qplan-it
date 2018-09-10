@@ -6,6 +6,7 @@ import { push } from "connected-react-router";
 import * as EventOperations from '../state/ducks/event/operations';
 import * as AuthOperations from "../state/ducks/auth/operations";
 import copy from 'copy-to-clipboard';
+import moment from "moment";
 
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -22,9 +23,12 @@ import StepContent from "@material-ui/core/StepContent";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import TextField from "@material-ui/core/TextField/TextField";
-import FileCopy from '@material-ui/icons/FileCopy';
+import FileCopyIcon from '@material-ui/icons/FileCopy';
 import Tooltip from "@material-ui/core/Tooltip/Tooltip";
 import EventCalendar from "./EventCalendar";
+import NavigateBeforeIcon from '@material-ui/icons/NavigateBefore';
+import CancelIcon from '@material-ui/icons/Cancel';
+import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 
 
 const mapStateToProps = state => {
@@ -59,6 +63,8 @@ class Event extends React.Component {
 
     this.state = {
       claimEventStep: 0,
+      startIndex: 0,
+      daysLength: 0,
       dialogs: {
         notFound: false,
       }
@@ -69,6 +75,8 @@ class Event extends React.Component {
           let dialogs = this.state.dialogs;
           dialogs.notFound = true;
           this.setState({ dialogs });
+        } else {
+          this.setState({ daysLength: this.getDays(0).length });
         }
       });
 
@@ -80,7 +88,6 @@ class Event extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
-    this.shareInput.select();
     if(this.state.claimEventStep === 1 && this.props.user) {
       this.setState({ claimEventStep: 2 });
     }
@@ -144,6 +151,90 @@ class Event extends React.Component {
     return window.location.host + "/" + this.props.id;
   }
 
+  getDays(start, amount) {
+    let days = this.props.days;
+    days = days ? this.props.days.sort((a, b) => a.period.start - b.period.start): [];
+    if(amount) {
+      days = days.slice(start, start + amount);
+    }
+    for(let i = days.length - 1; i >= 0 ; i--) {
+      const start = moment(days[i].period.start);
+      let end = moment(start).add(days[i].period.duration, 'm');
+      if(end.isSame(moment(start).startOf('day').add(1, 'd'))) {
+        end = moment(start).endOf('day')
+      }
+
+      const tomStart = days[i + 1] ? moment(days[i + 1].period.start).startOf('day') : moment(end).add(2, 'd');
+      if(end.isAfter(moment(start).endOf('day')) && end.isBefore(tomStart)) {
+        days.splice(i + 1, 0, {
+          period: {
+            start: moment(end).startOf('day').toDate(),
+            duration: end.diff(moment(end).startOf('day')) / 60000
+          },
+          blockedPeriods: []
+        });
+      }
+    }
+    return amount ? days.slice(0, amount) : days;
+  }
+
+  renderNavButtons() {
+    return (
+      <div style={{margin: "8px auto", width: "100%"}}>
+        <div style={{display: "inline-block", width: "50%", textAlign: "left"}}>
+          <Button
+            variant="fab"
+            mini
+            aria-label="previous"
+            color="primary"
+            disabled={this.state.startIndex === 0}
+            onClick={() => this.setState({ startIndex: this.state.startIndex - 1 })}
+          >
+            <NavigateBeforeIcon />
+          </Button>
+        </div>
+        <div style={{display: "inline-block", width: "50%", textAlign: "right"}}>
+          <Button
+            variant="fab"
+            mini
+            aria-label="next"
+            color="primary"
+            disabled={this.state.startIndex + 7 >= this.state.daysLength}
+            onClick={() => this.setState({ startIndex: this.state.startIndex + 1 })}
+          >
+            <NavigateNextIcon />
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  renderEventCalendar() {
+    if(this.props.loading) {
+      return (
+        <div  style={{width: "100%", textAlign: "center", marginTop: "30px"}}>
+          <CircularProgress size={60} />
+        </div>
+      );
+    } else if(this.props.error) {
+      return (
+        <div  style={{width: "100%", textAlign: "center", marginTop: "30px"}}>
+          <CancelIcon style={{fontSize: "100pt", color: "#555"}}/>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          { this.renderNavButtons() }
+          <EventCalendar
+            calendarDays={this.getDays(this.state.startIndex, 7)}
+          />
+          { this.renderNavButtons() }
+        </div>
+      );
+    }
+  }
+
   render() {
     this.updateDialogContent();
 
@@ -172,12 +263,12 @@ class Event extends React.Component {
                 this.shareInput.select();
                 copy(this.getShareUrl());
               }}>
-                <FileCopy/>
+                <FileCopyIcon/>
               </IconButton>
             </Tooltip>
           </div>
 
-          <EventCalendar />
+          { this.renderEventCalendar() }
         </div>
 
         <Dialog
