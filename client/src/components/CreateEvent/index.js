@@ -320,7 +320,10 @@ class CreateEvent extends React.Component {
                   start: moment(date).hours(period.start.getHours()).minutes(period.start.getMinutes()).toDate(),
                   duration: period.duration
                 },
-                blockedPeriods
+                blockedPeriods: blockedPeriods.map(bp => ({
+                  start: moment(date).hours(bp.start.getHours()).minutes(bp.start.getMinutes()).toDate(),
+                  duration: bp.duration
+                }))
               })));
             }}
             onTomorrowUpdated={day => {
