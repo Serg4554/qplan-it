@@ -76,9 +76,7 @@
           "confirm": true,
           "resetPassword": true,
           "changePassword": true,
-          "setPassword": true,
-          "participation_find": true,
-          "participation_findById": true
+          "setPassword": true
         }
       }
     }
@@ -95,6 +93,7 @@
           "deleteById": true,
           "replaceById": true,
           "prototype.patchAttributes": true,
+          "findOwnedEvents": true,
           "claim": true,
           "participation_find": true,
           "participation_findById": true,

@@ -226,7 +226,27 @@ module.exports = function(model) {
   });
 
 
-  // Logic for claiming an event
+  model.remoteMethod('findOwnedEvents', {
+    description: 'Find all the events owned by the user.',
+    accepts: [
+      {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+    ],
+    returns: { arg: 'body', type: '[event]', root: true },
+    http: {verb: 'GET', path: '/'}
+  });
+  model.findOwnedEvents = async function(options) {
+    if(!options.accessToken || !options.accessToken.userId) {
+      throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
+    }
+
+    return await model.find({ where: { ownerId: options.accessToken.userId } })
+      .then(events => {
+        return events || [];
+      });
+  };
+
+
+
   model.remoteMethod('claim', {
       description: 'Allows an user to claims an event using the claimToken',
       accepts: [
@@ -263,15 +283,16 @@ module.exports = function(model) {
 
 
   model.remoteMethod('participation_find', {
-    description: 'Gets the participations of the specified event.',
+    description: 'Find the participations of the specified event.',
     accepts: [
-      {arg: 'id', type: 'string', required: true, description: 'Model id'}
+      {arg: 'id', type: 'string', required: true, description: 'Model id'},
+      {arg: 'userId', type: 'string', required: false, http: {source: 'query'}, description: 'User id'}
     ],
     returns: { arg: 'body', type: '[participation]', root: true },
     http: {verb: 'GET', path: '/:id/participations'}
   });
-  model.participation_find = async function(eventId) {
-    return await model.app.models.participation.find({ where: { eventId } })
+  model.participation_find = async function(eventId, userId) {
+    return await model.app.models.participation.find({ where: { eventId, ownerId: userId } })
       .then(participations => {
         return participations;
       });
@@ -279,7 +300,7 @@ module.exports = function(model) {
 
 
   model.remoteMethod('participation_findById', {
-    description: 'Gets the specified participation in the event.',
+    description: 'Find the specified participation in the event.',
     accepts: [
       {arg: 'id', type: 'string', required: true, description: 'Model id'},
       {arg: 'part_id', type: 'string', required: true, description: 'Participation id'}
