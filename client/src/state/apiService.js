@@ -102,7 +102,7 @@ const Event = {
   claim: (id, claimToken) =>
     requests.post(`/events/${id}/claim`, { claimToken }),
 
-  findParticipation: (id, userId) =>
+  getUserParticipation: (id, userId) =>
     requests.get(`/events/${id}/participations?userId=${userId}`),
 
   addParticipation: (id, name, surname, selections) =>

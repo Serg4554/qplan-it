@@ -44,7 +44,7 @@ const addSelections = (id, selections) => async (dispatch, getState) => {
       sessionState.participations.find(p => p.eventId === id && p.ownerId === sessionState.user.id) :
       undefined;
     if(!participation) {
-      await apiService.Event.findParticipation(id, sessionState.user.id)
+      await apiService.Event.getUserParticipation(id, sessionState.user.id)
         .then(response => {
           if(response.length > 0) {
             participation = response[0];

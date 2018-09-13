@@ -71,6 +71,7 @@ class Event extends React.Component {
       claimEventStep: 0,
       startIndex: 0,
       days: [],
+      periodsPerDay: {},
       anonymousSelection: null,
       anonymousUser: {},
       dialogs: {
@@ -78,6 +79,17 @@ class Event extends React.Component {
         selectionError: false,
       }
     };
+    props.getEvent(this.props.match.params.eventId)
+      .then(() => {
+        if(this.props.error) {
+          let dialogs = this.state.dialogs;
+          dialogs.notFound = true;
+          this.setState({ dialogs });
+        } else {
+          this.setState({ days: this.getDays() });
+        }
+      });
+
     props.getEvent(this.props.match.params.eventId)
       .then(() => {
         if(this.props.error) {
@@ -235,6 +247,10 @@ class Event extends React.Component {
         return;
     }
 
+    let periodsPerDay = this.state.periodsPerDay;
+    periodsPerDay[moment(periods[0].start).startOf('day').toDate()] = periods;
+    this.setState({periodsPerDay});
+
     this.props.addSelections(this.props.id, periods.map(period => ({period})))
       .then(() => {
         if(this.props.selectionError) {
@@ -294,6 +310,7 @@ class Event extends React.Component {
 
           <EventCalendar
             days={this.state.days.slice(this.state.startIndex, this.state.startIndex + 7)}
+            periods={[].concat.apply([], Object.values(this.state.periodsPerDay))}
             onPeriodsUpdated={this.onPeriodsUpdated.bind(this)}
             onSelectPeriod={this.onSelectPeriod.bind(this)}
           />

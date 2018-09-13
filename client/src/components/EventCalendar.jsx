@@ -14,7 +14,8 @@ class EventCalendar extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     return JSON.stringify(nextProps.days) !== JSON.stringify(this.props.days) ||
-      JSON.stringify(nextState.days) !== JSON.stringify(this.state.days);
+      JSON.stringify(nextState.days) !== JSON.stringify(this.state.days) ||
+      JSON.stringify(nextProps.periods) !== JSON.stringify(this.props.periods);
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -134,7 +135,8 @@ class EventCalendar extends React.Component {
                 key={index}
                 style={{
                   display: "inline-block",
-                  width: "calc(" + percentage + "%" + (index === 0 ? " + " + (timeWidth - offset) : " - " + offset) + "px)",
+                  width: "calc(" + percentage + "%" +
+                    (index === 0 ? " + " + (timeWidth - offset) : " - " + offset) + "px)",
                   textAlign: "right"
                 }}
               >
@@ -155,7 +157,8 @@ class EventCalendar extends React.Component {
                     .toDate()}
                   duration={this.state.duration}
                   precise={false}
-                  periods={blockedPeriods}
+                  periods={blockedPeriods.concat(this.props.periods.filter(p =>
+                    moment(p.start).startOf('day').isSame(moment(period.start).startOf('day'))))}
                   onPeriodsUpdated={periods => {
                     const newPeriods = periods.filter(period => !period.className);
                     if(newPeriods.length > 0) {
@@ -178,6 +181,7 @@ class EventCalendar extends React.Component {
 
 EventCalendar.propTypes = {
   days: PropTypes.arrayOf(PropTypes.object),
+  periods: PropTypes.arrayOf(PropTypes.object),
   onPeriodsUpdated: PropTypes.func.isRequired,
   onSelectPeriod: PropTypes.func.isRequired,
 };
