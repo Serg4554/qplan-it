@@ -111,5 +111,10 @@ module.exports = {
     code: "INVALID_SELECTION_ID",
     status: 422,
     message: "Invalid selection ID"
+  },
+  NO_PARTICIPATION_FOUND: {
+    code: "NO_PARTICIPATION_FOUND",
+    status: 422,
+    message: "No participation found"
   }
 };

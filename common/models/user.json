@@ -32,6 +32,19 @@
   },
   "hidden": ["emailVerified"],
   "relations": {},
-  "acls": [],
+  "acls": [
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "participation_find"
+    },
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW",
+      "property": "participation_findById"
+    }
+  ],
   "methods": {}
 }

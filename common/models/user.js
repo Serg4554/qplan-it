@@ -123,4 +123,49 @@ module.exports = function(model) {
       });
     }
   }
+
+
+  model.remoteMethod('participation_find', {
+    description: 'Gets all the user participations in events.',
+    accepts: [
+      {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+    ],
+    returns: { arg: 'body', type: '[participation]', root: true },
+    http: {verb: 'GET', path: '/participations'}
+  });
+  model.participation_find = async function(options) {
+    if(!options.accessToken || !options.accessToken.userId) {
+      throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
+    }
+
+    return await model.app.models.participation.find({ where: { ownerId: options.accessToken.userId } })
+      .then(participations => {
+        return participations || [];
+      });
+  };
+
+
+  model.remoteMethod('participation_findById', {
+    description: 'Gets the specified user participation.',
+    accepts: [
+      {arg: 'event_id', type: 'string', required: true, description: 'Event id'},
+      {arg: 'options', type: 'object', http: 'optionsFromRequest'}
+    ],
+    returns: { arg: 'body', type: 'participation', root: true },
+    http: {verb: 'GET', path: '/participations/:event_id'}
+  });
+  model.participation_findById = async function(event_id, options) {
+    if(!options.accessToken || !options.accessToken.userId) {
+      throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
+    }
+
+    return await model.app.models.participation.findOne({
+      where: { eventId: event_id, ownerId: options.accessToken.userId }
+    }).then(participations => {
+      if(!participations) {
+        throw ErrorConst.Error(ErrorConst.NO_PARTICIPATION_FOUND)
+      }
+      return participations;
+    });
+  };
 };

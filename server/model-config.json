@@ -76,7 +76,9 @@
           "confirm": true,
           "resetPassword": true,
           "changePassword": true,
-          "setPassword": true
+          "setPassword": true,
+          "participation_find": true,
+          "participation_findById": true
         }
       }
     }
