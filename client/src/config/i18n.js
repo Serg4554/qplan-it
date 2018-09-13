@@ -16,7 +16,9 @@ export default {
       finish: "Finish",
       optional: "Optional",
       selectAll: "Select all",
-      copy: "Copy"
+      copy: "Copy",
+      cancel: "Cancel",
+      save: "Save"
     },
     auth: {
       login: "Log in",
@@ -107,6 +109,12 @@ export default {
       claimYourEvent: "Claim your event",
       youCanClaimEvent: "¡Hello %{name}! You can now claim your event",
       youAreTheOwner: "You are the owner",
+      anonymousWhoYouAre: "Hello! Who you are?",
+      participateRightNow: "Do you want to participate right now?",
+      participatingAnonymouslyAs: "Participating anonymously as",
+      change: "Change",
+      selectionError: "Could not save",
+      selectionErrorMessage: "We tried to save your selection, but something failed and we couldn't... Try again and if the problem persists, don't hesitate to contact us",
     }
   },
 
@@ -129,7 +137,9 @@ export default {
       finish: "Finalizar",
       optional: "Opcional",
       selectAll: "Seleccionar todo",
-      copy: "Copiar"
+      copy: "Copiar",
+      cancel: "Cancelar",
+      save: "Guardar"
     },
     auth: {
       login: "Iniciar sesión",
@@ -223,6 +233,12 @@ export default {
       whomToAssignEvent: "No sabemos a quién asignar el evento >.<",
       youCanClaimEvent: "¡Hola %{name}! Ya puedes reclamar tu evento",
       youAreTheOwner: "Eres el propietario",
+      anonymousWhoYouAre: "¡Hola! ¿Quién eres?",
+      participateRightNow: "¿Quieres participar ya?",
+      participatingAnonymouslyAs: "Participando anónimamente como",
+      change: "Cambiar",
+      selectionError: "No se ha podido guardar",
+      selectionErrorMessage: "Hemos intentado guardar tu selección, pero algo ha fallado y no hemos podido... Inténtalo de nuevo y si el problema persiste, no dudes en contactar con nosotros",
     }
   },
 };

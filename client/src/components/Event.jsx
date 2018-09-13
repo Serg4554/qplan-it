@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { push } from "connected-react-router";
 import * as EventOperations from '../state/ducks/event/operations';
 import * as AuthOperations from "../state/ducks/auth/operations";
+import * as SessionOperations from "../state/ducks/session/operations";
 import copy from 'copy-to-clipboard';
 import moment from "moment";
 
@@ -34,10 +35,12 @@ import NavigateNextIcon from '@material-ui/icons/NavigateNext';
 const mapStateToProps = state => {
   return {
     user: state.session.user,
+    anonymousUser: state.session.anonymousUser,
     claimTokens: state.session.claimTokens,
     loading: state.event.loading,
     claiming: state.event.claiming,
     error: state.event.error,
+    selectionError: state.event.selectionError,
     id: state.event.id,
     title: state.event.title,
     creation: state.event.creation,
@@ -52,6 +55,9 @@ const mapDispatchToProps = dispatch => bindActionCreators({
   getEvent: EventOperations.getEvent,
   claim: EventOperations.claim,
   openLogin: AuthOperations.open,
+  setAnonymousUser: SessionOperations.setAnonymousUser,
+  addSelections: EventOperations.addSelections,
+  clearSelectionError: EventOperations.clearSelectionError,
   goToUrl: url => {
     return push(url)
   }
@@ -64,9 +70,12 @@ class Event extends React.Component {
     this.state = {
       claimEventStep: 0,
       startIndex: 0,
-      daysLength: 0,
+      days: [],
+      anonymousSelection: null,
+      anonymousUser: {},
       dialogs: {
         notFound: false,
+        selectionError: false,
       }
     };
     props.getEvent(this.props.match.params.eventId)
@@ -76,7 +85,7 @@ class Event extends React.Component {
           dialogs.notFound = true;
           this.setState({ dialogs });
         } else {
-          this.setState({ daysLength: this.getDays(0).length });
+          this.setState({ days: this.getDays() });
         }
       });
 
@@ -91,6 +100,9 @@ class Event extends React.Component {
     if(this.state.claimEventStep === 1 && this.props.user) {
       this.setState({ claimEventStep: 2 });
     }
+    if(this.state.anonymousSelection && !prevProps.user && !!this.props.user) {
+      this.onPeriodsUpdated(this.state.anonymousSelection);
+    }
   }
 
   updateDialogContent() {
@@ -104,9 +116,18 @@ class Event extends React.Component {
           this.dialog.title = I18n.t("event.notFound");
           this.dialog.message = I18n.t("event.notFoundMessage");
           this.dialog.onClose = () => {
-            dialogs.back = false;
-            this.setState({ dialogs });
             this.props.goToUrl("/");
+          };
+          this.dialog.onConfirm = undefined;
+          break;
+
+        case "selectionError":
+          this.dialog.title = I18n.t("event.selectionError");
+          this.dialog.message = I18n.t("event.selectionErrorMessage");
+          this.dialog.onClose = () => {
+            dialogs.selectionError = false;
+            this.setState({ dialogs });
+            this.props.clearSelectionError();
           };
           this.dialog.onConfirm = undefined;
           break;
@@ -147,16 +168,40 @@ class Event extends React.Component {
     }
   }
 
+  renderAnonymousUser() {
+    if(!this.props.loading && !this.props.user && this.props.anonymousUser && this.props.anonymousUser.name)
+    return (
+      <div style={{width: "100%", textAlign: "center", fontSize: "10pt", color: "#888", fontWeight: "lighter"}}>
+        <Translate value="event.participatingAnonymouslyAs" />:&nbsp;
+        <span style={{fontWeight: "bold"}}>
+          {this.props.anonymousUser.name}
+          {this.props.anonymousUser.surname ? " " + this.props.anonymousUser.surname : ""}
+        </span>
+        &nbsp;
+        <a
+          href=""
+          onClick={(e) => {
+            e.preventDefault();
+            this.setState({
+              anonymousUser: this.props.anonymousUser,
+              anonymousSelection: "changeAnonymousUser"
+            })
+          }}
+          style={{outline: "none"}}
+        >
+          <Translate value="event.change" />
+        </a>
+      </div>
+    );
+  }
+
   getShareUrl() {
     return window.location.host + "/" + this.props.id;
   }
 
-  getDays(start, amount) {
+  getDays() {
     let days = this.props.days;
     days = days ? this.props.days.sort((a, b) => a.period.start - b.period.start): [];
-    if(amount) {
-      days = days.slice(start, start + amount);
-    }
     for(let i = days.length - 1; i >= 0 ; i--) {
       const start = moment(days[i].period.start);
       let end = moment(start).add(days[i].period.duration, 'm');
@@ -175,38 +220,33 @@ class Event extends React.Component {
         });
       }
     }
-    return amount ? days.slice(0, amount) : days;
+    return days;
   }
 
-  renderNavButtons() {
-    return (
-      <div style={{margin: "8px auto", width: "100%"}}>
-        <div style={{display: "inline-block", width: "50%", textAlign: "left"}}>
-          <Button
-            variant="fab"
-            mini
-            aria-label="previous"
-            color="primary"
-            disabled={this.state.startIndex === 0}
-            onClick={() => this.setState({ startIndex: this.state.startIndex - 1 })}
-          >
-            <NavigateBeforeIcon />
-          </Button>
-        </div>
-        <div style={{display: "inline-block", width: "50%", textAlign: "right"}}>
-          <Button
-            variant="fab"
-            mini
-            aria-label="next"
-            color="primary"
-            disabled={this.state.startIndex + 7 >= this.state.daysLength}
-            onClick={() => this.setState({ startIndex: this.state.startIndex + 1 })}
-          >
-            <NavigateNextIcon />
-          </Button>
-        </div>
-      </div>
-    );
+  onPeriodsUpdated(periods) {
+    if(!this.props.user && !this.props.anonymousUser) {
+      return this.setState({ anonymousSelection: periods })
+    }
+
+    if(this.state.anonymousSelection) {
+      let anonymousSelection = this.state.anonymousSelection;
+      this.setState({anonymousSelection: null});
+      if (anonymousSelection === "changeAnonymousUser")
+        return;
+    }
+
+    this.props.addSelections(this.props.id, periods.map(period => ({period})))
+      .then(() => {
+        if(this.props.selectionError) {
+          let dialogs = this.state.dialogs;
+          dialogs.selectionError = true;
+          this.setState({ dialogs });
+        }
+      });
+  }
+
+  onSelectPeriod(period) {
+    console.log(period);
   }
 
   renderEventCalendar() {
@@ -225,11 +265,38 @@ class Event extends React.Component {
     } else {
       return (
         <div>
-          { this.renderNavButtons() }
+          <div style={{margin: "8px auto", width: "100%"}}>
+            <div style={{display: "inline-block", width: "50%", textAlign: "left"}}>
+              <Button
+                variant="fab"
+                mini
+                aria-label="previous"
+                color="primary"
+                disabled={this.state.startIndex === 0}
+                onClick={() => this.setState({ startIndex: this.state.startIndex - 1 })}
+              >
+                <NavigateBeforeIcon />
+              </Button>
+            </div>
+            <div style={{display: "inline-block", width: "50%", textAlign: "right"}}>
+              <Button
+                variant="fab"
+                mini
+                aria-label="next"
+                color="primary"
+                disabled={this.state.startIndex + 7 >= this.state.days.length}
+                onClick={() => this.setState({ startIndex: this.state.startIndex + 1 })}
+              >
+                <NavigateNextIcon />
+              </Button>
+            </div>
+          </div>
+
           <EventCalendar
-            calendarDays={this.getDays(this.state.startIndex, 7)}
+            days={this.state.days.slice(this.state.startIndex, this.state.startIndex + 7)}
+            onPeriodsUpdated={this.onPeriodsUpdated.bind(this)}
+            onSelectPeriod={this.onSelectPeriod.bind(this)}
           />
-          { this.renderNavButtons() }
         </div>
       );
     }
@@ -243,6 +310,7 @@ class Event extends React.Component {
         <div>
           <h1 style={{textAlign: "center", marginBottom: "5px"}}>{this.props.title}</h1>
           {this.renderClaimEvent()}
+          {this.renderAnonymousUser()}
           <div style={{textAlign: "center", marginTop: "14px"}}>
             <TextField
               inputRef={obj => this.shareInput = obj}
@@ -270,6 +338,7 @@ class Event extends React.Component {
 
           { this.renderEventCalendar() }
         </div>
+
 
         <Dialog
           open={this.state.claimEventStep !== 0}
@@ -334,6 +403,66 @@ class Event extends React.Component {
           </DialogActions>
         </Dialog>
 
+
+        <Dialog
+          open={this.state.anonymousSelection !== null}
+        >
+          <DialogTitle><Translate value="event.anonymousWhoYouAre"/></DialogTitle>
+          <DialogContent>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => this.props.openLogin()}
+              style={{display: "block", width: "100%"}}
+            >
+              <Translate value="auth.login"/>
+            </Button>
+            <div style={{width: "100%", height: "1px", margin: "20px 0", background: "#ccc"}}/>
+            <Typography><Translate value="event.participateRightNow"/></Typography>
+            <TextField
+              inputRef={obj => this.nameInput = obj}
+              placeholder={I18n.t("auth.name") + " *"}
+              margin="normal"
+              fullWidth={true}
+              value={this.state.anonymousUser.name || ""}
+              onChange={event =>
+                this.setState({anonymousUser: {name: event.target.value, surname: this.state.anonymousUser.surname}})
+              }
+              style={{display: "inline-block", width: "calc(50% - 8px)"}}
+            />
+            <TextField
+              placeholder={I18n.t("auth.surname")}
+              margin="normal"
+              fullWidth={true}
+              value={this.state.anonymousUser.surname || ""}
+              onChange={event =>
+                this.setState({anonymousUser: {name: this.state.anonymousUser.name, surname: event.target.value}})
+              }
+              style={{display: "inline-block", width: "calc(50% - 8px)", marginLeft: "16px"}}
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => this.setState({ anonymousSelection: null, anonymousUser: {} })} color="secondary">
+              <Translate value="common.cancel"/>
+            </Button>
+            <Button
+              onClick={() => {
+                if(!this.state.anonymousUser.name) {
+                  this.nameInput.select();
+                } else {
+                  this.props.setAnonymousUser(this.state.anonymousUser);
+                  this.setState({ anonymousUser: {} }, () => this.onPeriodsUpdated(this.state.anonymousSelection));
+                }
+              }}
+              color="primary"
+              autoFocus
+            >
+              <Translate value="common.save" />
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+
         <Dialog
           open={this.dialog.opened}
           onClose={() => this.dialog.onClose()}
@@ -367,10 +496,12 @@ class Event extends React.Component {
 
 Event.propTypes = {
   user: PropTypes.object,
+  anonymousUser: PropTypes.object,
   claimTokens: PropTypes.arrayOf(PropTypes.object),
   loading: PropTypes.bool,
   claiming: PropTypes.bool,
   error: PropTypes.object,
+  selectionError: PropTypes.object,
   id: PropTypes.string,
   title: PropTypes.string,
   creation: PropTypes.instanceOf(Date),
@@ -382,6 +513,8 @@ Event.propTypes = {
   getEvent: PropTypes.func,
   claim: PropTypes.func,
   openLogin: PropTypes.func,
+  setAnonymousUser: PropTypes.func,
+  addSelections: PropTypes.func,
   goToUrl: PropTypes.func,
 };
 

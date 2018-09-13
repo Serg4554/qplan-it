@@ -5,3 +5,7 @@ export const GET_EVENT_SUCCESS = 'event/GET_EVENT_SUCCESS';
 export const CLAIM_REQ = 'event/CLAIM_REQ';
 export const CLAIM_FAIL = 'event/CLAIM_FAIL';
 export const CLAIM_SUCCESS = 'event/CLAIM_SUCCESS';
+export const ADD_SELECTION_REQ = 'event/ADD_SELECTION_REQ';
+export const ADD_SELECTION_FAIL = 'event/ADD_SELECTION_FAIL';
+export const ADD_SELECTION_SUCCESS = 'event/ADD_SELECTION_SUCCESS';
+export const CLEAR_SELECTION_ERROR = 'event/CLEAR_SELECTION_ERROR';

@@ -3,9 +3,14 @@ import * as types from "./types";
 /** State shape
  * {
  *  user: object,
+ *  anonymousUser: object,
  *  claimTokens: [{
  *      event: string,
  *      secret: string
+ *  }],
+ *  participations: [{
+ *      event: string,
+ *      participationId: string
  *  }]
  * }
  */
@@ -14,8 +19,10 @@ let initialState = {
 
 };
 
+/** @namespace state.claimTokens */
+/** @namespace state.participations */
 const reducer = (state = initialState, action) => {
-  let claimTokens;
+  let claimTokens, participations, index;
 
   switch (action.type) {
     case types.SET_USER:
@@ -41,11 +48,33 @@ const reducer = (state = initialState, action) => {
 
     case types.REMOVE_CLAIM_TOKEN:
       claimTokens = (state.claimTokens || []).slice();
-      const index = claimTokens.findIndex(ct => ct.event === action.payload.claimToken.event);
+      index = claimTokens.findIndex(ct => ct.event === action.payload.claimToken.event);
       if(index !== -1) {
         claimTokens.splice(index, 1);
       }
       return { ...state, claimTokens };
+
+    case types.SET_PARTICIPATIONS:
+      return {
+        ...state,
+        participations: action.payload.participations
+      };
+
+    case types.ADD_PARTICIPATION:
+      participations = (state.participations || []).slice();
+      participations.push(action.payload.participation);
+      return { ...state, participations };
+
+    case types.REMOVE_PARTICIPATION:
+      participations = (state.participations || []).slice();
+      index = participations.findIndex(p => p.event === action.payload.participation.event);
+      if(index !== -1) {
+        participations.splice(index, 1);
+      }
+      return { ...state, participations };
+
+    case types.SET_ANONYMOUS_USER:
+      return { ...state, anonymousUser: action.payload.anonymousUser };
 
     default:
       return state;

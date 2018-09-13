@@ -5,6 +5,7 @@ import * as types from "./types";
  *  loading: bool,
  *  claiming: bool,
  *  error: object,
+ *  selectionError: bool,
  *  id: string,
  *  title: string,
  *  creation: Date,
@@ -53,6 +54,19 @@ const reducer = (state = {}, action) => {
         ...state,
         claiming: false,
         ...action.payload.event
+      };
+
+    case types.ADD_SELECTION_FAIL:
+      return {
+        ...state,
+        selectionError: action.payload.error
+      };
+
+    case types.ADD_SELECTION_SUCCESS:
+    case types.CLEAR_SELECTION_ERROR:
+      return {
+        ...state,
+        selectionError: undefined
       };
 
     default:

@@ -43,6 +43,48 @@ const removeClaimToken = (claimToken) => dispatch => {
   return dispatch(actions.removeClaimToken(claimToken));
 };
 
+const addParticipation = (participation) => dispatch => {
+  let participations = [];
+  try {
+    participations = JSON.parse(window.localStorage.getItem('participations'));
+  } catch(err) {}
+  if(!participations || !(participations instanceof Array)) {
+    participations = [];
+  }
+
+  participations.push(participation);
+  window.localStorage.setItem('participations', JSON.stringify(participations));
+
+  return dispatch(actions.addParticipation(participation));
+};
+
+const removeParticipation = (participation) => dispatch => {
+  let participations = [];
+  try {
+    participations = JSON.parse(window.localStorage.getItem('participations'));
+  } catch(err) {}
+  if(!participations || !(participations instanceof Array)) {
+    participations = [];
+  }
+
+  if(participations.length !== 0) {
+    let index = participations.findIndex(p => p.event === participation.event);
+    if(index !== -1) {
+      participations.splice(index, 1);
+    }
+  }
+  window.localStorage.setItem('participations', JSON.stringify(participations));
+
+  return dispatch(actions.removeParticipation(participation));
+};
+
+const setAnonymousUser = (anonymousUser) => dispatch => {
+  if(anonymousUser.name) {
+    window.localStorage.setItem('anonymousUser', JSON.stringify(anonymousUser));
+    dispatch(actions.setAnonymousUser(anonymousUser));
+  }
+};
+
 const retrieveSession = () => dispatch => {
   const token = window.localStorage.getItem('jwt');
   let user;
@@ -78,6 +120,28 @@ const retrieveSession = () => dispatch => {
   if(claimTokens.length !== 0) {
     dispatch(actions.setClaimTokens(claimTokens));
   }
+
+  let participations = [];
+  try {
+    participations = JSON.parse(window.localStorage.getItem('participations'));
+  } catch(err) {}
+  if(!participations || !(participations instanceof Array)) {
+    participations = [];
+  }
+  if(participations.length !== 0) {
+    dispatch(actions.setParticipations(participations));
+  }
+
+  let anonymousUser = {};
+  try {
+    anonymousUser = JSON.parse(window.localStorage.getItem('anonymousUser'));
+  } catch(err) {}
+  if(!anonymousUser || !anonymousUser.name) {
+    anonymousUser = {};
+  }
+  if(anonymousUser.name) {
+    dispatch(actions.setAnonymousUser(anonymousUser));
+  }
 };
 
 export {
@@ -85,5 +149,8 @@ export {
   unsetUser,
   addClaimToken,
   removeClaimToken,
+  addParticipation,
+  removeParticipation,
+  setAnonymousUser,
   retrieveSession
 }
