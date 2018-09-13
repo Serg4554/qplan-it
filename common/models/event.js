@@ -397,7 +397,7 @@ module.exports = function(model) {
         return participation;
       });
 
-    if((!part.ownerId || !options.accessToken || part.ownerId !== options.accessToken.userId) &&
+    if((!part.ownerId || !options.accessToken || part.ownerId.toString() !== options.accessToken.userId.toString()) &&
       (!part.participationToken || !data.participationToken || part.participationToken !== data.participationToken)) {
       throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
     }
@@ -433,7 +433,7 @@ module.exports = function(model) {
         return participation;
       });
 
-    if((!part.ownerId || !options.accessToken || part.ownerId !== options.accessToken.userId) &&
+    if((!part.ownerId || !options.accessToken || part.ownerId.toString() !== options.accessToken.userId.toString()) &&
       (!part.participationToken || !data.participationToken || part.participationToken !== data.participationToken)) {
       throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
     }
