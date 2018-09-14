@@ -294,7 +294,7 @@ module.exports = function(model) {
   model.participation_find = async function(eventId, userId) {
     return await model.app.models.participation.find({ where: { eventId, ownerId: userId } })
       .then(participations => {
-        return participations;
+        return userId ? participations[0] || null : participations;
       });
   };
 
