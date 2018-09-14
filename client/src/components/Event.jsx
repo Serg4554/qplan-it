@@ -183,7 +183,14 @@ class Event extends React.Component {
   renderAnonymousUser() {
     if(!this.props.loading && !this.props.user && this.props.anonymousUser && this.props.anonymousUser.name)
     return (
-      <div style={{width: "100%", textAlign: "center", fontSize: "10pt", color: "#888", fontWeight: "lighter"}}>
+      <div style={{
+        width: "100%",
+        textAlign: "center",
+        fontSize: "10pt",
+        color: "#888",
+        fontWeight: "lighter",
+        marginBottom: "10px"
+      }}>
         <Translate value="event.participatingAnonymouslyAs" />:&nbsp;
         <span style={{fontWeight: "bold"}}>
           {this.props.anonymousUser.name}
@@ -326,8 +333,8 @@ class Event extends React.Component {
       <div>
         <div>
           <h1 style={{textAlign: "center", marginBottom: "5px"}}>{this.props.title}</h1>
-          {this.renderClaimEvent()}
           {this.renderAnonymousUser()}
+          {this.renderClaimEvent()}
           <div style={{textAlign: "center", marginTop: "14px"}}>
             <TextField
               inputRef={obj => this.shareInput = obj}
