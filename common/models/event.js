@@ -139,7 +139,7 @@ module.exports = function(model) {
     }
 
     let dayTimes = (days || []).map(day => moment(day.period.start).startOf('day').toDate().getTime());
-    selections.forEach((selection, i) => {
+    selections.forEach(selection => {
       if(!selection.period || !selection.period.start) {
         throw ErrorConst.Error(ErrorConst.INVALID_SELECTION);
       }
@@ -161,8 +161,6 @@ module.exports = function(model) {
           throw ErrorConst.Error(ErrorConst.INVALID_SELECTION_PERIOD);
         }
       }
-
-      selection.id = i + 1;
     });
   }
 
@@ -380,13 +378,14 @@ module.exports = function(model) {
     accepts: [
       {arg: 'id', type: 'string', required: true, description: 'Event id'},
       {arg: 'part_id', type: 'string', required: true, description: 'Participation id'},
-      {arg: 'data', type: 'selection', http: {source: 'body'}, description: 'Participation data'},
+      {arg: 'part_token', type: 'string', required: false, http: {source: 'query'}, description: 'Participation token'},
+      {arg: 'data', type: ['selection'], http: {source: 'body'}, description: 'Participation data'},
       {arg: 'options', type: 'object', http: 'optionsFromRequest'},
     ],
-    returns: { arg: 'body', type: 'selection', root: true },
+    returns: { arg: 'body', type: ['selection'], root: true },
     http: {verb: 'POST', path: '/:id/participations/:part_id/selections'}
   });
-  model.participation_selection_create = async function(eventId, partId, data, options) {
+  model.participation_selection_create = async function(eventId, partId, partToken, data, options) {
     let event = await ensureValidParticipation(eventId, data, false);
 
     let part = await model.app.models.participation.findById(partId)
@@ -398,56 +397,18 @@ module.exports = function(model) {
       });
 
     if((!part.ownerId || !options.accessToken || part.ownerId.toString() !== options.accessToken.userId.toString()) &&
-      (!part.participationToken || !data.participationToken || part.participationToken !== data.participationToken)) {
+      (!part.participationToken || !partToken || part.participationToken !== partToken)) {
       throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
     }
 
-    ensureValidSelections(event.days, [data]);
-    data.id = Math.max(...part.selections.map(s => s.id)) + 1;
-    part.selections.push(data);
-    return await model.app.models.participation.upsert(part)
-      .then(participation => participation.selections.find(selection => selection.id === data.id));
-  };
-
-
-  model.remoteMethod('participation_selection_deleteById', {
-    description: 'Deletes a selection in a participation.',
-    accepts: [
-      {arg: 'id', type: 'string', required: true, description: 'Event id'},
-      {arg: 'part_id', type: 'string', required: true, description: 'Participation id'},
-      {arg: 'select_id', type: 'string', required: true, description: 'Selection id'},
-      {arg: 'data', type: 'object', http: {source: 'body'}, description: 'Participation data'},
-      {arg: 'options', type: 'object', http: 'optionsFromRequest'},
-    ],
-    returns: { arg: 'body', type: 'object', root: true },
-    http: {verb: 'DELETE', path: '/:id/participations/:part_id/selections/:select_id'}
-  });
-  model.participation_selection_deleteById = async function(eventId, partId, selectId, data, options) {
-    await ensureValidParticipation(eventId, data, false);
-
-    let part = await model.app.models.participation.findById(partId)
-      .then(participation => {
-        if(!participation) {
-          throw ErrorConst.Error(ErrorConst.INVALID_PARTICIPATION_ID)
-        }
-        return participation;
-      });
-
-    if((!part.ownerId || !options.accessToken || part.ownerId.toString() !== options.accessToken.userId.toString()) &&
-      (!part.participationToken || !data.participationToken || part.participationToken !== data.participationToken)) {
-      throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
-    }
-
-    let index = part.selections.findIndex(selection => selection.id === Number(selectId));
-    if(index === -1) {
-      throw ErrorConst.Error(ErrorConst.INVALID_SELECTION_ID)
-    }
-
-    part.selections.splice(index, 1);
-    if(part.selections.length === 0) {
-      return await model.app.models.participation.deleteById(part.id);
+    if(data.length > 0) {
+      ensureValidSelections(event.days, data);
+      part.selections = data;
+      return await model.app.models.participation.upsert(part)
+        .then(participation => participation.selections);
     } else {
-      return await model.app.models.participation.upsert(part).then(() => ({count: 1}));
+      return await model.app.models.participation.deleteById(part.id)
+        .then(() => []);
     }
   };
 };

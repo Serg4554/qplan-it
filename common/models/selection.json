@@ -4,10 +4,6 @@
   "strict": true,
   "idInjection": false,
   "properties": {
-    "id": {
-      "type": "Number",
-      "id": true
-    },
     "comment": {
       "type": "String",
       "required": false
