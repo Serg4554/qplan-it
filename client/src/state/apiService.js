@@ -105,11 +105,17 @@ const Event = {
   getUserParticipation: (id, userId) =>
     requests.get(`/events/${id}/participations?userId=${userId}`),
 
+  getParticipation: (id, participationId) =>
+    requests.get(`/events/${id}/participations/${participationId}`),
+
+  getParticipations: (id) =>
+    requests.get(`/events/${id}/participations/`),
+
   addParticipation: (id, name, surname, selections) =>
     requests.post(`/events/${id}/participations`, { name, surname, selections }),
 
-  addSelection: (id, participationId, period, participationToken) =>
-    requests.post(`/events/${id}/participations/${participationId}/selections`, { period, participationToken }),
+  setSelections: (id, partId, selections, partToken) =>
+    requests.post(`/events/${id}/participations/${partId}/selections?part_token=${partToken}`, selections),
 };
 
 

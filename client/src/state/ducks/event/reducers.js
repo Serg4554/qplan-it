@@ -11,7 +11,9 @@ import * as types from "./types";
  *  creation: Date,
  *  expiration: Date,
  *  ownerId: string,
- *  days: Day[]
+ *  days: Day[],
+ *  participations: Participation[]
+ *  myParticipation: Participation
  * }
  */
 
@@ -26,6 +28,21 @@ import * as types from "./types";
  * {
  *  start: Date,
  *  duration: number,
+ * }
+ */
+
+/** Participation shape
+ * {
+ *  id: string,
+ *  name: string,
+ *  surname: string,
+ *  selections: [{
+ *      comment: string,
+ *      timestamp: Date,
+ *      period: Period,
+ *  }],
+ *  ownerId: string,
+ *  eventId: string
  * }
  */
 
@@ -56,18 +73,22 @@ const reducer = (state = {}, action) => {
         ...action.payload.event
       };
 
-    case types.ADD_SELECTION_FAIL:
+    case types.UPDATE_MY_PARTICIPATION:
+      return {...state, myParticipation: action.payload.participation};
+
+    case types.SET_SELECTION_FAIL:
       return {
         ...state,
         selectionError: action.payload.error
       };
 
-    case types.ADD_SELECTION_SUCCESS:
+    case types.SET_SELECTION_SUCCESS:
+      let myParticipation = state.myParticipation;
+      myParticipation.selections = action.payload.selections;
+      return { ...state, myParticipation };
+
     case types.CLEAR_SELECTION_ERROR:
-      return {
-        ...state,
-        selectionError: undefined
-      };
+      return { ...state, selectionError: undefined };
 
     default:
       return state;

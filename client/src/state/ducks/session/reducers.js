@@ -9,8 +9,9 @@ import * as types from "./types";
  *      secret: string
  *  }],
  *  participations: [{
- *      event: string,
- *      participationId: string
+ *      id: string,
+ *      eventId: string,
+ *      participationToken: string
  *  }]
  * }
  */
@@ -67,7 +68,7 @@ const reducer = (state = initialState, action) => {
 
     case types.REMOVE_PARTICIPATION:
       participations = (state.participations || []).slice();
-      index = participations.findIndex(p => p.event === action.payload.participation.event);
+      index = participations.findIndex(p => p.id === action.payload.participation.id);
       if(index !== -1) {
         participations.splice(index, 1);
       }

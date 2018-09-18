@@ -8,12 +8,45 @@ const getEvent = (id) => dispatch => {
   dispatch(actions.getEventReq());
 
   return apiService.Event.get(id)
-    .then(res => {
-      if(res.error) {
-        return dispatch(actions.getEventFail(res.error))
+    .then(event => {
+      if(event.error) {
+        return dispatch(actions.getEventFail(event.error))
       }
-      return dispatch(actions.getEventSuccess(res));
+
+      return apiService.Event.getParticipations(id)
+        .then(async participations => {
+          if(participations.error) {
+            return dispatch(actions.getEventFail(participations.error))
+          }
+          event.participations = participations;
+          return dispatch(actions.getEventSuccess(event));
+        });
     });
+};
+
+const getMyParticipation = (eventId, userId, participationId) => dispatch => {
+  if (userId) {
+    return apiService.Event.getUserParticipation(eventId, userId)
+      .then(response => {
+        if (response) {
+          return dispatch(actions.updateMyParticipation(response));
+        }
+      });
+  } else if (participationId) {
+    return apiService.Event.getParticipation(eventId, participationId)
+      .then(response => {
+        if (!response) {
+          dispatch(session.removeParticipation({id: participationId}));
+        } else {
+          return dispatch(actions.updateMyParticipation(response));
+        }
+      });
+  } else {
+    return new Promise((resolve) => {
+      dispatch(actions.updateMyParticipation(undefined));
+      resolve();
+    })
+  }
 };
 
 const claim = (id, claimToken) => dispatch => {
@@ -30,64 +63,38 @@ const claim = (id, claimToken) => dispatch => {
     });
 };
 
-const addSelections = (id, selections) => async (dispatch, getState) => {
-  dispatch(actions.addSelectionReq());
+const setSelections = (eventId, selections, participation, user) => async dispatch => {
+  dispatch(actions.setSelectionReq());
 
-  const sessionState = getState().session;
-  if(!sessionState.anonymousUser && !sessionState.user) {
-    return  dispatch(actions.addSelectionFail({ message: "Invalid user" }));
+  if(!user || (!user.id && !user.name)) {
+    return  dispatch(actions.setSelectionFail({ message: "Invalid user" }));
   }
 
-  let participation;
-  if(sessionState.user) {
-    participation = sessionState.participations ?
-      sessionState.participations.find(p => p.eventId === id && p.ownerId === sessionState.user.id) :
-      undefined;
-    if(!participation) {
-      await apiService.Event.getUserParticipation(id, sessionState.user.id)
-        .then(response => {
-          if(response.length > 0) {
-            participation = response[0];
-            dispatch(session.addParticipation(participation));
-          }
-        });
-    }
-  }
   if(!participation) {
-    participation = sessionState.participations ? sessionState.participations.find(p => p.eventId === id) : undefined;
-  }
-
-  let selectionsSent = false;
-  if(!participation) {
-    const {name, surname} = sessionState.anonymousUser || {};
-    await apiService.Event.addParticipation(id, name, surname, selections)
+    await apiService.Event.addParticipation(eventId, user.name, user.surname, selections)
       .then(response => {
         if(response.error) {
-          dispatch(actions.addSelectionFail(response.error))
+          dispatch(actions.setSelectionFail(response.error))
+        } else {
+          if(response._participationToken) {
+            dispatch(session.addParticipation({
+              id: response.id,
+              eventId: response.eventId,
+              participationToken: response._participationToken
+            }));
+          }
+          dispatch(actions.updateMyParticipation(response));
         }
-        selectionsSent = true;
-        participation = response;
-        dispatch(session.addParticipation(response));
       });
-    if(!participation) return;
-  }
-
-  if(!selectionsSent) {
-    let success = true;
-    const handleResponse = response => {
-      if(response.error) {
-        dispatch(actions.addSelectionFail(response.error));
-        success = false;
-      }
-    };
-    for(let i = 0; i < selections.length; i++) {
-      await apiService.Event.addSelection(id, participation.id, selections[i].period, participation._participationToken)
-        .then(handleResponse);
-      if(!success) break;
-    }
-    if(success) {
-      dispatch(actions.addSelectionSuccess());
-    }
+  } else {
+    await apiService.Event.setSelections(eventId, participation.id, selections, participation.participationToken)
+      .then(response => {
+        if(response.error) {
+          dispatch(actions.setSelectionFail(response.error));
+        } else {
+          dispatch(actions.setSelectionSuccess(response));
+        }
+      });
   }
 };
 
@@ -96,7 +103,8 @@ const clearSelectionError = actions.clearSelectionError;
 export {
   close,
   getEvent,
+  getMyParticipation,
   claim,
-  addSelections,
+  setSelections,
   clearSelectionError
 }

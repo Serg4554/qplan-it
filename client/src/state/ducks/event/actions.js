@@ -31,18 +31,23 @@ export const claimSuccess = (event) => ({
   payload: { event }
 });
 
-
-export const addSelectionReq = () => ({
-  type: types.ADD_SELECTION_REQ
+export const updateMyParticipation = (participation) => ({
+  type: types.UPDATE_MY_PARTICIPATION,
+  payload: { participation }
 });
 
-export const addSelectionFail = (error) => ({
-  type: types.ADD_SELECTION_FAIL,
+export const setSelectionReq = () => ({
+  type: types.SET_SELECTION_REQ
+});
+
+export const setSelectionFail = (error) => ({
+  type: types.SET_SELECTION_FAIL,
   payload: { error }
 });
 
-export const addSelectionSuccess = () => ({
-  type: types.ADD_SELECTION_SUCCESS
+export const setSelectionSuccess = (selections) => ({
+  type: types.SET_SELECTION_SUCCESS,
+  payload: { selections }
 });
 
 export const clearSelectionError = () => ({

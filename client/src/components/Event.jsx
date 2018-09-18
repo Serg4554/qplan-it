@@ -37,6 +37,7 @@ const mapStateToProps = state => {
     user: state.session.user,
     anonymousUser: state.session.anonymousUser,
     claimTokens: state.session.claimTokens,
+    sessionParticipations: state.session.participations,
     loading: state.event.loading,
     claiming: state.event.claiming,
     error: state.event.error,
@@ -47,16 +48,19 @@ const mapStateToProps = state => {
     expiration: state.event.expiration,
     ownerId: state.event.ownerId,
     days: state.event.days,
+    participations: state.event.participations,
+    myParticipation: state.event.myParticipation
   }
 };
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   close: EventOperations.close,
   getEvent: EventOperations.getEvent,
+  getMyParticipation: EventOperations.getMyParticipation,
   claim: EventOperations.claim,
   openLogin: AuthOperations.open,
   setAnonymousUser: SessionOperations.setAnonymousUser,
-  addSelections: EventOperations.addSelections,
+  setSelections: EventOperations.setSelections,
   clearSelectionError: EventOperations.clearSelectionError,
   goToUrl: url => {
     return push(url)
@@ -87,17 +91,7 @@ class Event extends React.Component {
           this.setState({ dialogs });
         } else {
           this.setState({ days: this.getDays() });
-        }
-      });
-
-    props.getEvent(this.props.match.params.eventId)
-      .then(() => {
-        if(this.props.error) {
-          let dialogs = this.state.dialogs;
-          dialogs.notFound = true;
-          this.setState({ dialogs });
-        } else {
-          this.setState({ days: this.getDays() });
+          this.getMyParticipations();
         }
       });
 
@@ -115,6 +109,29 @@ class Event extends React.Component {
     if(this.state.anonymousSelection && !prevProps.user && !!this.props.user) {
       this.onPeriodsUpdated(this.state.anonymousSelection);
     }
+    if(prevProps.user !== this.props.user) {
+      this.getMyParticipations();
+    }
+  }
+
+  getMyParticipations() {
+    const userId = this.props.user ? this.props.user.id : undefined;
+    const participation = this.props.sessionParticipations ?
+      this.props.sessionParticipations.find(p => p.eventId === this.props.id) :
+      undefined;
+    this.props.getMyParticipation(this.props.id, userId, participation ? participation.id : undefined)
+      .then(() => {
+        let selections = (this.props.myParticipation || {}).selections || [];
+
+        let periodsPerDay = {};
+        while(selections.length !== 0) {
+          const date = moment(selections[0].period.start).startOf('day').toDate();
+          periodsPerDay[date] = selections.filter(s => moment(s.period.start).startOf('day').isSame(date))
+            .map(sel => sel.period);
+          selections = selections.filter(s => !moment(s.period.start).startOf('day').isSame(date));
+        }
+        this.setState({periodsPerDay});
+      });
   }
 
   updateDialogContent() {
@@ -254,22 +271,66 @@ class Event extends React.Component {
         return;
     }
 
+    const periodsPerDayBackup = Object.assign({}, this.state.periodsPerDay);
     let periodsPerDay = this.state.periodsPerDay;
     periodsPerDay[moment(periods[0].start).startOf('day').toDate()] = periods;
     this.setState({periodsPerDay});
 
-    this.props.addSelections(this.props.id, periods.map(period => ({period})))
+    const participation = this.props.myParticipation;
+    if(!this.props.user) {
+      let sessionPart = (this.props.sessionParticipations || []).find(p => p.eventId === this.props.id);
+      if(sessionPart) {
+        participation.participationToken = sessionPart.participationToken;
+      }
+    }
+    const user = this.props.user ? this.props.user : this.props.anonymousUser;
+    let selections = (this.props.myParticipation || {}).selections || [];
+    selections = selections.filter(s =>
+      !moment(s.period.start).startOf('day').isSame(moment(periods[0].start).startOf('day'))
+    );
+    selections = selections.concat(periods.map(period => ({period})));
+    this.props.setSelections(this.props.id, selections, participation, user)
       .then(() => {
         if(this.props.selectionError) {
           let dialogs = this.state.dialogs;
           dialogs.selectionError = true;
-          this.setState({ dialogs });
+          this.setState({ dialogs, periodsPerDay: periodsPerDayBackup });
         }
       });
   }
 
   onSelectPeriod(period) {
-    console.log(period);
+    const periodsPerDayBackup = Object.assign({}, this.state.periodsPerDay);
+    let periodsPerDay = this.state.periodsPerDay;
+    let periods = periodsPerDay[moment(period.start).startOf('day').toDate()];
+    const index = periods.findIndex(p => moment(p.start).isSame(period.start));
+    if(index !== -1) {
+      periods.splice(index, 1);
+    }
+    periodsPerDay[moment(period.start).startOf('day').toDate()] = periods;
+    this.setState({periodsPerDay});
+
+    const participation = this.props.myParticipation;
+    if(!this.props.user) {
+      let sessionPart = (this.props.sessionParticipations || []).find(p => p.eventId === this.props.id);
+      if(sessionPart) {
+        participation.participationToken = sessionPart.participationToken;
+      }
+    }
+    const user = this.props.user ? this.props.user : this.props.anonymousUser;
+    let selections = (this.props.myParticipation || {}).selections || [];
+    selections = selections.filter(s =>
+      !moment(s.period.start).startOf('day').isSame(moment(period.start).startOf('day'))
+    );
+    selections = selections.concat(periods.map(period => ({period})));
+    this.props.setSelections(this.props.id, selections, participation, user)
+      .then(() => {
+        if(this.props.selectionError) {
+          let dialogs = this.state.dialogs;
+          dialogs.selectionError = true;
+          this.setState({ dialogs, periodsPerDay: periodsPerDayBackup });
+        }
+      });
   }
 
   renderEventCalendar() {
@@ -532,13 +593,16 @@ Event.propTypes = {
   expiration: PropTypes.instanceOf(Date),
   ownerId: PropTypes.string,
   days: PropTypes.arrayOf(PropTypes.object),
+  participations: PropTypes.arrayOf(PropTypes.object),
+  myParticipation: PropTypes.object,
 
   close: PropTypes.func,
   getEvent: PropTypes.func,
+  getMyParticipation: PropTypes.func,
   claim: PropTypes.func,
   openLogin: PropTypes.func,
   setAnonymousUser: PropTypes.func,
-  addSelections: PropTypes.func,
+  setSelections: PropTypes.func,
   goToUrl: PropTypes.func,
 };
 

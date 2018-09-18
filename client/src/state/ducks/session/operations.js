@@ -53,6 +53,7 @@ const addParticipation = (participation) => dispatch => {
   }
 
   participations.push(participation);
+
   window.localStorage.setItem('participations', JSON.stringify(participations));
 
   return dispatch(actions.addParticipation(participation));
@@ -67,12 +68,11 @@ const removeParticipation = (participation) => dispatch => {
     participations = [];
   }
 
-  if(participations.length !== 0) {
-    let index = participations.findIndex(p => p.event === participation.event);
-    if(index !== -1) {
-      participations.splice(index, 1);
-    }
+  let index = participations.findIndex(p => p.id === participation.id);
+  if(index !== -1) {
+    participations.splice(index, 1);
   }
+
   window.localStorage.setItem('participations', JSON.stringify(participations));
 
   return dispatch(actions.removeParticipation(participation));
