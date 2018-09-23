@@ -82,6 +82,11 @@ module.exports = {
     status: 422,
     message: "The password to participate in the event is invalid"
   },
+  DAYS_NOT_UNIQUE: {
+    code: "DAYS_NOT_UNIQUE",
+    status: 422,
+    message: "Days must be unique"
+  },
   EMPTY_SELECTIONS: {
     code: "EMPTY_SELECTIONS",
     status: 422,
