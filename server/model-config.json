@@ -97,8 +97,7 @@
           "participation_find": true,
           "participation_findById": true,
           "participation_create": true,
-          "participation_selection_create": true,
-          "participation_selection_deleteById": true
+          "participation_selection_create": true
         }
       }
     }
