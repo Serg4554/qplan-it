@@ -3,6 +3,11 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 
 import EventsBuilder from "./EventsBuilder";
+import {I18n} from "react-redux-i18n";
+import Button from "@material-ui/core/Button/Button";
+import Tooltip from "@material-ui/core/Tooltip/Tooltip";
+import GpsNotFixed from "../../node_modules/@material-ui/icons/GpsNotFixed";
+import GpsFixedIcon from "../../node_modules/@material-ui/icons/GpsFixed";
 
 
 class EventCalendar extends React.Component {
@@ -10,12 +15,14 @@ class EventCalendar extends React.Component {
     super(props);
 
     this.state = this.getCalendarStatus();
+    this.state.precise = false;
   }
 
   shouldComponentUpdate(nextProps, nextState) {
     return JSON.stringify(nextProps.days) !== JSON.stringify(this.props.days) ||
       JSON.stringify(nextState.days) !== JSON.stringify(this.state.days) ||
-      JSON.stringify(nextProps.periods) !== JSON.stringify(this.props.periods);
+      JSON.stringify(nextProps.periods) !== JSON.stringify(this.props.periods) ||
+      nextState.precise !== this.state.precise;
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -120,12 +127,18 @@ class EventCalendar extends React.Component {
     };
   }
 
+  getPreciseIcon() {
+    return this.state.precise ?
+      <GpsFixedIcon style={{fontSize: "15pt"}} /> :
+      <GpsNotFixed style={{fontSize: "15pt"}} />;
+  }
+
   render() {
     if(!this.state.days || this.state.days.length === 0) {
       return <div />;
     } else {
       return (
-        <div style={{border: "1px solid #d8d8d8", borderRadius: "4px"}} className="eventCalendar">
+        <div style={{position: "relative", border: "1px solid #d8d8d8", borderRadius: "4px"}} className="eventCalendar">
           {this.state.days.map(({period, blockedPeriods}, index) => {
             const timeWidth = 57;
             const offset = timeWidth / this.state.days.length;
@@ -156,7 +169,7 @@ class EventCalendar extends React.Component {
                     .minutes(this.state.minDate.getMinutes())
                     .toDate()}
                   duration={this.state.duration}
-                  precise={false}
+                  precise={this.state.precise}
                   periods={blockedPeriods.concat(this.props.periods.filter(p =>
                     moment(p.start).startOf('day').isSame(moment(period.start).startOf('day'))))}
                   onPeriodsUpdated={periods => {
@@ -173,6 +186,18 @@ class EventCalendar extends React.Component {
               </div>
             );
           })}
+          <Tooltip title={I18n.t("createEvent.preciseSelection")} placement="right" disableFocusListener>
+            <Button
+              variant="fab"
+              mini
+              aria-label="Precise"
+              color={this.state.precise ? "primary" : "secondary"}
+              style={{zIndex: "10", position: 'absolute', bottom: "10px", right: "10px"}}
+              onClick={() => this.setState({ precise: !this.state.precise })}
+            >
+              { this.getPreciseIcon() }
+            </Button>
+          </Tooltip>
         </div>
       );
     }

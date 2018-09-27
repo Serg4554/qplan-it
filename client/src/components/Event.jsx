@@ -293,6 +293,7 @@ class Event extends React.Component {
       let dialogs = this.state.dialogs;
       dialogs.changeParticipationMode = true;
       this.setState({ dialogs });
+      return;
     }
 
     if(!this.props.user && !this.props.anonymousUser) {
