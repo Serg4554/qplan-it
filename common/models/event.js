@@ -134,10 +134,6 @@ module.exports = function(model) {
   }
 
   function ensureValidSelections(days, selections) {
-    if(!selections || !(selections instanceof Array) || selections.length === 0) {
-      throw ErrorConst.Error(ErrorConst.EMPTY_SELECTIONS);
-    }
-
     let dayTimes = (days || []).map(day => moment(day.period.start).startOf('day').toDate().getTime());
     selections.forEach(selection => {
       if(!selection.period || !selection.period.start) {
@@ -401,14 +397,9 @@ module.exports = function(model) {
       throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
     }
 
-    if(data.length > 0) {
-      ensureValidSelections(event.days, data);
-      part.selections = data;
-      return await model.app.models.participation.upsert(part)
-        .then(participation => participation.selections);
-    } else {
-      return await model.app.models.participation.deleteById(part.id)
-        .then(() => []);
-    }
+    ensureValidSelections(event.days, data);
+    part.selections = data;
+    return await model.app.models.participation.upsert(part)
+      .then(participation => participation.selections);
   };
 };

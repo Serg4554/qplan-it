@@ -87,11 +87,6 @@ module.exports = {
     status: 422,
     message: "Days must be unique"
   },
-  EMPTY_SELECTIONS: {
-    code: "EMPTY_SELECTIONS",
-    status: 422,
-    message: "There must be at least one selection"
-  },
   INVALID_SELECTION: {
     code: "INVALID_SELECTION",
     status: 422,

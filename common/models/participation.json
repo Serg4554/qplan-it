@@ -26,7 +26,7 @@
     },
     "selections": {
       "type": ["selection"],
-      "required": true
+      "required": false
     }
   },
   "relations": {
