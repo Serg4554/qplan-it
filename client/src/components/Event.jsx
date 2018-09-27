@@ -289,7 +289,7 @@ class Event extends React.Component {
     periodsPerDay[moment(periods[0].start).startOf('day').toDate()] = periods;
     this.setState({periodsPerDay});
 
-    const participation = this.props.myParticipation;
+    const participation = this.props.myParticipation || {};
     if(!this.props.user) {
       let sessionPart = (this.props.sessionParticipations || []).find(p => p.eventId === this.props.id);
       if(sessionPart) {
@@ -302,7 +302,12 @@ class Event extends React.Component {
       !moment(s.period.start).startOf('day').isSame(moment(periods[0].start).startOf('day'))
     );
     selections = selections.concat(periods.map(period => ({period})));
-    this.props.setSelections(this.props.id, selections, participation, user, this.state.eventPassword)
+    this.props.setSelections(
+      this.props.id,
+      selections,
+      participation.id ? participation : undefined,
+      user,
+      this.state.eventPassword)
       .then(() => {
         if(this.props.selectionError) {
           if(this.props.selectionError.code === "INVALID_EVENT_PASSWORD") {

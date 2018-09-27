@@ -115,7 +115,8 @@ const Event = {
     requests.post(`/events/${id}/participations`, { name, surname, selections, password }),
 
   setSelections: (id, partId, selections, partToken) =>
-    requests.post(`/events/${id}/participations/${partId}/selections?part_token=${partToken}`, selections),
+    requests.post(`/events/${id}/participations/${partId}/selections` + (partToken ? `?part_token=${partToken}` : ""),
+      selections),
 };
 
 

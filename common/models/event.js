@@ -133,33 +133,6 @@ module.exports = function(model) {
     });
   }
 
-  function ensureValidSelections(days, selections) {
-    let dayTimes = (days || []).map(day => moment(day.period.start).startOf('day').toDate().getTime());
-    selections.forEach(selection => {
-      if(!selection.period || !selection.period.start) {
-        throw ErrorConst.Error(ErrorConst.INVALID_SELECTION);
-      }
-      let index = dayTimes.indexOf(moment(selection.period.start).startOf('day').toDate().getTime());
-      if(index === -1) {
-        throw ErrorConst.Error(ErrorConst.INVALID_SELECTION_PERIOD);
-      }
-      let evStart = moment(days[index].period.start);
-      let evEnd = moment(evStart).add(days[index].period.duration, 'm');
-      let start = moment(selection.period.start);
-      if(start.isSameOrAfter(evEnd)) {
-        throw ErrorConst.Error(ErrorConst.INVALID_SELECTION_PERIOD);
-      }
-      if(selection.period.duration && selection.period.duration <= 0) {
-        delete selection.period.duration;
-      } else {
-        let end = moment(start).add(selection.period.duration, 'm');
-        if(end.isAfter(evEnd)) {
-          throw ErrorConst.Error(ErrorConst.INVALID_SELECTION_PERIOD);
-        }
-      }
-    });
-  }
-
   async function ensureValidParticipation(eventId, participation, validatePass) {
     if(!eventId) {
       throw ErrorConst.Error(ErrorConst.INVALID_EVENT_ID);
@@ -321,8 +294,7 @@ module.exports = function(model) {
     http: {verb: 'POST', path: '/:id/participations'}
   });
   model.participation_create = async function(eventId, data, options) {
-    let event = await ensureValidParticipation(eventId, data, true);
-    ensureValidSelections(event.days, data.selections);
+    await ensureValidParticipation(eventId, data, true);
 
     let participation = { eventId, selections: data.selections };
 
@@ -382,7 +354,7 @@ module.exports = function(model) {
     http: {verb: 'POST', path: '/:id/participations/:part_id/selections'}
   });
   model.participation_selection_create = async function(eventId, partId, partToken, data, options) {
-    let event = await ensureValidParticipation(eventId, data, false);
+    await ensureValidParticipation(eventId, data, false);
 
     let part = await model.app.models.participation.findById(partId)
       .then(participation => {
@@ -397,7 +369,6 @@ module.exports = function(model) {
       throw ErrorConst.Error(ErrorConst.AUTHORIZATION_REQUIRED)
     }
 
-    ensureValidSelections(event.days, data);
     part.selections = data;
     return await model.app.models.participation.upsert(part)
       .then(participation => participation.selections);
