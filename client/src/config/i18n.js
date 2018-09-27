@@ -122,7 +122,9 @@ export default {
       changeParticipationModeMessage: "Click on the \"Participate\" button to see your entries",
       passwordRequired: "Enter the password to participate",
       participate: "Participate",
-      viewParticipations: "View participations"
+      viewParticipations: "View participations",
+      somePeriodsOmitted: "Some times slots has been omitted.",
+      somePeriodsOmittedMessage: "The frontend of the application omitted the representation of some time slots in the calendar due to lack of time to correctly represent the slots overlapping. Even so, you can check all the entries in console."
     }
   },
 
@@ -254,7 +256,9 @@ export default {
       changeParticipationModeMessage: "Haz click en el botón \"Participar\" para ver tus participaciones",
       passwordRequired: "Introduzca la contraseña para participar",
       participate: "Participar",
-      viewParticipations: "Ver participaciones"
+      viewParticipations: "Ver participaciones",
+      somePeriodsOmitted: "Se ha omitido algunos tamos horarios.",
+      somePeriodsOmittedMessage: "El frontend de la aplicación ha omitido la representación de algunos tramos horarios en el calendario debido a la necesidad de disponer de más tiempo para representar correctamente el solapamiento de los tramos. Aun así, puede ver todas las participaciones en la consola."
     }
   },
 };

@@ -29,7 +29,7 @@ const EventsBuilder = (props) => {
 
   // Available events
   const availableEvents = toEvents(props.periods.filter(p => p.className !== "rbc-event-unavailable"))
-    .map(e => ({...e, title: props.eventsTitle || ""}));
+    .map(e => ({...e, title: props.eventsTitle || e.message || ""}));
 
   // Unavailable events
   let unavailableEvents = toEvents(props.periods.filter(p => p.className === "rbc-event-unavailable"));

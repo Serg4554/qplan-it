@@ -76,7 +76,8 @@ class Event extends React.Component {
       startIndex: 0,
       days: [],
       participationMode: false,
-      periodsPerDay: {},
+      periods: [], // For all participations
+      periodsPerDay: {}, // For my participations
       anonymousSelection: null,
       anonymousUser: {},
       selection: null,
@@ -87,7 +88,8 @@ class Event extends React.Component {
         selectionError: false,
         participationDateExpired: false,
         changeParticipationMode: false
-      }
+      },
+      showUnfinishedWarning: false
     };
     props.getEvent(this.props.match.params.eventId)
       .then(() => {
@@ -96,7 +98,7 @@ class Event extends React.Component {
           dialogs.notFound = true;
           this.setState({ dialogs });
         } else {
-          this.setState({ days: this.getDays() });
+          this.setState({ days: this.getDays(), periods: this.getParticipations() });
           this.getMyParticipations();
         }
       });
@@ -226,36 +228,36 @@ class Event extends React.Component {
 
   renderAnonymousUser() {
     if(!this.props.loading && !this.props.user && this.props.anonymousUser && this.props.anonymousUser.name)
-    return (
-      <div style={{
-        width: "100%",
-        textAlign: "center",
-        fontSize: "10pt",
-        color: "#888",
-        fontWeight: "lighter",
-        marginBottom: "10px"
-      }}>
-        <Translate value="event.participatingAnonymouslyAs" />:&nbsp;
-        <span style={{fontWeight: "bold"}}>
+      return (
+        <div style={{
+          width: "100%",
+          textAlign: "center",
+          fontSize: "10pt",
+          color: "#888",
+          fontWeight: "lighter",
+          marginBottom: "10px"
+        }}>
+          <Translate value="event.participatingAnonymouslyAs" />:&nbsp;
+          <span style={{fontWeight: "bold"}}>
           {this.props.anonymousUser.name}
-          {this.props.anonymousUser.surname ? " " + this.props.anonymousUser.surname : ""}
+            {this.props.anonymousUser.surname ? " " + this.props.anonymousUser.surname : ""}
         </span>
-        &nbsp;
-        <a
-          href=""
-          onClick={(e) => {
-            e.preventDefault();
-            this.setState({
-              anonymousUser: this.props.anonymousUser,
-              anonymousSelection: "changeAnonymousUser"
-            })
-          }}
-          style={{outline: "none"}}
-        >
-          <Translate value="event.change" />
-        </a>
-      </div>
-    );
+          &nbsp;
+          <a
+            href=""
+            onClick={(e) => {
+              e.preventDefault();
+              this.setState({
+                anonymousUser: this.props.anonymousUser,
+                anonymousSelection: "changeAnonymousUser"
+              })
+            }}
+            style={{outline: "none"}}
+          >
+            <Translate value="event.change" />
+          </a>
+        </div>
+      );
   }
 
   getShareUrl() {
@@ -350,6 +352,9 @@ class Event extends React.Component {
   }
 
   onSelectPeriod(period) {
+    if(!this.state.participationMode) {
+      return;
+    }
     const periodsPerDayBackup = Object.assign({}, this.state.periodsPerDay);
     let periodsPerDay = this.state.periodsPerDay;
     let periods = periodsPerDay[moment(period.start).startOf('day').toDate()];
@@ -383,6 +388,67 @@ class Event extends React.Component {
       });
   }
 
+  getParticipations() {
+    let periods = [];
+
+    if(this.props.participations) {
+      this.props.participations.forEach(participation => {
+        participation.selections.forEach(selection => {
+          const start = moment(selection.period.start);
+          const end = moment(start).add(selection.period.duration, 'm');
+
+          let relatedPeriods = periods.filter(period => {
+            const periodStart = moment(period.start);
+            const periodEnd = moment(periodStart).add(period.duration, 'm');
+            return start.isBetween(periodStart, periodEnd) ||
+              end.isBetween(periodStart, periodEnd) ||
+              start.isSame(periodStart) ||
+              //start.isSame(periodEnd) ||
+              //end.isSame(periodStart) ||
+              end.isSame(periodEnd)
+          });
+
+          if(relatedPeriods.length === 0) {
+            periods.push({
+              start: selection.period.start,
+              duration: selection.period.duration,
+              participants: 1
+            })
+          } else {
+            relatedPeriods.forEach(period => {
+              const periodStart = moment(period.start);
+              const periodEnd = moment(periodStart).add(period.duration, 'm');
+
+              if(start.isSame(periodStart) && end.isSame(periodEnd)) {
+                period.participants++;
+              } else if(!this.state.showUnfinishedWarning){
+                this.setState({showUnfinishedWarning: true});
+              }
+
+              //TODO: Check time overlaps
+            });
+          }
+        })
+      });
+    }
+
+    return periods;
+  }
+
+  renderUnfinishedWarningMessage() {
+    if(this.state.showUnfinishedWarning) {
+      let selections = [];
+      this.props.participations.forEach(participation => selections = selections.concat(participation.selections));
+      console.log(selections);
+      return (
+        <div style={{fontSize: "10pt", color: "#888", paddingTop: "20px", textAlign: "center"}}>
+          <span style={{fontWeight: "bold"}}><Translate value="event.somePeriodsOmitted"/></span>&nbsp;
+          <Translate value="event.somePeriodsOmittedMessage"/>
+        </div>
+      );
+    }
+  }
+
   renderEventCalendar() {
     if(this.props.loading) {
       return (
@@ -397,11 +463,29 @@ class Event extends React.Component {
         </div>
       );
     } else {
-      let periods;
+      let periods = [];
       if(this.state.participationMode) {
         periods = [].concat.apply([], Object.values(this.state.periodsPerDay));
       } else {
-        periods = [];
+        if(this.state.periods) {
+          const participants = this.state.periods.map(period => period.participants);
+          const maxParticipants = Math.max.apply(null, participants);
+          const minParticipants = Math.min.apply(null, participants);
+          const midParticipants = Math.round((maxParticipants + minParticipants) / 2);
+          periods = this.state.periods.map(period => {
+            let className;
+            if(period.participants === maxParticipants) {
+              className = "rbc-event-green";
+            } else if(period.participants >= midParticipants) {
+              className = "rbc-event-orange";
+            } else {
+              className = "rbc-event-red";
+            }
+            period.className = className;
+            period.message = period.participants;
+            return period;
+          });
+        }
       }
       return (
         <div>
@@ -481,10 +565,23 @@ class Event extends React.Component {
             variant="contained"
             color={this.state.participationMode ? "secondary" : "primary"}
             style={{display: "block", margin: "10px auto 0 auto"}}
-            onClick={() => this.setState({participationMode: !this.state.participationMode})}
+            onClick={() => {
+              this.setState({participationMode: !this.state.participationMode}, () => {
+                if(!this.state.participationMode) {
+                  this.props.getEvent(this.props.id)
+                    .then(() => {
+                      this.setState({showUnfinishedWarning: false}, () => {
+                        this.setState({ periods: this.getParticipations() })
+                      });
+                    });
+                }
+              });
+            }}
           >
             <Translate value={this.state.participationMode ? "event.viewParticipations" : "event.participate"} />
           </Button>
+
+          { this.renderUnfinishedWarningMessage() }
 
           { this.renderEventCalendar() }
         </div>
