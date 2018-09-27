@@ -75,6 +75,7 @@ class Event extends React.Component {
       claimEventStep: 0,
       startIndex: 0,
       days: [],
+      participationMode: false,
       periodsPerDay: {},
       anonymousSelection: null,
       anonymousUser: {},
@@ -84,6 +85,8 @@ class Event extends React.Component {
       dialogs: {
         notFound: false,
         selectionError: false,
+        participationDateExpired: false,
+        changeParticipationMode: false
       }
     };
     props.getEvent(this.props.match.params.eventId)
@@ -174,6 +177,17 @@ class Event extends React.Component {
           };
           this.dialog.onConfirm = undefined;
           break;
+
+        case "changeParticipationMode":
+          this.dialog.title = I18n.t("event.changeParticipationMode");
+          this.dialog.message = I18n.t("event.changeParticipationModeMessage");
+          this.dialog.onClose = () => {
+            dialogs.changeParticipationMode = false;
+            this.setState({ dialogs });
+          };
+          this.dialog.onConfirm = undefined;
+          break;
+
         default:
           break;
       }
@@ -273,6 +287,12 @@ class Event extends React.Component {
   }
 
   onPeriodsUpdated(periods) {
+    if(!this.state.participationMode) {
+      let dialogs = this.state.dialogs;
+      dialogs.changeParticipationMode = true;
+      this.setState({ dialogs });
+    }
+
     if(!this.props.user && !this.props.anonymousUser) {
       return this.setState({ anonymousSelection: periods })
     }
@@ -377,6 +397,12 @@ class Event extends React.Component {
         </div>
       );
     } else {
+      let periods;
+      if(this.state.participationMode) {
+        periods = [].concat.apply([], Object.values(this.state.periodsPerDay));
+      } else {
+        periods = [];
+      }
       return (
         <div>
           <div style={{margin: "8px auto", width: "100%"}}>
@@ -408,7 +434,7 @@ class Event extends React.Component {
 
           <EventCalendar
             days={this.state.days.slice(this.state.startIndex, this.state.startIndex + 7)}
-            periods={[].concat.apply([], Object.values(this.state.periodsPerDay))}
+            periods={periods}
             onPeriodsUpdated={this.onPeriodsUpdated.bind(this)}
             onSelectPeriod={this.onSelectPeriod.bind(this)}
           />
@@ -450,6 +476,15 @@ class Event extends React.Component {
               </IconButton>
             </Tooltip>
           </div>
+
+          <Button
+            variant="contained"
+            color={this.state.participationMode ? "secondary" : "primary"}
+            style={{display: "block", margin: "10px auto 0 auto"}}
+            onClick={() => this.setState({participationMode: !this.state.participationMode})}
+          >
+            <Translate value={this.state.participationMode ? "event.viewParticipations" : "event.participate"} />
+          </Button>
 
           { this.renderEventCalendar() }
         </div>

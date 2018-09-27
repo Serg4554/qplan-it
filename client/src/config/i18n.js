@@ -117,7 +117,12 @@ export default {
       selectionError: "Could not save",
       selectionErrorMessage: "We tried to save your selection, but something failed and we couldn't... Try again and if the problem persists, don't hesitate to contact us",
       participationDateExpired: "This event is over",
-      participationDateExpiredMessage: "The participation deadline has been exceeded, so no more entries are allowed"
+      participationDateExpiredMessage: "The participation deadline has been exceeded, so no more entries are allowed",
+      changeParticipationMode: "¿Do you  want to participate?",
+      changeParticipationModeMessage: "Click on the \"Participate\" button to see your entries",
+      passwordRequired: "Enter the password to participate",
+      participate: "Participate",
+      viewParticipations: "View participations"
     }
   },
 
@@ -245,7 +250,11 @@ export default {
       selectionErrorMessage: "Hemos intentado guardar tu selección, pero algo ha fallado y no hemos podido... Inténtalo de nuevo y si el problema persiste, no dudes en contactar con nosotros",
       participationDateExpired: "Este evento ha terminado",
       participationDateExpiredMessage: "Se ha sobrepasado la fecha límite de participación, por lo que no se admiten más participaciones",
-      passwordRequired: "Introduzca la contraseña para participar"
+      changeParticipationMode: "¿Quieres participar?",
+      changeParticipationModeMessage: "Haz click en el botón \"Participar\" para ver tus participaciones",
+      passwordRequired: "Introduzca la contraseña para participar",
+      participate: "Participar",
+      viewParticipations: "Ver participaciones"
     }
   },
 };
