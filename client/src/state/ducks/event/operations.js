@@ -63,7 +63,7 @@ const claim = (id, claimToken) => dispatch => {
     });
 };
 
-const setSelections = (eventId, selections, participation, user) => async dispatch => {
+const setSelections = (eventId, selections, participation, user, password) => async dispatch => {
   dispatch(actions.setSelectionReq());
 
   if(!user || (!user.id && !user.name)) {
@@ -71,7 +71,7 @@ const setSelections = (eventId, selections, participation, user) => async dispat
   }
 
   if(!participation) {
-    await apiService.Event.addParticipation(eventId, user.name, user.surname, selections)
+    await apiService.Event.addParticipation(eventId, user.name, user.surname, selections, password)
       .then(response => {
         if(response.error) {
           dispatch(actions.setSelectionFail(response.error))

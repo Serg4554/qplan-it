@@ -18,7 +18,8 @@ export default {
       selectAll: "Select all",
       copy: "Copy",
       cancel: "Cancel",
-      save: "Save"
+      save: "Save",
+      send: "Send"
     },
     auth: {
       login: "Log in",
@@ -115,6 +116,8 @@ export default {
       change: "Change",
       selectionError: "Could not save",
       selectionErrorMessage: "We tried to save your selection, but something failed and we couldn't... Try again and if the problem persists, don't hesitate to contact us",
+      participationDateExpired: "This event is over",
+      participationDateExpiredMessage: "The participation deadline has been exceeded, so no more entries are allowed"
     }
   },
 
@@ -139,7 +142,8 @@ export default {
       selectAll: "Seleccionar todo",
       copy: "Copiar",
       cancel: "Cancelar",
-      save: "Guardar"
+      save: "Guardar",
+      send: "Enviar"
     },
     auth: {
       login: "Iniciar sesión",
@@ -239,6 +243,9 @@ export default {
       change: "Cambiar",
       selectionError: "No se ha podido guardar",
       selectionErrorMessage: "Hemos intentado guardar tu selección, pero algo ha fallado y no hemos podido... Inténtalo de nuevo y si el problema persiste, no dudes en contactar con nosotros",
+      participationDateExpired: "Este evento ha terminado",
+      participationDateExpiredMessage: "Se ha sobrepasado la fecha límite de participación, por lo que no se admiten más participaciones",
+      passwordRequired: "Introduzca la contraseña para participar"
     }
   },
 };

@@ -78,6 +78,9 @@ class Event extends React.Component {
       periodsPerDay: {},
       anonymousSelection: null,
       anonymousUser: {},
+      selection: null,
+      eventPasswordDialog: false,
+      eventPassword: "",
       dialogs: {
         notFound: false,
         selectionError: false,
@@ -161,6 +164,16 @@ class Event extends React.Component {
           this.dialog.onConfirm = undefined;
           break;
 
+        case "participationDateExpired":
+          this.dialog.title = I18n.t("event.participationDateExpired");
+          this.dialog.message = I18n.t("event.participationDateExpiredMessage");
+          this.dialog.onClose = () => {
+            dialogs.participationDateExpired = false;
+            this.setState({ dialogs });
+            this.props.clearSelectionError();
+          };
+          this.dialog.onConfirm = undefined;
+          break;
         default:
           break;
       }
@@ -280,7 +293,7 @@ class Event extends React.Component {
     if(!this.props.user) {
       let sessionPart = (this.props.sessionParticipations || []).find(p => p.eventId === this.props.id);
       if(sessionPart) {
-        participation.participationToken = sessionPart.participationToken;
+        participation.participationToken = sessionPart.participationToken || "";
       }
     }
     const user = this.props.user ? this.props.user : this.props.anonymousUser;
@@ -289,12 +302,24 @@ class Event extends React.Component {
       !moment(s.period.start).startOf('day').isSame(moment(periods[0].start).startOf('day'))
     );
     selections = selections.concat(periods.map(period => ({period})));
-    this.props.setSelections(this.props.id, selections, participation, user)
+    this.props.setSelections(this.props.id, selections, participation, user, this.state.eventPassword)
       .then(() => {
         if(this.props.selectionError) {
-          let dialogs = this.state.dialogs;
-          dialogs.selectionError = true;
-          this.setState({ dialogs, periodsPerDay: periodsPerDayBackup });
+          if(this.props.selectionError.code === "INVALID_EVENT_PASSWORD") {
+            this.setState({
+              eventPasswordDialog: true,
+              selection: periods,
+              periodsPerDay: periodsPerDayBackup
+            });
+          } else {
+            let dialogs = this.state.dialogs;
+            if(this.props.selectionError.code === "EVENT_PARTICIPATION_EXPIRED") {
+              dialogs.participationDateExpired = true;
+            } else {
+              dialogs.selectionError = true;
+            }
+            this.setState({ dialogs, periodsPerDay: periodsPerDayBackup });
+          }
         }
       });
   }
@@ -489,9 +514,7 @@ class Event extends React.Component {
         </Dialog>
 
 
-        <Dialog
-          open={this.state.anonymousSelection !== null}
-        >
+        <Dialog open={this.state.anonymousSelection !== null}>
           <DialogTitle><Translate value="event.anonymousWhoYouAre"/></DialogTitle>
           <DialogContent>
             <Button
@@ -545,6 +568,58 @@ class Event extends React.Component {
               <Translate value="common.save" />
             </Button>
           </DialogActions>
+        </Dialog>
+
+
+        <Dialog open={this.state.eventPasswordDialog}>
+          <DialogTitle><Translate value="event.passwordRequired"/></DialogTitle>
+          <form onSubmit={e => { e.preventDefault(); }} noValidate>
+            <DialogContent>
+              <TextField
+                autoFocus
+                inputRef={obj => this.eventPasswordInput = obj}
+                placeholder={I18n.t("auth.password")}
+                margin="normal"
+                fullWidth={true}
+                value={this.state.eventPassword || ""}
+                onChange={event =>
+                  this.setState({eventPassword: event.target.value})
+                }
+                type="password"
+                style={{display: "inline-block"}}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button
+                onClick={() => {
+                  this.setState({ eventPasswordDialog: false, selection: null });
+                  this.props.clearSelectionError();
+                }}
+                color="secondary"
+              >
+                <Translate value="common.cancel"/>
+              </Button>
+              <Button
+                type="submit"
+                onClick={() => {
+                  if(!this.state.eventPassword) {
+                    this.eventPasswordInput.select();
+                  } else {
+                    this.props.clearSelectionError();
+                    this.onPeriodsUpdated(this.state.selection);
+                    this.setState({
+                      eventPasswordDialog: false,
+                      selection: null
+                    });
+                  }
+                }}
+                color="primary"
+                autoFocus
+              >
+                <Translate value="common.send" />
+              </Button>
+            </DialogActions>
+          </form>
         </Dialog>
 
 
