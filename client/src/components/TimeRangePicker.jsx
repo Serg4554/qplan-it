@@ -326,8 +326,9 @@ class TimeRangePicker extends React.Component {
               }}
               style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
               minutesStep={5}
-              cancelOnClose={false}
-              inputClasses={{input: "text-align-center"}}
+              selectOnClose={true}
+              classes={{input: "text-align-center"}}
+              updateImmediately={true}
               disabled={this.props.day.complete}
             />
           </div>
@@ -364,8 +365,10 @@ class TimeRangePicker extends React.Component {
               }}
               style={{width: "100%", maxWidth: "80px", marginLeft: "5px"}}
               minutesStep={5}
-              cancelOnClose={false}
+              selectOnClose={true}
               inputClasses={{input: "text-align-center"}}
+              classes={{input: "text-align-center"}}
+              updateImmediately={true}
               disabled={this.props.day.complete}
             />
           </div>
