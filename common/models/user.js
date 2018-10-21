@@ -95,31 +95,39 @@ module.exports = function(model) {
 
   function sendVerificationEmail(user) {
     if(user) {
-      const url = "http://localhost:3001/api/users/confirm?uid=" + user.id + "&token=" + user.verificationToken +
-        "&redirect=" + encodeURIComponent("http://localhost:3000/account_verified");
+      return model.getApp((err, app) => {
+        if(app) {
+          const url = app.get('url') + "api/users/confirm?uid=" + user.id + "&token=" + user.verificationToken +
+            "&redirect=" + encodeURIComponent(app.get('url') + "account_verified");
 
-      return model.app.models.Email.send({
-        from: "QPlan it! <no-reply@qplan.it>",
-        to: user.email,
-        subject: "Activa tu cuenta de QPlan it!",
-        text: "",
-        html: 'Hola ' + user.name + ', haz click <a href="' + url + '">aqu&iacute;</a> para activar tu cuenta de QPlan it!'
+          return model.app.models.Email.send({
+            from: "QPlan it! <no-reply@qplan.it>",
+            to: user.email,
+            subject: "Activa tu cuenta de QPlan it!",
+            text: "",
+            html: 'Hola ' + user.name + ', haz click <a href="' + url + '">aqu&iacute;</a> para activar tu cuenta de QPlan it!'
+          });
+        }
       });
     }
   }
 
   function sendPasswordRecoveryEmail(user, token) {
     if(user && token) {
-      const url = 'http://localhost:3000/password_recovery?jwt=' + token + '&usr=' + user.id;
+      return model.getApp((err, app) => {
+        if(app) {
+          const url = app.get('url') + 'password_recovery?jwt=' + token + '&usr=' + user.id;
 
-      return model.app.models.Email.send({
-        from: "QPlan it! <no-reply@qplan.it>",
-        to: user.email,
-        subject: "Restablecer contraseña de QPlan it!",
-        text: "",
-        html: 'Se ha solicitado cambiar la contraseña de tu cuenta QPlan it, puedes introducir una nueva haciendo click ' +
-          '<a href="' + url + '">aqu&iacute;</a>. Si no ha solicitado cambiar la contraseña, por favor, ignore este correo.' +
-          '<br/>El enlace expirará en 15 minutos.'
+          return model.app.models.Email.send({
+            from: "QPlan it! <no-reply@qplan.it>",
+            to: user.email,
+            subject: "Restablecer contraseña de QPlan it!",
+            text: "",
+            html: 'Se ha solicitado cambiar la contraseña de tu cuenta QPlan it, puedes introducir una nueva haciendo click ' +
+              '<a href="' + url + '">aqu&iacute;</a>. Si no ha solicitado cambiar la contraseña, por favor, ignore este correo.' +
+              '<br/>El enlace expirará en 15 minutos.'
+          });
+        }
       });
     }
   }
