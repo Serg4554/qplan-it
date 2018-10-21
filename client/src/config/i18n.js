@@ -124,7 +124,7 @@ export default {
       participate: "Participate",
       viewParticipations: "View participations",
       somePeriodsOmitted: "Some times slots has been omitted.",
-      somePeriodsOmittedMessage: "The frontend of the application omitted the representation of some time slots in the calendar due to lack of time to correctly represent the slots overlapping. Even so, you can check all the entries in console."
+      somePeriodsOmittedMessage: "This Developer Preview version of the frontend has omitted the representation of some time slots in the calendar. The overlapping slots is still in development, you can see all the participations in the console."
     }
   },
 
@@ -258,7 +258,7 @@ export default {
       participate: "Participar",
       viewParticipations: "Ver participaciones",
       somePeriodsOmitted: "Se ha omitido algunos tamos horarios.",
-      somePeriodsOmittedMessage: "El frontend de la aplicación ha omitido la representación de algunos tramos horarios en el calendario debido a la necesidad de disponer de más tiempo para representar correctamente el solapamiento de los tramos. Aun así, puede ver todas las participaciones en la consola."
+      somePeriodsOmittedMessage: "Esta versión Developer Preview del frontend ha omitido la representación de algunos tramos horarios en el calendario. El solapamiento de los tramos aún está en desarollo, puede ver todas las participaciones en la consola."
     }
   },
 };
