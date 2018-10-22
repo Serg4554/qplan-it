@@ -5,7 +5,6 @@ import { connectRouter, routerMiddleware } from 'connected-react-router'
 import createHistory from 'history/createBrowserHistory'
 import { loadTranslations, setLocale, syncTranslationWithStore } from 'react-redux-i18n';
 import i18n from '../config/i18n';
-import detectBrowserLanguage from 'detect-browser-language'
 
 export const history = createHistory();
 
@@ -41,7 +40,7 @@ const store = createStore(
 syncTranslationWithStore(store);
 store.dispatch(loadTranslations(i18n));
 
-let lang = detectBrowserLanguage() || "en";
+let lang = (navigator.languages && navigator.languages[0]) || navigator.language || "en";
 if(lang.length > 2) {
   lang = lang.split('-')[0].split('_')[0];
 }

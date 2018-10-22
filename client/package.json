@@ -8,7 +8,6 @@
     "@material-ui/lab": "^1.0.0-alpha.10",
     "connected-react-router": "^4.3.0",
     "copy-to-clipboard": "^3.0.8",
-    "detect-browser-language": "0.0.1",
     "history": "^4.7.2",
     "material-ui-time-picker": "^1.0.0",
     "moment": "^2.22.2",

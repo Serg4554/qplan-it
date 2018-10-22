@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 
 import DateRange from 'react-date-range/dist/components/DateRange';
-import detectBrowserLanguage from 'detect-browser-language'
 import * as locale from 'react-date-range/dist/locale';
 
 const Calendar = (props) => {
@@ -27,7 +26,7 @@ const Calendar = (props) => {
   }
   
   function getLocale() {
-    const rawLang = detectBrowserLanguage();
+    const rawLang = (navigator.languages && navigator.languages[0]) || navigator.language;
     const langComponents = rawLang.split('-');
     let lang = "";
 
