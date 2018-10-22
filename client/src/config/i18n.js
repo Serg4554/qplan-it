@@ -22,7 +22,7 @@ export default {
       send: "Send"
     },
     home: {
-      description: "The greatest ease, flexibility and scalability to plan your events 😀👍",
+      description: "The greatest easy to use, flexible and scalable solution to plan your events 😀👍",
       selectDays: "Select days",
       selectDaysDescription: "You can choose past or future dates, a day or a thousand days, you can choose what you want",
       selectHours: "Select hours",
