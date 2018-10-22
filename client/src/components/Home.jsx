@@ -92,8 +92,8 @@ class Home extends React.Component {
               image="/calendar.png"
               style={{width: "200px", padding: "50px"}}
             />
-            <CardContent>
-              <Typography gutterBottom component="h2">
+            <CardContent style={{paddingTop: "0"}}>
+              <Typography gutterBottom component="h2" style={{fontSize: "25px"}}>
                 <Translate value="home.selectDays" />
               </Typography>
               <Typography component="p" style={{textAlign: "justify"}}>
@@ -108,8 +108,8 @@ class Home extends React.Component {
               image="/clock.png"
               style={{width: "200px", padding: "50px"}}
             />
-            <CardContent>
-              <Typography gutterBottom component="h2">
+            <CardContent style={{paddingTop: "0"}}>
+              <Typography gutterBottom component="h2" style={{fontSize: "25px"}}>
                 <Translate value="home.selectHours" />
               </Typography>
               <Typography component="p" style={{textAlign: "justify"}}>
@@ -124,8 +124,8 @@ class Home extends React.Component {
               image="/tick.png"
               style={{width: "200px", padding: "50px"}}
             />
-            <CardContent>
-              <Typography gutterBottom component="h2">
+            <CardContent style={{paddingTop: "0"}}>
+              <Typography gutterBottom component="h2" style={{fontSize: "25px"}}>
                 <Translate value="home.thatIsAll" />
               </Typography>
               <Typography component="p" style={{textAlign: "justify"}}>
