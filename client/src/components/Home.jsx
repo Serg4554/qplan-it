@@ -93,7 +93,7 @@ class Home extends React.Component {
               style={{width: "200px", padding: "50px"}}
             />
             <CardContent>
-              <Typography gutterBottom variant="h5" component="h2">
+              <Typography gutterBottom component="h2">
                 <Translate value="home.selectDays" />
               </Typography>
               <Typography component="p" style={{textAlign: "justify"}}>
@@ -109,7 +109,7 @@ class Home extends React.Component {
               style={{width: "200px", padding: "50px"}}
             />
             <CardContent>
-              <Typography gutterBottom variant="h5" component="h2">
+              <Typography gutterBottom component="h2">
                 <Translate value="home.selectHours" />
               </Typography>
               <Typography component="p" style={{textAlign: "justify"}}>
@@ -125,7 +125,7 @@ class Home extends React.Component {
               style={{width: "200px", padding: "50px"}}
             />
             <CardContent>
-              <Typography gutterBottom variant="h5" component="h2">
+              <Typography gutterBottom component="h2">
                 <Translate value="home.thatIsAll" />
               </Typography>
               <Typography component="p" style={{textAlign: "justify"}}>
@@ -137,7 +137,18 @@ class Home extends React.Component {
           <p style={{fontFamily: "monospace"}}>
             <span><Translate value="home.developedBy" /></span>
             <br/>
-            <span style={{color: "#2E7D32"}}>/* <Translate value="home.checkOutTheCode" /> <a style={{color: "#1565C0"}} href="https://github.com/Serg4554/qplan-it" target="_blank">GitHub</a> */</span>
+            <span style={{color: "#2E7D32"}}>
+              {"/*"} <Translate value="home.checkOutTheCode" />&nbsp;
+              <a
+                style={{color: "#1565C0"}}
+                href="https://github.com/Serg4554/qplan-it"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                GitHub
+              </a>
+              &nbsp;{"*/"}
+            </span>
           </p>
         </div>
       </div>
