@@ -23,6 +23,8 @@ export default {
     },
     home: {
       description: "The greatest easy to use, flexible and scalable solution to plan your events 😀👍",
+      compatibleWith: "Compatible only with",
+      forNow: "for now",
       selectDays: "Select days",
       selectDaysDescription: "You can choose past or future dates, a day or a thousand days, you can choose what you want",
       selectHours: "Select hours",
@@ -165,6 +167,8 @@ export default {
     },
     home: {
       description: "La mayor facilidad, flexibilidad y escalabilidad para planificar tus eventos 😀👍",
+      compatibleWith: "Compatible sólo con",
+      forNow: "por ahora",
       selectDays: "Selecciona los días",
       selectDaysDescription: "Puedes elegir fechas pasadas o futuras, un día o mil días, puedes elegir lo que quieras",
       selectHours: "Selecciona las horas",

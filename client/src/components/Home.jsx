@@ -86,6 +86,10 @@ class Home extends React.Component {
           <h3 style={{fontFamily: "Audiowide", fontSize: "40px", color: "#444", marginBottom: 0}}>Developer preview</h3>
           <p><Translate value="home.description" /></p>
 
+          <p><Translate value="home.compatibleWith" />&nbsp;
+            <img src="/chrome.png" style={{display: "inline", verticalAlign: "text-bottom"}} alt="chrome"/>
+            <span style={{fontStyle: "italic", fontWeight: "bold"}}>Chrome</span>&nbsp;<Translate value="home.forNow" /></p>
+
           <Card style={{display: "inline-block", maxWidth: "300px", margin: "10px", background: "#FAFAFA"}}>
             <CardMedia
               component="img"
