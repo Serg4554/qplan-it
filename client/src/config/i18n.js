@@ -21,6 +21,17 @@ export default {
       save: "Save",
       send: "Send"
     },
+    home: {
+      description: "The greatest ease, flexibility and scalability to plan your events 😀👍",
+      selectDays: "Select days",
+      selectDaysDescription: "You can choose past or future dates, a day or a thousand days, you can choose what you want",
+      selectHours: "Select hours",
+      selectHoursDescription: "Maximum flexibility, you can select any time setting that you would need, no matter how busy you are",
+      thatIsAll: "That's all!",
+      thatIsAllDescription: "Now your participants can select their availability within the options you have chosen",
+      developedBy: "Developed by Serg with ❤️",
+      checkOutTheCode: "You can check out the source code in",
+    },
     auth: {
       login: "Log in",
       signUp: "Sign up",
@@ -151,6 +162,17 @@ export default {
       cancel: "Cancelar",
       save: "Guardar",
       send: "Enviar"
+    },
+    home: {
+      description: "La mayor facilidad, flexibilidad y escalabilidad para planificar tus eventos 😀👍",
+      selectDays: "Selecciona los días",
+      selectDaysDescription: "Puedes elegir fechas pasadas o futuras, un día o mil días, puedes elegir lo que quieras",
+      selectHours: "Selecciona las horas",
+      selectHoursDescription: "Máxima flexibilidad, puedes seleccionar cualquier configuración horaria que se te ocurra",
+      thatIsAll: "¡Eso es todo!",
+      thatIsAllDescription: "Ahora tus participantes podrán seleccionar su disponibilidad dentro de las opciones que hayas elegido",
+      developedBy: "Desarrollado por Serg con ❤️",
+      checkOutTheCode: "Puedes ver el código fuente en",
     },
     auth: {
       login: "Iniciar sesión",
