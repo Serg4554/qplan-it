@@ -10,13 +10,16 @@ The differentiating feature is the flexibility, allowing you to choose any time 
 
 ## Event demostration
 Here you can see the flexibility that the participants have to select their availability, and how the calendar would look after 3 participations.
+
 ![Demostration](doc/demostration.gif)
 
 ## Class diagram for the backend
+
 ![Class diagram](doc/class_diagram.png)
 
 ## ERD diagram for the database
 This project is using MongoDB as database, so there is no SQL relations, but it represents how each of the database entities (blue) and data types (white) are related.
+
 ![Class diagram](doc/erd_diagram.png)
 
 ## TODO
