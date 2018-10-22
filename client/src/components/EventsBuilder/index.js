@@ -73,8 +73,8 @@ const EventsBuilder = (props) => {
     events.forEach(event => {
       const currEvent = availableEvents.find(e => moment(e.start).isSame(moment(event.start)));
       periods.push({
-        start: getNeutralMoment(event.start).add(offset, 'm').toDate(),
-        duration: Math.ceil(getNeutralMoment(event.end).diff(getNeutralMoment(event.start)) / 60000 / 5) * 5,
+        start: moment(event.start).add(offset, 'm').toDate(),
+        duration: Math.ceil(moment(event.end).diff(moment(event.start)) / 60000 / 5) * 5,
         className: currEvent ? currEvent.className : undefined,
         message:  currEvent ? currEvent.message : undefined
       });

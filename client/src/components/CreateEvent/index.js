@@ -298,7 +298,6 @@ class CreateEvent extends React.Component {
           />
         );
       case 1:
-        console.log();
         const selectedDay = this.getSelectedDays([new Date(Math.min.apply(null, this.props.selectedDates))])[0];
         return (
           <SelectHours
@@ -320,7 +319,10 @@ class CreateEvent extends React.Component {
                   start: moment(date).hours(period.start.getHours()).minutes(period.start.getMinutes()).toDate(),
                   duration: period.duration
                 },
-                blockedPeriods: blockedPeriods
+                blockedPeriods: blockedPeriods.map(bp => ({
+                  start: moment(bp.start).add(moment(date).startOf('day').diff(moment(period.start).startOf('day')) / 60000, 'm').toDate(),
+                  duration: bp.duration
+                }))
               })));
             }}
             onTomorrowUpdated={day => {
